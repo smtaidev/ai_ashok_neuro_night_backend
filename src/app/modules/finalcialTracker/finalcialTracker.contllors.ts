@@ -14,6 +14,7 @@ const result=await finalcialTrackerServices.createfinalcialTracker(req.body)
 
 const getfinalcialTrackerIntDb=catchAsync(async(req,res)=>{
     const {id}=req.params
+ 
 const result=await finalcialTrackerServices.getAllfinalcialTracker(id)
  sendResponse(res, {
     statusCode: 200,
@@ -24,6 +25,7 @@ const result=await finalcialTrackerServices.getAllfinalcialTracker(id)
 })
 const updatedfinalcialTrackerIntDb=catchAsync(async(req,res)=>{
     const {id}=req.params
+    console.log("id",id)
 const result=await finalcialTrackerServices.updatefinalcialTracker(id,req.body)
  sendResponse(res, {
     statusCode: 200,

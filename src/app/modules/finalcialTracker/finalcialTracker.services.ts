@@ -34,7 +34,7 @@ const updatefinalcialTracker = async (
   }
 
   const result = await FinancialTracker.findOneAndUpdate(
-    { _id: payload },
+    { _id: payloadId },
     { $set: payload },
     { new: true }
   );

@@ -3,6 +3,7 @@ import { UserRoutes } from "../modules/user/user.route";
 import { AuthRoutes } from "../modules/auth/auth.route";
 import { FoundationRoutes } from "../modules/foundation/foundation.route";
 import { finalcialTrackerRouter } from "../modules/finalcialTracker/finalcialTracker.router";
+import { assessRouter } from "../modules/assess/assess.route";
 
 
 
@@ -25,7 +26,11 @@ const moduleRoutes = [
   {
     path: "/finalcialTracker",
     route:finalcialTrackerRouter
-  }
+  },
+  {
+    path: "/assess",
+    route:assessRouter
+  },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
