@@ -1,0 +1,48 @@
+import status from "http-status";
+import bcrypt from "bcrypt";
+import AppError from "../../errors/AppError";
+import { IAuth, IJwtPayload } from "../../types/userAuthTypes";
+import { createToken } from "../../utils/auth.utils";
+import config from "../../../config";
+import { JwtPayload } from "jsonwebtoken";
+import UserModel from "../user/user.model";
+
+const loginUserIntoDB = async (payload: IAuth) => {
+  const { email, password } = payload;
+
+  const user = await UserModel.findOne({ email, isDeleted: false });
+  if (!user) {
+    throw new AppError(
+      status.NOT_FOUND,
+      "User with this email does not exist!"
+    );
+  }
+
+
+  const isPasswordMatched = await bcrypt.compare(password, user.password);
+  if (!isPasswordMatched) {
+    throw new AppError(status.UNAUTHORIZED, "Incorrect password!");
+  }
+
+  const jwtPayload: IJwtPayload = {
+    email: user.email as string,
+    userName: user.userName,
+    role: user.role,
+    companyName: user?.companyName,
+    companyRole: user.companyRole
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expires_in as string
+  );
+
+  return {
+    accessToken,
+  };
+};
+
+export const AuthServices = {
+  loginUserIntoDB,
+};
