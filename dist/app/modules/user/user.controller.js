@@ -10,6 +10,7 @@ const user_service_1 = require("./user.service");
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
 const createUser = (0, catchAsync_1.default)(async (req, res) => {
+    console.log(req.body);
     const loggedInUser = req?.user;
     // company admin creation 
     if (loggedInUser?.role !== "superAdmin" && req?.body?.role == "companyAdmin") {

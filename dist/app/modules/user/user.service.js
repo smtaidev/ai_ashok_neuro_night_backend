@@ -7,8 +7,17 @@ exports.UserServices = void 0;
 const user_model_1 = __importDefault(require("./user.model"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const mongoose_1 = require("mongoose");
+const AppError_1 = __importDefault(require("../../errors/AppError"));
+const http_status_1 = __importDefault(require("http-status"));
 const createUser = async (userData) => {
     const companyRole = (userData.role == 'companyAdmin') ? "admin" : null;
+    const isEexistUser = await user_model_1.default.findOne({ $or: [
+            { email: userData.email },
+            { companyName: { $regex: new RegExp(`^${userData.companyName}$`, 'i') } }
+        ] });
+    if (isEexistUser) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "User already exists");
+    }
     const user = await user_model_1.default.create({ ...userData, companyRole });
     return user;
 };

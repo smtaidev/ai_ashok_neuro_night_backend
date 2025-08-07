@@ -1,4 +1,12 @@
-.vercel
+# Build outputs
+dist/
+build/
+
+# Node
+node_modules/
+
+# Environment
 .env
-node_modules
-.dist
+
+# Vercel Deployment
+.vercel/
