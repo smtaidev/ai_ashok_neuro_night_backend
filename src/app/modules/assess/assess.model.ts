@@ -1,9 +1,7 @@
-
 import { Schema, model } from "mongoose";
 
-// Trend Schema
-const trendSchema = new Schema({
-  trendName: { type: String, required: true },
+// Trend Item Schema (question, answer, impactLevel)
+const trendItemSchema = new Schema({
   question: { type: String, required: true },
   answer: { type: String, required: true },
   impactLevel: {
@@ -11,6 +9,11 @@ const trendSchema = new Schema({
     enum: ["Low", "Medium", "High"],
     default: "Medium",
   },
+});
+
+// Trend Schema (trendName is array of trendItemSchema)
+const trendSchema = new Schema({
+  trendName: { type: [trendItemSchema], required: true, default: [] },
 });
 
 // SWOT Schema
@@ -32,39 +35,59 @@ const challengeSchema = new Schema({
 
 // Competitor Analysis Schema
 const competitorAnalysisSchema = new Schema({
-  name: { type: String, required: true },
-  companyUrl: { type: String, required: true },
-  stockSymbol: { type: String, required: true },
-  twitterLink: { type: String, required: true },
-  linkedinLink: { type: String, required: true },
-  instagramLink: { type: String, required: true },
-  glassdoorLink: { type: String, required: true },
+  name: { type: String, default: "" },
+  companyUrl: { type: String, default: "" },
+  stockSymbol: { type: String, default: "" },
+  twitterLink: { type: String, default: "" },
+  linkedinLink: { type: String, default: "" },
+  instagramLink: { type: String, default: "" },
+  glassdoorLink: { type: String, default: "" },
 });
 
 // Clarhet Recommendation Schema
 const clarhetRecommendationSchema = new Schema({
-  onChallenges: { type: String, required: true },
-  onTrends: { type: String, required: true },
-  onSwot: { type: String, required: true },
-  onCA: { type: String, required: true },
+  onChallenges: { type: String, default: "" },
+  onTrends: { type: String, default: "" },
+  onSwot: { type: String, default: "" },
+  onCA: { type: String, default: "" },
 });
 
 // Main Assess Schema
 const assessSchema = new Schema(
   {
-    companyName: { type: String, required: true }, // You can change it to ObjectId if needed
+    companyName: { type: String, required: true },
     trends: { type: [trendSchema], default: [] },
-    swot: { type: swotSchema, required: true },
+    swot: {
+      type: swotSchema,
+      required: true,
+      default: { strengths: [], weaknesses: [], opportunities: [], threats: [] },
+    },
     challenges: { type: [challengeSchema], default: [] },
-    competitorAnalysis: { type: competitorAnalysisSchema, required: true },
-    clarhetRecommendation: { type: clarhetRecommendationSchema, required: true },
-    alignmentCheckId: { type: String, default:null },
+    competitorAnalysis: {
+      type: competitorAnalysisSchema,
+      required: true,
+      default: {
+        name: "",
+        companyUrl: "",
+        stockSymbol: "",
+        twitterLink: "",
+        linkedinLink: "",
+        instagramLink: "",
+        glassdoorLink: "",
+      },
+    },
+    clarhetRecommendation: {
+      type: clarhetRecommendationSchema,
+      required: true,
+      default: { onChallenges: "", onTrends: "", onSwot: "", onCA: "" },
+    },
+    alignmentCheckId: { type: String, default: null },
   },
   {
     timestamps: true,
   }
 );
 
-// Model export
+// Export model
 const AssessModel = model("assess", assessSchema);
 export default AssessModel;

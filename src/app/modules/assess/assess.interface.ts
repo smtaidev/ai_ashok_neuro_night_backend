@@ -1,33 +1,29 @@
-
-export interface TAssess {
-  companyName: string; // Foreign Key (Company ID or Name)
-  trends: Trend[];
-  swot: SWOT;
-  challenges: Challenge[];
-  competitorAnalysis: CompetitorAnalysis;
-  clarhetRecommendation: ClarhetRecommendation;
-  alignmentCheckId: string;
-}
-interface Trend {
-  trendName: string;
+export interface TrendItem {
   question: string;
   answer: string;
-  impactLevel?: "Low" | "Medium" | "High"; // Optional: use enum if needed
+  impactLevel?: "Low" | "Medium" | "High";
 }
-interface SWOT {
+
+export interface Trend {
+  trendName: TrendItem[];
+}
+
+export interface SWOT {
   strengths: string[];
   weaknesses: string[];
   opportunities: string[];
   threats: string[];
 }
-interface Challenge {
+
+export interface Challenge {
   title: string;
   category: string;
   impactOnBusiness: string;
   abilityToAddress: string;
   description: string;
 }
-interface CompetitorAnalysis {
+
+export interface CompetitorAnalysis {
   name: string;
   companyUrl: string;
   stockSymbol: string;
@@ -36,9 +32,20 @@ interface CompetitorAnalysis {
   instagramLink: string;
   glassdoorLink: string;
 }
-interface ClarhetRecommendation {
+
+export interface ClarhetRecommendation {
   onChallenges: string;
   onTrends: string;
   onSwot: string;
   onCA: string; // CA = Competitor Analysis
+}
+
+export interface TAssess {
+  companyName: string; // Foreign Key (Company ID or Name)
+  trends: Trend[]; // Now an array of Trend objects with trendName arrays inside
+  swot: SWOT;
+  challenges: Challenge[];
+  competitorAnalysis: CompetitorAnalysis;
+  clarhetRecommendation: ClarhetRecommendation;
+  alignmentCheckId: string;
 }

@@ -2,7 +2,7 @@ import AppError from "../../errors/AppError";
 
 import status from "http-status";
 import AssessModel from "./assess.model";
-import { TAssess } from "./assess.interface";
+import { TAssess, Trend } from "./assess.interface";
 const createAssess = async (payload: TAssess) => {
   if(payload){
     throw new AppError(status.BAD_REQUEST,"data is massing !")
@@ -58,11 +58,33 @@ const deleteAssess = async (payloadId: string) => {
   return result;
 };
 
+
+
+ //----------------trends services section  -----------------------------------------------------------
+const createtrendIntoDb = async (companyName: string, payload: Trend) => {
+    if(!companyName){
+        throw new AppError(status.BAD_REQUEST,"company name is not found !")
+    }
+  const query = { companyName: { $regex: new RegExp(`^${companyName}$`, 'i') } };
+
+  const result = await AssessModel.findOneAndUpdate(
+    query,
+    { $push: { trends: payload } },
+    { new: true } 
+  );
+  console.log(result)
+
+  return result;
+};
+
+
+
 export const AssessServices = {
   createAssess,
   getAllAssess,
   updateAssess,
   deleteAssess,
-  getSingleAssess
+  getSingleAssess,
+  createtrendIntoDb
 };
 // rrfdssa
