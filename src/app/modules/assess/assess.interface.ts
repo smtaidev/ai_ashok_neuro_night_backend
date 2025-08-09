@@ -10,7 +10,7 @@ export interface TAssess {
 
 type ImpactLevel = "Low" | "Medium" | "High";
 
-interface Trend {
+export interface Trend {
   trendName: string;
   trendDetails: {
     question: string;
