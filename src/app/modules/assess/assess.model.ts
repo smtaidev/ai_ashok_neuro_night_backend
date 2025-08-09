@@ -1,9 +1,7 @@
-
 import { Schema, model } from "mongoose";
 
-// Trend Schema
-const trendSchema = new Schema({
-  trendName: { type: String, required: true },
+// Trend Detail Schema (for questions inside Trend)
+const trendDetailSchema = new Schema({
   question: { type: String, required: true },
   answer: { type: String, required: true },
   impactLevel: {
@@ -11,6 +9,12 @@ const trendSchema = new Schema({
     enum: ["Low", "Medium", "High"],
     default: "Medium",
   },
+});
+
+// Trend Schema
+const trendSchema = new Schema({
+  trendName: { type: String, required: true },
+  trendDetails: { type: [trendDetailSchema], default: [] },
 });
 
 // SWOT Schema
@@ -57,8 +61,11 @@ const assessSchema = new Schema(
     swot: { type: swotSchema, required: true },
     challenges: { type: [challengeSchema], default: [] },
     competitorAnalysis: { type: competitorAnalysisSchema, required: true },
-    clarhetRecommendation: { type: clarhetRecommendationSchema, required: true },
-    alignmentCheckId: { type: String, default:null },
+    clarhetRecommendation: {
+      type: clarhetRecommendationSchema,
+      required: true,
+    },
+    alignmentCheckId: { type: String, default: null },
   },
   {
     timestamps: true,

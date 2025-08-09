@@ -1,4 +1,3 @@
-
 export interface TAssess {
   companyName: string; // Foreign Key (Company ID or Name)
   trends: Trend[];
@@ -8,18 +7,25 @@ export interface TAssess {
   clarhetRecommendation: ClarhetRecommendation;
   alignmentCheckId: string;
 }
+
+type ImpactLevel = "Low" | "Medium" | "High";
+
 interface Trend {
   trendName: string;
-  question: string;
-  answer: string;
-  impactLevel?: "Low" | "Medium" | "High"; // Optional: use enum if needed
+  trendDetails: {
+    question: string;
+    answer: string;
+    impactLevel?: ImpactLevel; // Optional
+  }[];
 }
+
 interface SWOT {
   strengths: string[];
   weaknesses: string[];
   opportunities: string[];
   threats: string[];
 }
+
 interface Challenge {
   title: string;
   category: string;
@@ -27,6 +33,7 @@ interface Challenge {
   abilityToAddress: string;
   description: string;
 }
+
 interface CompetitorAnalysis {
   name: string;
   companyUrl: string;
@@ -36,6 +43,7 @@ interface CompetitorAnalysis {
   instagramLink: string;
   glassdoorLink: string;
 }
+
 interface ClarhetRecommendation {
   onChallenges: string;
   onTrends: string;
