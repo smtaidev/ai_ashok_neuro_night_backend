@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
-// Trend Item Schema (question, answer, impactLevel)
-const trendItemSchema = new Schema({
+// Trend Detail Schema (for questions inside Trend)
+const trendDetailSchema = new Schema({
   question: { type: String, required: true },
   answer: { type: String, required: true },
   impactLevel: {
@@ -11,9 +11,10 @@ const trendItemSchema = new Schema({
   },
 });
 
-// Trend Schema (trendName is array of trendItemSchema)
+// Trend Schema
 const trendSchema = new Schema({
-  trendName: { type: [trendItemSchema], required: true, default: [] },
+  trendName: { type: String, required: true },
+  trendDetails: { type: [trendDetailSchema], default: [] },
 });
 
 // SWOT Schema
@@ -60,26 +61,18 @@ const assessSchema = new Schema(
     swot: {
       type: swotSchema,
       required: true,
-      default: { strengths: [], weaknesses: [], opportunities: [], threats: [] },
-    },
-    challenges: { type: [challengeSchema], default: [] },
-    competitorAnalysis: {
-      type: competitorAnalysisSchema,
-      required: true,
       default: {
-        name: "",
-        companyUrl: "",
-        stockSymbol: "",
-        twitterLink: "",
-        linkedinLink: "",
-        instagramLink: "",
-        glassdoorLink: "",
+        strengths: [],
+        weaknesses: [],
+        opportunities: [],
+        threats: [],
       },
     },
+    challenges: { type: [challengeSchema], default: [] },
+    competitorAnalysis: { type: competitorAnalysisSchema, required: true },
     clarhetRecommendation: {
       type: clarhetRecommendationSchema,
       required: true,
-      default: { onChallenges: "", onTrends: "", onSwot: "", onCA: "" },
     },
     alignmentCheckId: { type: String, default: null },
   },

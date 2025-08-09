@@ -1,21 +1,32 @@
-export interface TrendItem {
-  question: string;
-  answer: string;
-  impactLevel?: "Low" | "Medium" | "High";
+export interface TAssess {
+  companyName: string; // Foreign Key (Company ID or Name)
+  trends: Trend[];
+  swot: SWOT;
+  challenges: Challenge[];
+  competitorAnalysis: CompetitorAnalysis;
+  clarhetRecommendation: ClarhetRecommendation;
+  alignmentCheckId: string;
 }
 
-export interface Trend {
-  trendName: TrendItem[];
+type ImpactLevel = "Low" | "Medium" | "High";
+
+interface Trend {
+  trendName: string;
+  trendDetails: {
+    question: string;
+    answer: string;
+    impactLevel?: ImpactLevel; // Optional
+  }[];
 }
 
-export interface SWOT {
+interface SWOT {
   strengths: string[];
   weaknesses: string[];
   opportunities: string[];
   threats: string[];
 }
 
-export interface Challenge {
+interface Challenge {
   title: string;
   category: string;
   impactOnBusiness: string;
@@ -23,7 +34,7 @@ export interface Challenge {
   description: string;
 }
 
-export interface CompetitorAnalysis {
+interface CompetitorAnalysis {
   name: string;
   companyUrl: string;
   stockSymbol: string;
@@ -33,7 +44,7 @@ export interface CompetitorAnalysis {
   glassdoorLink: string;
 }
 
-export interface ClarhetRecommendation {
+interface ClarhetRecommendation {
   onChallenges: string;
   onTrends: string;
   onSwot: string;
