@@ -22,5 +22,4 @@ router.delete("/:id", UserControllers.deleteUser);
 
 router.patch("/:id/password", UserControllers.changePassword);
 
-
 export const UserRoutes = router;

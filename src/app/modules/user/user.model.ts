@@ -14,7 +14,7 @@ const userSchema = new Schema<IUser>(
       foundationId: {type: Schema.Types.ObjectId, default: null},
     role: {
       type: String,
-      enum: ["companyAdmin","superAdmin","companyEmployee"],
+      enum: ["companyAdmin","superAdmin","companyEmployee"],default:"companyEmployee",
       required: true,
     },
     isDeleted: { type: Boolean, default: false },

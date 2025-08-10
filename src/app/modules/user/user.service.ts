@@ -2,24 +2,56 @@ import { fi } from "zod/v4/locales/index.cjs";
 import { IUser } from "./user.interface";
 import UserModel from "./user.model";
 import bcrypt from "bcrypt";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import AppError from "../../errors/AppError";
 import status from "http-status";
+import AssessModel from "../assess/assess.model";
+import { BlueprintModel } from "../blueprint/blueprint.model";
 const createUser = async (userData: IUser): Promise<IUser> => {
+  const companyRole = (userData.role == 'companyAdmin') ? "admin" : null;
 
-  const companyRole = (userData.role == 'companyAdmin') ? "admin" : null
+  const isEexistUser = await UserModel.findOne({
+    $or: [
+      { email: userData.email },
+      { companyName: { $regex: new RegExp(`^${userData.companyName}$`, 'i') } }
+    ]
+  });
 
-  const isEexistUser=await UserModel.findOne({  $or: [
-    { email: userData.email },
-    { companyName: { $regex: new RegExp(`^${userData.companyName}$`, 'i') } }
-  ]})
-
-  if(isEexistUser){
-    throw new AppError(status.BAD_REQUEST,"User already exists")
+  if (isEexistUser) {
+    throw new AppError(status.BAD_REQUEST, "User already exists");
   }
-  const user = await UserModel.create({...userData, companyRole});
-  return user;
+
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const user = (await UserModel.create(
+      [{ ...userData, companyRole }],
+      { session }
+    ))[0];
+
+    await AssessModel.create(
+      [{ companyName: user?.companyName }],
+      { session }
+    );
+
+    await BlueprintModel.create(
+      [{ companyName: user?.companyName }],
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return user;
+  } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
+    throw new Error(error);
+  }
 };
+
 
 const getAllUsers = async (): Promise<IUser[]> => {
   const users = await UserModel.find({ isDeleted: false });
