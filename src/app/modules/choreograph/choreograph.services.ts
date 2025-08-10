@@ -1,7 +1,7 @@
 import status from "http-status";
 import AppError from "../../errors/AppError";
 import choreographModel from "./choreograph.model";
-import { Objective, Team } from "./choreograph.interface";
+import { Member, Objective, Team } from "./choreograph.interface";
 
 
 const createTeamsIntoDb = async (companyName: string, payload: Team) => {
@@ -63,7 +63,7 @@ const getTeamByCompanyAndId = async (companyName: string, teamId: string) => {
 
 
 
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 const updateTeamInDb = async (companyName: string, id: string, payload: Partial<Team>) => {
   if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
@@ -188,7 +188,123 @@ export const deleteObjective = async (companyName: string, objectiveId: string) 
   return result;
 };
 
+// --------------member service ----------------------------------------
 
+export const createMember = async (
+  companyName: string,
+  teamId: string,
+  memberPayload: Partial<Member>
+) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is required");
+  if (!teamId) throw new AppError(status.BAD_REQUEST, "Team ID is required");
+
+  const result = await choreographModel.findOneAndUpdate(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") }, "teams._id": teamId },
+    {
+      $push: { "teams.$.members": memberPayload }
+    },
+    { new: true }
+  );
+
+  if (!result) throw new AppError(status.NOT_FOUND, "Team or company not found");
+
+  return result;
+};
+
+
+export const getAllMembers = async (companyName: string, teamId: string) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is required");
+  if (!teamId) throw new AppError(status.BAD_REQUEST, "Team ID is required");
+
+  const doc = await choreographModel.findOne(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") }, "teams._id": teamId },
+    { "teams.$": 1 }
+  );
+
+  if (!doc) throw new AppError(status.NOT_FOUND, "Team or company not found");
+
+  return doc.teams[0].members || [];
+};
+
+export const getMemberById = async (companyName: string, teamId: string, memberId: string) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is required");
+  if (!teamId) throw new AppError(status.BAD_REQUEST, "Team ID is required");
+  if (!memberId) throw new AppError(status.BAD_REQUEST, "Member ID is required");
+
+  const doc = await choreographModel.findOne(
+    {
+      companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+      "teams._id": teamId,
+      "teams.members._id": memberId,
+    },
+    {
+      "teams.$": 1
+    }
+  );
+
+  if (!doc) throw new AppError(status.NOT_FOUND, "Member, team or company not found");
+
+  const team = doc.teams[0];
+  const member = team.members.find(m => m._id.toString() === memberId);
+
+  if (!member) throw new AppError(status.NOT_FOUND, "Member not found");
+
+  return member;
+};
+
+export const updateMemberById = async (
+  companyName: string,
+  teamId: string,
+  memberId: string,
+  payload: Partial<{ name: string; role: string; skills: string[]; allocation: string }>
+) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is required");
+  if (!teamId) throw new AppError(status.BAD_REQUEST, "Team ID is required");
+  if (!memberId) throw new AppError(status.BAD_REQUEST, "Member ID is required");
+
+  const setObj: Record<string, any> = {};
+  for (const key in payload) {
+    setObj[`teams.$[team].members.$[member].${key}`] = payload[key as keyof typeof payload];
+  }
+
+  const result = await choreographModel.findOneAndUpdate(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
+    { $set: setObj },
+    {
+      arrayFilters: [{ "team._id": teamId }, { "member._id": memberId }],
+      new: true,
+    }
+  );
+
+  if (!result) throw new AppError(status.NOT_FOUND, "Member, team or company not found");
+
+  // Return the updated member
+  const team = result.teams.find(t => t._id.toString() === teamId);
+  const member = team?.members.find(m => m._id.toString() === memberId);
+  if (!member) throw new AppError(status.NOT_FOUND, "Member not found");
+
+  return member;
+};
+
+export const deleteMemberById = async (
+  companyName: string,
+  teamId: string,
+  memberId: string
+) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is required");
+  if (!teamId) throw new AppError(status.BAD_REQUEST, "Team ID is required");
+  if (!memberId) throw new AppError(status.BAD_REQUEST, "Member ID is required");
+
+  const result = await choreographModel.findOneAndUpdate(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") }, "teams._id": teamId },
+    { $pull: { "teams.$.members": { _id: memberId } } },
+    { new: true }
+  );
+
+  if (!result) throw new AppError(status.NOT_FOUND, "Member, team or company not found");
+
+  return result;
+};
 
 
 export const  choreographServices={
@@ -201,5 +317,10 @@ addObjective,
 getAllObjectives,
 getObjectiveById,
 updateObjective,
-deleteObjective
+deleteObjective,
+createMember,
+getAllMembers,
+updateMemberById,
+getMemberById,
+deleteMemberById
 }

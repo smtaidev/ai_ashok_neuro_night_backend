@@ -19,4 +19,12 @@ route.get("/objective/get-all",auth("companyAdmin"),choregoraphContllors.getAllO
 route.get("/objective/:id",auth("companyAdmin"),choregoraphContllors.getObjectiveByIdController)
 route.patch("/objective/update-objective/:id",auth("companyAdmin"),choregoraphContllors.updateObjectiveController)
 route.delete("/objective/:id",auth("companyAdmin"),choregoraphContllors.deleteObjectiveController)
+
+// ----------------------------- member route---------------------------------------
+
+route.patch("/:teamId/members",auth("companyAdmin"), choregoraphContllors.addMemberController);
+route.get("/:teamId/members", auth("companyAdmin"),choregoraphContllors.getAllMembersController);
+route.get("/:teamId/members/:memberId",auth("companyAdmin"),choregoraphContllors.getMemberByIdController);
+route.patch("/:teamId/members/:memberId", auth("companyAdmin"),choregoraphContllors.updateMemberController);
+route.delete("/:teamId/members/:memberId", auth("companyAdmin"),choregoraphContllors.deleteMemberController);
 export const choregorapRoute=route
