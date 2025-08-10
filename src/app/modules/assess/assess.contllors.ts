@@ -148,6 +148,18 @@ const result=await AssessServices.createCompetitorAnalysisIntoDb(company.company
     data: result,
   });
 })
+
+ const updatCompetitorAnalysisIntDb=catchAsync(async(req,res)=>{
+    const company=req.user 
+  const {id}=req.params
+const result=await AssessServices.updateCompetitorAnalysisInDb(company.companyName,id,req.body)
+ sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Competitor Analysis successfully updated !",
+    data: result,
+  });
+})
  //----------------ClarhetRecommendation contllors section  -----------------------------------------------------------
  const createClarhetRecommendationIntDb=catchAsync(async(req,res)=>{
     const company=req.user 
@@ -157,6 +169,19 @@ const result=await AssessServices.createClarhetRecommendationIntoDb(company.comp
     statusCode: 200,
     success: true,
     message: "clarhet  successfully updated !",
+    data: result,
+  });
+})
+
+
+ const updateClarhetRecommendationIntDb=catchAsync(async(req,res)=>{
+    const company=req.user 
+  const {id}=req.params
+const result=await AssessServices.updateClarhetRecommendationInDb(company.companyName,id,req.body)
+ sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Clarhet RecommendationAnalysis successfully updated !",
     data: result,
   });
 })
@@ -174,6 +199,8 @@ export const AssessContllors={
     createClarhetRecommendationIntDb,
     updateTrendIntDb,
     updatChallengeIntDb,
-    updateSwotIntDb
+    updateSwotIntDb,
+    updatCompetitorAnalysisIntDb,
+    updateClarhetRecommendationIntDb
     
 }

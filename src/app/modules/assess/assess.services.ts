@@ -195,6 +195,25 @@ const createCompetitorAnalysisIntoDb = async (
 
   return result;
 };
+
+const updateCompetitorAnalysisInDb = async (companyName: string, id: string, payload: Partial<CompetitorAnalysis>) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  if (!id) throw new AppError(status.BAD_REQUEST, "CompetitorAnalysis id is required!");
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    "competitorAnalysis._id": id
+  };
+
+  const setObj: Record<string, any> = {};
+  for (const key in payload) {
+    const typedKey = key as keyof typeof payload;
+    setObj[`competitorAnalysis.$.${typedKey}`] = payload[typedKey];
+  }
+
+  const result = await AssessModel.findOneAndUpdate(query, { $set: setObj }, { new: true });
+  return result;
+};
 //----------------ClarhetRecommendation services section  -------------------------------------------
 const createClarhetRecommendationIntoDb = async (
   companyName: string,
@@ -217,6 +236,24 @@ const createClarhetRecommendationIntoDb = async (
   return result;
 };
 
+const updateClarhetRecommendationInDb = async (companyName: string, id: string, payload: Partial<ClarhetRecommendation>) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  if (!id) throw new AppError(status.BAD_REQUEST, "ClarhetRecommendation id is required!");
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    "clarhetRecommendation._id": id
+  };
+
+  const setObj: Record<string, any> = {};
+  for (const key in payload) {
+    const typedKey = key as keyof typeof payload;
+    setObj[`clarhetRecommendation.$.${typedKey}`] = payload[typedKey];
+  }
+
+  const result = await AssessModel.findOneAndUpdate(query, { $set: setObj }, { new: true });
+  return result;
+};
 export const AssessServices = {
   createAssess,
   getAllAssess,
@@ -230,6 +267,8 @@ createCompetitorAnalysisIntoDb,
 createClarhetRecommendationIntoDb,
 updateTrendInDb,
 updateChallengeInDb,
-updateSwotInDb
+updateSwotInDb,
+updateCompetitorAnalysisInDb,
+updateClarhetRecommendationInDb
 };
 

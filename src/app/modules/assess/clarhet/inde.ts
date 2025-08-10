@@ -9,6 +9,7 @@ const router=express.Router()
 
 //-------------ClarhetRecommendation route arey ---------------------------------------
 router.patch('/',auth('companyAdmin'),AssessContllors.createClarhetRecommendationIntDb)
+router.patch('/:id',auth('companyAdmin'),AssessContllors.updateClarhetRecommendationIntDb)
 
 
 export const assessClarhetRouter=router

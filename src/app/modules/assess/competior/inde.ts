@@ -8,6 +8,7 @@ const router=express.Router()
 
 //-------------competior route arey ---------------------------------------
 router.patch('/',auth('companyAdmin'),AssessContllors.createCompetitorAnalysisIntDb)
+router.patch('/:id',auth('companyAdmin'),AssessContllors.updatCompetitorAnalysisIntDb)
 
 
 export const assessCompetiorRouter=router
