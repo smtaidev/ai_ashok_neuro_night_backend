@@ -6,39 +6,52 @@ import mongoose, { Types } from "mongoose";
 import AppError from "../../errors/AppError";
 import status from "http-status";
 import AssessModel from "../assess/assess.model";
+import { BlueprintModel } from "../blueprint/blueprint.model";
 const createUser = async (userData: IUser): Promise<IUser> => {
+  const companyRole = (userData.role == 'companyAdmin') ? "admin" : null;
 
-  const companyRole = (userData.role == 'companyAdmin') ? "admin" : null
+  const isEexistUser = await UserModel.findOne({
+    $or: [
+      { email: userData.email },
+      { companyName: { $regex: new RegExp(`^${userData.companyName}$`, 'i') } }
+    ]
+  });
 
-  const isEexistUser=await UserModel.findOne({  $or: [
-    { email: userData.email },
-    { companyName: { $regex: new RegExp(`^${userData.companyName}$`, 'i') } }
-  ]})
-
-  if(isEexistUser){
-    throw new AppError(status.BAD_REQUEST,"User already exists")
+  if (isEexistUser) {
+    throw new AppError(status.BAD_REQUEST, "User already exists");
   }
 
- const session = await mongoose.startSession();
+  const session = await mongoose.startSession();
 
- try {
-  //start transaction --------------
-   session.startTransaction();
-   const user = await UserModel.create({...userData, companyRole});
-  
-const createAssess=await AssessModel.create({companyName:user?.companyName})
-   //end transaction ------------
-   
+  try {
+    session.startTransaction();
+
+    const user = (await UserModel.create(
+      [{ ...userData, companyRole }],
+      { session }
+    ))[0];
+
+    await AssessModel.create(
+      [{ companyName: user?.companyName }],
+      { session }
+    );
+
+    await BlueprintModel.create(
+      [{ companyName: user?.companyName }],
+      { session }
+    );
+
     await session.commitTransaction();
-    await session.endSession();
-    return user
- } catch (error:any) {
+    session.endSession();
+
+    return user;
+  } catch (error: any) {
     await session.abortTransaction();
-    await session.endSession();
+    session.endSession();
     throw new Error(error);
- }
- 
+  }
 };
+
 
 const getAllUsers = async (): Promise<IUser[]> => {
   const users = await UserModel.find({ isDeleted: false });

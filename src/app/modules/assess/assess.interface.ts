@@ -1,13 +1,3 @@
-export interface TAssess {
-  companyName: string; // Foreign Key (Company ID or Name)
-  trends: Trend[];
-  swot: SWOT;
-  challenges: Challenge[];
-  competitorAnalysis: CompetitorAnalysis;
-  clarhetRecommendation: ClarhetRecommendation;
-  alignmentCheckId: string;
-}
-
 type ImpactLevel = "Low" | "Medium" | "High";
 
 export interface Trend {
@@ -19,14 +9,14 @@ export interface Trend {
   }[];
 }
 
-interface SWOT {
+export interface SWOT {
   strengths: string[];
   weaknesses: string[];
   opportunities: string[];
   threats: string[];
 }
 
-interface Challenge {
+export interface Challenge {
   title: string;
   category: string;
   impactOnBusiness: string;
@@ -34,7 +24,7 @@ interface Challenge {
   description: string;
 }
 
-interface CompetitorAnalysis {
+export interface CompetitorAnalysis {
   name: string;
   companyUrl: string;
   stockSymbol: string;
@@ -44,7 +34,7 @@ interface CompetitorAnalysis {
   glassdoorLink: string;
 }
 
-interface ClarhetRecommendation {
+export interface ClarhetRecommendation {
   onChallenges: string;
   onTrends: string;
   onSwot: string;
@@ -53,8 +43,8 @@ interface ClarhetRecommendation {
 
 export interface TAssess {
   companyName: string; // Foreign Key (Company ID or Name)
-  trends: Trend[]; // Now an array of Trend objects with trendName arrays inside
-  swot: SWOT;
+  trends: Trend[];
+  swot: SWOT[];       // <-- এখানে অ্যারে হিসাবে রাখা হয়েছে
   challenges: Challenge[];
   competitorAnalysis: CompetitorAnalysis;
   clarhetRecommendation: ClarhetRecommendation;

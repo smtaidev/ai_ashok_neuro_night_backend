@@ -2,7 +2,7 @@ import AppError from "../../errors/AppError";
 
 import status from "http-status";
 import AssessModel from "./assess.model";
-import { TAssess, Trend } from "./assess.interface";
+import { Challenge, ClarhetRecommendation, CompetitorAnalysis, SWOT, TAssess, Trend } from "./assess.interface";
 const createAssess = async (payload: TAssess) => {
   if (payload) {
     throw new AppError(status.BAD_REQUEST, "data is massing !");
@@ -68,50 +68,116 @@ const createtrendIntoDb = async (companyName: string, payload: Trend) => {
     { $push: { trends: payload } },
     { new: true }
   );
-  console.log(result);
 
+  return result;
+};
+
+const updateTrendInDb = async (companyName: string, id: string, payload: Partial<Trend>) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  if (!id) throw new AppError(status.BAD_REQUEST, "Trend id is required!");
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    "trends._id": id
+  };
+
+  const setObj: Record<string, any> = {};
+  for (const key in payload) {
+    const typedKey = key as keyof typeof payload;
+    setObj[`trends.$.${typedKey}`] = payload[typedKey];
+  }
+
+  const result = await AssessModel.findOneAndUpdate(query, { $set: setObj }, { new: true });
   return result;
 };
 //----------------swot services section  -----------------------------------------------------------
-const createSwotIntoDb = async (companyName: string, payload: Trend) => {
+const createSwotIntoDb = async (companyName: string, payload: SWOT) => {
+  console.log(companyName)
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "company name is not found !");
   }
+
   const query = {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
   };
 
+  console.log("check swot data", payload);
+
   const result = await AssessModel.findOneAndUpdate(
-    query,
-    { $push: { swot: payload } },
-    { new: true }
-  );
-  console.log(result);
+  query,
+  { $push: { swot: payload } },
+  { new: true }
+);
+
 
   return result;
 };
+
+const updateSwotInDb = async (companyName: string, id: string, payload: Partial<SWOT>) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  if (!id) throw new AppError(status.BAD_REQUEST, "SWOT id is required!");
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    "swot._id": id
+  };
+
+  const setObj: Record<string, any> = {};
+  for (const key in payload) {
+    const typedKey = key as keyof typeof payload;
+    setObj[`swot.$.${typedKey}`] = payload[typedKey];
+  }
+
+  const result = await AssessModel.findOneAndUpdate(query, { $set: setObj }, { new: true });
+  return result;
+};
+
 //----------------Challenge services section  -----------------------------------------------------------
-const createChallengeIntoDb = async (companyName: string, payload: Trend) => {
+const createChallengeIntoDb = async (companyName: string, payload: any) => {
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "company name is not found !");
   }
   const query = {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
   };
+
+  console.log("Payload to save:", payload);  // Debug
 
   const result = await AssessModel.findOneAndUpdate(
     query,
     { $push: { challenges: payload } },
-    { new: true }
+    { new: true, upsert: true }
   );
-  console.log(result);
 
+  console.log("Saved challenge result:", result);  // Debug
+
+  return result;
+};
+
+
+
+const updateChallengeInDb = async (companyName: string, id: string, payload: Partial<Challenge>) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  if (!id) throw new AppError(status.BAD_REQUEST, "Challenge id is required!");
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    "challenges._id": id
+  };
+
+  const setObj: Record<string, any> = {};
+  for (const key in payload) {
+    const typedKey = key as keyof typeof payload;
+    setObj[`challenges.$.${typedKey}`] = payload[typedKey];
+  }
+
+  const result = await AssessModel.findOneAndUpdate(query, { $set: setObj }, { new: true });
   return result;
 };
 //----------------CompetitorAnalysis services section  -------------------------------------------
 const createCompetitorAnalysisIntoDb = async (
   companyName: string,
-  payload: Trend
+  payload: CompetitorAnalysis
 ) => {
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "company name is not found !");
@@ -125,14 +191,14 @@ const createCompetitorAnalysisIntoDb = async (
     { $push: { competitorAnalysis: payload } },
     { new: true }
   );
-  console.log(result);
+  
 
   return result;
 };
 //----------------ClarhetRecommendation services section  -------------------------------------------
 const createClarhetRecommendationIntoDb = async (
   companyName: string,
-  payload: Trend
+  payload: ClarhetRecommendation
 ) => {
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "company name is not found !");
@@ -146,7 +212,7 @@ const createClarhetRecommendationIntoDb = async (
     { $push: { clarhetRecommendation: payload } },
     { new: true }
   );
-  console.log(result);
+  
 
   return result;
 };
@@ -158,5 +224,12 @@ export const AssessServices = {
   deleteAssess,
   getSingleAssess,
   createtrendIntoDb,
+  createSwotIntoDb,
+createChallengeIntoDb,
+createCompetitorAnalysisIntoDb,
+createClarhetRecommendationIntoDb,
+updateTrendInDb,
+updateChallengeInDb,
+updateSwotInDb
 };
-// rrfdssa
+

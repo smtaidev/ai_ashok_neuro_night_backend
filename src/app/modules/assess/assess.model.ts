@@ -59,19 +59,14 @@ const assessSchema = new Schema(
     companyName: { type: String, required: true },
     trends: { type: [trendSchema], default: [] },
     swot: {
-      type: swotSchema,
+      type: [swotSchema],        // এখানে swot কে array বানানো হলো
       required: true,
-      default: {
-        strengths: [],
-        weaknesses: [],
-        opportunities: [],
-        threats: [],
-      },
+      default: [],               // ডিফল্ট empty array
     },
     challenges: { type: [challengeSchema], default: [] },
-    competitorAnalysis: { type: competitorAnalysisSchema, required: true },
+    competitorAnalysis: { type: [competitorAnalysisSchema], required: true },
     clarhetRecommendation: {
-      type: clarhetRecommendationSchema,
+      type: [clarhetRecommendationSchema],
       required: true,
     },
     alignmentCheckId: { type: String, default: null },
@@ -80,6 +75,7 @@ const assessSchema = new Schema(
     timestamps: true,
   }
 );
+
 
 // Export model
 const AssessModel = model("assess", assessSchema);
