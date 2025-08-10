@@ -1,7 +1,7 @@
 import status from "http-status";
 import AppError from "../../errors/AppError";
 import choreographModel from "./choreograph.model";
-import { Team } from "./choreograph.interface";
+import { Objective, Team } from "./choreograph.interface";
 
 
 const createTeamsIntoDb = async (companyName: string, payload: Team) => {
@@ -120,11 +120,86 @@ const deleteTeamInDb = async (companyName: string, teamId: string) => {
   return result;
 };
 
+// --------------this is objective section ------------------------------
+// ১. Add new Objective
+export const addObjective = async (companyName: string, objectiveData: Partial<Objective>) => {
+
+      if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  const result = await choreographModel.findOneAndUpdate(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
+    { $push: { objectives: objectiveData } },
+    { new: true }
+  );
+  if (!result) throw new Error("Company not found");
+  return result;
+};
+
+// ২. Get all Objectives
+export const getAllObjectives = async (companyName: string) => {
+    console.log(companyName)
+      if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  const doc = await choreographModel.findOne(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
+    { objectives: 1, _id: 0 }
+  );
+  if (!doc) throw new Error("Company not found");
+  return doc.objectives;
+};
+
+// ৩. Get single Objective by ID
+export const getObjectiveById = async (companyName: string, objectiveId: string) => {
+      if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  const doc = await choreographModel.findOne(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") }, "objectives._id": objectiveId },
+    { "objectives.$": 1 }
+  );
+  if (!doc || !doc.objectives.length) throw new Error("Objective not found");
+  return doc.objectives[0];
+};
+
+// ৪. Update Objective by ID
+export const updateObjective = async (companyName: string, objectiveId: string, updateData: Partial<Objective>) => {
+      if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  const setObj: Record<string, any> = {};
+  for (const key in updateData) {
+    setObj[`objectives.$.${key}`] = updateData[key as keyof typeof updateData];
+  }
+
+  const result = await choreographModel.findOneAndUpdate(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") }, "objectives._id": objectiveId },
+    { $set: setObj },
+    { new: true }
+  );
+
+  if (!result) throw new Error("Objective not found or update failed");
+  return result;
+};
+
+// ৫. Delete Objective by ID
+export const deleteObjective = async (companyName: string, objectiveId: string) => {
+      if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  const result = await choreographModel.findOneAndUpdate(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
+    { $pull: { objectives: { _id: objectiveId } } },
+    { new: true }
+  );
+
+  if (!result) throw new Error("Objective not found or delete failed");
+  return result;
+};
+
+
+
 
 export const  choreographServices={
 createTeamsIntoDb,
 updateTeamInDb,
 getAllTeamsIntoDb,
 getTeamByCompanyAndId,
-deleteTeamInDb
+deleteTeamInDb,
+addObjective,
+getAllObjectives,
+getObjectiveById,
+updateObjective,
+deleteObjective
 }
