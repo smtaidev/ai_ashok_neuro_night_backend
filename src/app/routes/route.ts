@@ -9,6 +9,7 @@ import { assessClarhetRouter } from "../modules/assess/clarhet/inde";
 import { assessCompetiorRouter } from "../modules/assess/competior/inde";
 import { assessSwotRouter } from "../modules/assess/swot/inex";
 import { blueprintRouter} from "../modules/blueprint/blueprint.route";
+import { choregorapRoute } from "../modules/choreograph/choreograph.router";
 
 
 
@@ -55,6 +56,10 @@ const moduleRoutes = [
   {
     path: "/blueprint",
     route:blueprintRouter
+  },
+  {
+    path: "/choreograph",
+    route:choregorapRoute
   },
 
 ];
