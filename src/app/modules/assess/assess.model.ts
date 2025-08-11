@@ -18,11 +18,15 @@ const trendSchema = new Schema({
 });
 
 // SWOT Schema
+const detailSchema = new Schema({
+  details: { type: String, required: true },
+});
+
 const swotSchema = new Schema({
-  strengths: { type: [String], default: [] },
-  weaknesses: { type: [String], default: [] },
-  opportunities: { type: [String], default: [] },
-  threats: { type: [String], default: [] },
+  strengths: { type: [detailSchema], default: [] },
+  weaknesses: { type: [detailSchema], default: [] },
+  opportunities: { type: [detailSchema], default: [] },
+  threats: { type: [detailSchema], default: [] },
 });
 
 // Challenge Schema

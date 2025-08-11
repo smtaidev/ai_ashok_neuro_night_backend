@@ -8,6 +8,7 @@ const router=express.Router()
 
 router.patch('/create-trend',auth('companyAdmin'),AssessContllors.createTrendIntDb)
 router.patch('/create-trend/:id',auth('companyAdmin'),AssessContllors.updateTrendIntDb)
+router.get('/trend', auth('companyAdmin'), AssessContllors.getAllTrendsIntDb);
 
 //----assess all route arey  handile super admin---------------------------------------
 router.post('/',auth("companyAdmin","superAdmin"),AssessContllors.createAssessIntDb)

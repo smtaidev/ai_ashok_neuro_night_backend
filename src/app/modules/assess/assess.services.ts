@@ -65,7 +65,7 @@ const createtrendIntoDb = async (companyName: string, payload: Trend) => {
 
   const result = await AssessModel.findOneAndUpdate(
     query,
-    { $push: { trends: payload } },
+    { $set: { trends: payload } },
     { new: true }
   );
 
@@ -90,6 +90,52 @@ const updateTrendInDb = async (companyName: string, id: string, payload: Partial
   const result = await AssessModel.findOneAndUpdate(query, { $set: setObj }, { new: true });
   return result;
 };
+
+
+const getAllTrendsFromDb = async (companyName: string) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+
+  const result = await AssessModel.findOne(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
+    { trends: 1, _id: 0 }
+  );
+
+  if (!result) throw new AppError(status.NOT_FOUND, "No trends found for this company");
+
+  return result.trends;
+};
+
+const getSingleTrendFromDb = async (companyName: string, id: string) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  if (!id) throw new AppError(status.BAD_REQUEST, "Trend id is required!");
+
+  const result = await AssessModel.findOne(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") }, "trends._id": id },
+    { "trends.$": 1 }
+  );
+
+  if (!result || !result.trends?.length) {
+    throw new AppError(status.NOT_FOUND, "Trend not found");
+  }
+
+  return result.trends[0];
+};
+
+const deleteTrendFromDb = async (companyName: string, id: string) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  if (!id) throw new AppError(status.BAD_REQUEST, "Trend id is required!");
+
+  const result = await AssessModel.findOneAndUpdate(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
+    { $pull: { trends: { _id: id } } },
+    { new: true }
+  );
+
+  if (!result) throw new AppError(status.NOT_FOUND, "Trend not found or already deleted");
+
+  return result;
+};
+
 //----------------swot services section  -----------------------------------------------------------
 const createSwotIntoDb = async (companyName: string, payload: SWOT) => {
   console.log(companyName)
@@ -112,6 +158,61 @@ const createSwotIntoDb = async (companyName: string, payload: SWOT) => {
 
   return result;
 };
+
+
+const createSwotSingleIntoDb = async (companyName: string, payload: any) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  }
+
+  const { categoryName, details } = payload;
+
+  const allowedCategories = ["strengths", "weaknesses", "opportunities", "threats"];
+  if (!allowedCategories.includes(categoryName)) {
+    throw new AppError(status.BAD_REQUEST, "Invalid category name!");
+  }
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+
+  const detailToPush = typeof details === "string" ? { details: details } : details;
+
+  
+  const result = await AssessModel.findOneAndUpdate(
+    query,
+    { $push: { [`swot.0.${categoryName}`]: detailToPush } },
+    { new: true }
+  );
+
+  if (!result) {
+    throw new AppError(status.NOT_FOUND, "Company not found");
+  }
+
+  return result;
+};
+
+const getAllSwotByCompany = async (companyName: string) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is required");
+  }
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+
+  // swot ফিল্ড নিয়ে আসছি
+  const result = await AssessModel.findOne(query, { swot: 1, _id: 0 });
+
+  if (!result) {
+    throw new AppError(status.NOT_FOUND, "Company not found");
+  }
+
+  return result.swot; 
+};
+
+
+
 
 const updateSwotInDb = async (companyName: string, id: string, payload: Partial<SWOT>) => {
   if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
@@ -269,6 +370,11 @@ updateTrendInDb,
 updateChallengeInDb,
 updateSwotInDb,
 updateCompetitorAnalysisInDb,
-updateClarhetRecommendationInDb
+updateClarhetRecommendationInDb,
+getAllTrendsFromDb,
+getSingleTrendFromDb,
+deleteTrendFromDb,
+createSwotSingleIntoDb,
+getAllSwotByCompany
 };
 
