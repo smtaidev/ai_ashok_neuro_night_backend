@@ -10,6 +10,7 @@ import { assessCompetiorRouter } from "../modules/assess/competior/inde";
 import { assessSwotRouter } from "../modules/assess/swot/inex";
 import { blueprintRouter} from "../modules/blueprint/blueprint.route";
 import { choregorapRoute } from "../modules/choreograph/choreograph.router";
+import { aiRespnonseRoute } from "../modules/ai.response/ai.route";
 
 
 
@@ -60,6 +61,10 @@ const moduleRoutes = [
   {
     path: "/choreograph",
     route:choregorapRoute
+  },
+  {
+    path: "/ai-response",
+    route:aiRespnonseRoute
   },
 
 ];

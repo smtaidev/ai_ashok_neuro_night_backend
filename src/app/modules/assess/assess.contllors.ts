@@ -196,7 +196,7 @@ const getsingleSwotIntDb = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "create swot successfully !",
+    message: "get all swot successfully !",
     data: result,
   });
 });
