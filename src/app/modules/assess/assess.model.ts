@@ -33,8 +33,8 @@ const swotSchema = new Schema({
 const challengeSchema = new Schema({
   title: { type: String, required: true },
   category: { type: String, required: true },
-  impactOnBusiness: { type: String, required: true },
-  abilityToAddress: { type: String, required: true },
+  impact_on_business: { type: String, required: true },
+  ability_to_address: { type: String, required: true },
   description: { type: String, required: true },
 });
 
@@ -63,9 +63,9 @@ const assessSchema = new Schema(
     companyName: { type: String, required: true },
     trends: { type: [trendSchema], default: [] },
     swot: {
-      type: [swotSchema],        // এখানে swot কে array বানানো হলো
+      type: [swotSchema],        
       required: true,
-      default: [],               // ডিফল্ট empty array
+      default: [],              
     },
     challenges: { type: [challengeSchema], default: [] },
     competitorAnalysis: { type: [competitorAnalysisSchema], required: true },

@@ -39,7 +39,7 @@ const moduleRoutes = [
     route:assessRouter
   },
   {
-    path: "/create-challenge",
+    path: "/challenge",
     route:assessChallengeRouter
   },
   {

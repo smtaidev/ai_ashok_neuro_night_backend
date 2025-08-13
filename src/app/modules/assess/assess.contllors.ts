@@ -204,7 +204,6 @@ const getsingleSwotIntDb = catchAsync(async (req, res) => {
 //----------------Challenge contllors section  -----------------------------------------------------------
 const createChallengeIntDb = catchAsync(async (req, res) => {
   const company = req.user;
-
   const result = await AssessServices.createChallengeIntoDb(
     company.companyName,
     req.body
@@ -229,6 +228,39 @@ const updatChallengeIntDb = catchAsync(async (req, res) => {
     statusCode: 200,
     success: true,
     message: "challenge successfully updated !",
+    data: result,
+  });
+});
+
+const getAllChallengesFromDb = catchAsync(async (req, res) => {
+  const company = req.user;
+
+  const result = await AssessServices.getAllChallengesFromDb(
+    company.companyName
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "All challenges retrieved successfully!",
+    data: result,
+  });
+});
+
+// ---------- Get Single Challenge ----------
+const getSingleChallengeFromDb = catchAsync(async (req, res) => {
+  const company = req.user;
+  const { id } = req.params;
+
+  const result = await AssessServices.getSingleChallengeFromDb(
+    company.companyName,
+    id
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Single challenge retrieved successfully!",
     data: result,
   });
 });
@@ -314,5 +346,7 @@ export const AssessContllors = {
   getAllTrendsIntDb,
   getSingleTrendIntDb,
   createsingleSwotIntDb,
-  getsingleSwotIntDb
+  getsingleSwotIntDb,
+  getAllChallengesFromDb,
+  getSingleChallengeFromDb
 };

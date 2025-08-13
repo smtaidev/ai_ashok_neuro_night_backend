@@ -1,4 +1,4 @@
-import mongoose, { model } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 
 const SummarySchema = new mongoose.Schema({
   key_opportunities: { type: String, required: true },
@@ -26,3 +26,99 @@ const AiTrendSchema = new mongoose.Schema({
 });
 
 export const AiTrendModel=model("AiTrends",AiTrendSchema)
+
+
+const scoreItemSchema = new Schema({
+  value: { type: Number, required: false },
+  rationale: { type: String, required: false }
+}, { _id: false });
+
+const analysisSchema = new Schema({
+   companyName:{type:String , required:true},
+  scores: {
+    strengths: { type: scoreItemSchema, required: false },
+    weaknesses: { type: scoreItemSchema, required: false },
+    opportunities: { type: scoreItemSchema, required: false },
+    threats: { type: scoreItemSchema, required: false }
+  },
+  recommendations: {
+    strengths: { type: [String], default: null },
+    weaknesses: { type: [String], default: null },
+    opportunities: { type: [String], default: null },
+    threats: { type: [String], default: null }
+  },
+  error: { type: String, default: null }
+});
+
+export const AnalysisModel = model("Analysis", analysisSchema);
+
+
+
+
+const ChallengeSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  category: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  impact_on_business: {
+    type: String,
+    enum: ["very low", "low", "moderate", "high", "very high"],
+    required: true
+  },
+  ability_to_address: {
+    type: String,
+    enum: ["very low", "low", "moderate", "high", "very high"],
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  risk_score: {
+    type: Number,
+    required: true,
+    min: 0,
+    max: 100
+  }
+});
+
+const RiskMainSchema = new mongoose.Schema({
+  companyName: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  challenge: {
+    type: [ChallengeSchema],
+    required: true,
+    default:[]
+  },
+  // You can add trends, swot, etc. here as needed
+});
+
+
+export const RiskModel= mongoose.model("RiskScore", RiskMainSchema);
+
+
+
+
+
+const recommendationsSchema = new Schema({
+  companyName: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  recommendations: {
+    type: String,
+    default: "",
+  }
+});
+
+export const AiRecommendModel = model("recommends", recommendationsSchema);

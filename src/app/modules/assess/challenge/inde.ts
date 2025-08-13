@@ -9,8 +9,10 @@ const router=express.Router()
 
 
 //-------------challenge route arey ---------------------------------------
-router.patch('/',auth('companyAdmin'),AssessContllors.createChallengeIntDb)
-router.patch('/:id',auth('companyAdmin'),AssessContllors.updatChallengeIntDb)
+router.patch('/create-challenge',auth('companyAdmin'),AssessContllors.createChallengeIntDb)
+router.get('/get-challenge',auth('companyAdmin'),AssessContllors.getAllChallengesFromDb)
+router.get('/:id/get-challenge',auth('companyAdmin'),AssessContllors.getSingleChallengeFromDb)
+router.patch('/:id/update-challenge',auth('companyAdmin'),AssessContllors.updatChallengeIntDb)
 
 
 export const assessChallengeRouter=router

@@ -12,7 +12,7 @@ import {
 } from "./assess.interface";
 import axios from "axios";
 import config from "../../../config";
-import { AiTrendModel } from "../ai.response/ai.model";
+import { AiRecommendModel, AiTrendModel, AnalysisModel, RiskModel } from "../ai.response/ai.model";
 const createAssess = async (payload: TAssess) => {
   if (payload) {
     throw new AppError(status.BAD_REQUEST, "data is massing !");
@@ -66,6 +66,7 @@ const deleteAssess = async (payloadId: string) => {
 
 //----------------trends services section  -----------------------------------------------------------
 const createtrendIntoDb = async (companyName: string, payload: Trend[]) => {
+  console.log(companyName)
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "company name is not found !");
   }
@@ -210,8 +211,19 @@ const createtrendIntoDb = async (companyName: string, payload: Trend[]) => {
    ...aiData
    }
 
-   const AiTrends=await AiTrendModel.create(aiSubmitData)
-   console.log(AiTrends)
+   const isEexistTrendAi=await AiTrendModel.findOne({companyName:companyName})
+
+   if(!isEexistTrendAi){
+     const AiTrends=await AiTrendModel.create(aiSubmitData)
+        console.log(AiTrends)
+   }
+
+
+   const AiTrendsUpdate=await AiTrendModel.findOneAndUpdate(query,{$set:aiSubmitData})
+
+
+  console.log('check ai trend updates')
+
   const result = await AssessModel.findOneAndUpdate(
     query,
     { $set: { trends: payload } },
@@ -246,6 +258,153 @@ const updateTrendInDb = async (
     { $set: setObj },
     { new: true }
   );
+
+  
+   const isEexistTrendAi=await AssessModel.findOne({companyName:companyName})
+
+
+const trendData=isEexistTrendAi?.trends||[]
+    const schema2: any = {
+    customer_insights: [],
+    competitor_landscape: [],
+    EconomicConsiderations: [],
+    technological_advances: [],
+    regulatory_and_legal: [],
+    supply_chain_logistics: [],
+    global_market_trends: [],
+    environmental_social_impact: [],
+    collaboration_partnerships: [],
+    scenarios_risk_assessment: [],
+    emerging_markets_opportunities: [],
+    on_the_radar: [],
+  };
+
+  // Basic mapping logic
+  for (let i = 0; i < trendData.length; i++) {
+    const trend = trendData[i];
+
+    for (let j = 0; j < trend.trendDetails.length; j++) {
+      const detail = trend.trendDetails[j];
+
+      if (trend.trendName === "Customer Insights") {
+        schema2.customer_insights.push({
+          question: detail.question,
+          answer: detail.answer,
+          impact: detail.impactLevel,
+        });
+      } else if (trend.trendName === "Competitor Landscape") {
+        schema2.competitor_landscape.push({
+          question: detail.question,
+          answer: detail.answer,
+          impact: detail.impactLevel,
+        });
+      } 
+
+    else if (trend.trendName === "Economic Considerations") {
+      schema2. EconomicConsiderations.push({
+        question: detail.question,
+        answer: detail.answer,
+        impact: detail.impactLevel
+      });
+    } 
+    
+ else if (trend.trendName === "Technological Advances") {
+      schema2. technological_advances.push({
+        question: detail.question,
+        answer: detail.answer,
+        impact: detail.impactLevel
+      });
+    } 
+    
+   else if (trend.trendName === "Regulatory and Legal Factors") {
+      schema2. regulatory_and_legal.push({
+        question: detail.question,
+        answer: detail.answer,
+        impact: detail.impactLevel
+      });
+    } 
+    
+ else if (trend.trendName === "Supply Chain and Logistics") {
+      schema2.supply_chain_logistics.push({
+        question: detail.question,
+        answer: detail.answer,
+        impact: detail.impactLevel
+      });
+    } 
+    
+ else if (trend.trendName === "Global Market Trends") {
+      schema2. global_market_trends.push({
+        question: detail.question,
+        answer: detail.answer,
+        impact: detail.impactLevel
+      });
+    } 
+    
+ else if (trend.trendName === "Environmental and Social Impact") {
+      schema2. environmental_social_impact.push({
+        question: detail.question,
+        answer: detail.answer,
+        impact: detail.impactLevel
+      });
+    } 
+    
+  else if (trend.trendName === "Collaboration and Partnerships") {
+      schema2.collaboration_partnerships.push({
+        question: detail.question,
+        answer: detail.answer,
+        impact: detail.impactLevel
+      });
+    } 
+    
+ else if (trend.trendName === "Scenarios and Risk Assessment") {
+      schema2.scenarios_risk_assessment.push({
+        question: detail.question,
+        answer: detail.answer,
+        impact: detail.impactLevel
+      });
+    } 
+    
+ else if (trend.trendName === "Emerging Markets and Opportunities") {
+      schema2. emerging_markets_opportunities.push({
+        question: detail.question,
+        answer: detail.answer,
+        impact: detail.impactLevel
+      });
+    } 
+    
+   else if (trend.trendName === "On The Radar") {
+      schema2. on_the_radar.push({
+        question: detail.question,
+        answer: detail.answer,
+        impact: detail.impactLevel
+      });
+    } 
+    
+  
+    }
+  }
+
+
+
+  const apiUrl = `${config.ai_base_url}/trends/analyze`;  
+
+    const response = await axios.post(apiUrl, schema2, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+
+   const aiData=response.data
+   const aiSubmitData={
+    companyName:companyName,
+   ...aiData
+   }
+
+   const AiTrendsUpdate=await AiTrendModel.findOneAndUpdate(query,{$set:aiSubmitData})
+   console.log('check update data ',AiTrendsUpdate)
+
+
   return result;
 };
 
@@ -358,6 +517,57 @@ const createSwotSingleIntoDb = async (companyName: string, payload: any) => {
     throw new AppError(status.NOT_FOUND, "Company not found");
   }
 
+
+    const rawData = await AssessModel.findOne(query,{swot:1,_id:0})
+   const cleanResponse = {
+    swot: {
+      strengths: rawData?.swot?.[0]?.strengths?.map((s: any) => s.details) || [],
+      weaknesses: rawData?.swot?.[0]?.weaknesses?.map((w: any) => w.details) || [],
+      opportunities: rawData?.swot?.[0]?.opportunities?.map((o: any) => o.details) || [],
+      threats: rawData?.swot?.[0]?.threats?.map((t: any) => t.details) || []
+    },
+    context: {
+      challenges: rawData?.challenges?.map((c: any) => ({
+        title: c?.title || "",
+        category: c?.category || "",
+        impact_on_business: c?.impact_on_business || "",
+        ability_to_address: c?.ability_to_address || "",
+        description: c?.description || "",
+        risk_score: c?.risk_score || 0
+      })) || []
+    }
+  };
+  
+
+  const apiUrl = `${config.ai_base_url}/swot/analysis2`;  
+
+    const response = await axios.post(apiUrl, cleanResponse, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+
+     const isEexistTrendAi=await AnalysisModel.findOne({companyName:companyName})
+
+   
+   
+   const aiData=response.data
+   const aiSubmitData={
+    companyName:companyName,
+   ...aiData
+   }
+
+   console.log(aiSubmitData)
+
+   if(!isEexistTrendAi){
+     const AiSwotanalysis=await AnalysisModel.create(aiSubmitData)
+     console.log(AiSwotanalysis)
+   }
+
+
+   const AiTrendsUpdate=await AnalysisModel.findOneAndUpdate(query,{$set:aiSubmitData})
+
   return result;
 };
 
@@ -370,7 +580,7 @@ const getAllSwotByCompany = async (companyName: string) => {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
   };
 
-  // swot ফিল্ড নিয়ে আসছি
+
   const result = await AssessModel.findOne(query, { _id: 0, swot: 1 });
 
   console.log("check the swor result ", result);
@@ -418,7 +628,6 @@ const createChallengeIntoDb = async (companyName: string, payload: any) => {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
   };
 
-  console.log("Payload to save:", payload); // Debug
 
   const result = await AssessModel.findOneAndUpdate(
     query,
@@ -426,9 +635,83 @@ const createChallengeIntoDb = async (companyName: string, payload: any) => {
     { new: true, upsert: true }
   );
 
-  console.log("Saved challenge result:", result); // Debug
+  const trends=await AiTrendModel.findOne({companyName:companyName},{companyName:0,_id:0,summary:0,error:0, __v: 0}).lean()
+  const swotData=await AnalysisModel.findOne({companyName:companyName},{companyName:0,_id:0, scores:0,error:0, __v: 0}).lean()
+  const swot =swotData?.recommendations
+const aichallenge={challenge:payload}
+const allData={
+  trends,
+  ...aichallenge,
+  swot
+}
 
-  return result;
+
+  const apiUrl = `${config.ai_base_url}/challenge/evaluate`;  
+
+    const response = await axios.post(apiUrl, allData, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+
+    //  const isEexistTrendAi=await AnalysisModel.findOne({companyName:companyName})
+
+     const isEexistTrendAi=await RiskModel.findOne({companyName:companyName})
+   
+   const aiData=response.data
+
+   const challengess={...payload,...aiData}
+
+
+
+
+
+   if(!isEexistTrendAi){
+     const Aichallengenalysis=await RiskModel.create({companyName:companyName})
+
+   }
+
+
+   const AiTrendsUpdate=await RiskModel.findOneAndUpdate(query,{$push:{challenge:challengess}})
+
+
+// --------------------------generate ai recommendations -----------------
+
+const aichallengeDataFind=await RiskModel.findOne({companyName:companyName},{companyName:0,_id:0, __v: 0}).lean()
+
+
+const challenges=aichallengeDataFind?.challenge
+const aiAllData={
+  trends,
+  challenges,
+  swot
+}
+
+  const apiUrls = `${config.ai_base_url}/challenge/recommendations`;  
+
+    const responses = await axios.post(apiUrls, aiAllData, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+  
+
+    const isEexistRecommendsations=await AiRecommendModel.findOne({companyName:companyName})
+
+
+    if(!isEexistRecommendsations){
+const createRecommend=await AiRecommendModel.create({companyName:companyName})
+    }
+
+
+const MainResult =responses?.data?.recommendations
+console.log(MainResult)
+
+const createMainRecommendsation=await AiRecommendModel.findOneAndUpdate(query,{$set:{recommendations:MainResult}})
+
+console.log(createMainRecommendsation)
+  return MainResult
 };
 
 const updateChallengeInDb = async (
@@ -457,6 +740,47 @@ const updateChallengeInDb = async (
     { new: true }
   );
   return result;
+};
+
+const getAllChallengesFromDb = async (companyName: string) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is required!");
+  }
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+
+  const result = await AssessModel.findOne(query, { challenges: 1, _id: 0 });
+
+  if (!result) {
+    throw new AppError(status.NOT_FOUND, "No challenges found for this company!");
+  }
+
+  return result.challenges;
+};
+
+// ---------- Get Single Challenge ----------
+const getSingleChallengeFromDb = async (companyName: string, id: string) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is required!");
+  }
+  if (!id) {
+    throw new AppError(status.BAD_REQUEST, "Challenge id is required!");
+  }
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    "challenges._id": id,
+  };
+
+  const result = await AssessModel.findOne(query, { "challenges.$": 1 });
+
+  if (!result || !result.challenges || result.challenges.length === 0) {
+    throw new AppError(status.NOT_FOUND, "Challenge not found!");
+  }
+
+  return result.challenges[0];
 };
 //----------------CompetitorAnalysis services section  -------------------------------------------
 const createCompetitorAnalysisIntoDb = async (
@@ -583,4 +907,6 @@ export const AssessServices = {
   deleteTrendFromDb,
   createSwotSingleIntoDb,
   getAllSwotByCompany,
+  getAllChallengesFromDb,
+  getSingleChallengeFromDb
 };
