@@ -238,7 +238,7 @@ const createtrendIntoDb = async (companyName: string, payload: Trend[]) => {
     mergedMap.set(trend.trendName, trend); // same trendName হলে replace, না থাকলে add
   }
 
-  // ৩. Limit 12 trends
+
   const mergedTrends = Array.from(mergedMap.values()).slice(0, 12);
 
   // ৪. DB update
