@@ -27,7 +27,7 @@ const createVision = async (companyName: string, payload: Partial<Blueprint>) =>
 
 
 const createstategicTheme = async (companyName: string, payload: Partial<BusinessGoal>) => {
-    console.log(payload)
+  
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "Company name is not found!");
   }
@@ -43,6 +43,8 @@ const createstategicTheme = async (companyName: string, payload: Partial<Busines
     { $push: { strategicThemes:payload } },
     { new: true, upsert: true } 
   );
+
+  
 
   return result;
 };
@@ -60,8 +62,8 @@ const query = {
 
 const update = {
   $set: {
-    "strategicThemes.$.title": payload.title,
-    "strategicThemes.$.detail": payload.detail,
+    "strategicThemes.$.name": payload.name,
+    "strategicThemes.$.description": payload.description,
   }
 };
 
@@ -71,8 +73,37 @@ const result = await BlueprintModel.findOneAndUpdate(query, update, { new: true 
   return result;
 };
 
+
+const getAllStrategicThemes = async (companyName: string) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  }
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") }
+  };
+
+  const result = await BlueprintModel.findOne(query, { strategicThemes: 1, _id: 0 });
+  return result?.strategicThemes || [];
+};
+
+const getSingleStrategicTheme = async (id: string, companyName: string) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  if (!id) throw new AppError(status.BAD_REQUEST, "Theme ID is required!");
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    "strategicThemes._id": id
+  };
+
+  const result = await BlueprintModel.findOne(query, { "strategicThemes.$": 1, _id: 0 });
+  return result?.strategicThemes?.[0] || null;
+};
+
+// ------------------this is the business goal services -------------------------------------areya 
 const createbusinessGoal = async (companyName: string, payload: Partial<BusinessGoal>) => {
-    console.log(companyName)
+
+   
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "Company name is not found!");
   }
@@ -82,6 +113,7 @@ const createbusinessGoal = async (companyName: string, payload: Partial<Business
   };
 
 
+  console.log(payload)
 try {
   const result = await BlueprintModel.findOneAndUpdate(
     query,
@@ -121,11 +153,55 @@ const updateBusinessGoal = async (
   return result;
 };
 
+const getAllBusinessGoals = async (companyName: string) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  }
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") }
+  };
+
+  const result = await BlueprintModel.findOne(query, { businessGoals: 1, _id: 0 });
+  return result?.businessGoals || [];
+};
+
+const getSingleBusinessGoal = async (id: string, companyName: string) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  if (!id) throw new AppError(status.BAD_REQUEST, "Goal ID is required!");
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    "businessGoals._id": id
+  };
+
+  const result = await BlueprintModel.findOne(query, { "businessGoals.$": 1, _id: 0 });
+  return result?.businessGoals?.[0] || null;
+};
+
+const deleteBusinessGoal = async (id: string, companyName: string) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  if (!id) throw new AppError(status.BAD_REQUEST, "Goal ID is required!");
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") }
+  };
+
+  const update = { $pull: { businessGoals: { _id: id } } };
+
+  const result = await BlueprintModel.findOneAndUpdate(query, update, { new: true });
+  return result;
+};
+
+
 export const blueprintServices = {
   createVision,
   createstategicTheme,
   updatestategicTheme
   ,
   createbusinessGoal,
-  updateBusinessGoal
+  updateBusinessGoal,
+  getAllBusinessGoals,
+  getSingleBusinessGoal,
+  deleteBusinessGoal
 };

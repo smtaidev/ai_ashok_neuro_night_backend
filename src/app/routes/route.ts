@@ -63,7 +63,7 @@ const moduleRoutes = [
     route:choregorapRoute
   },
   {
-    path: "/ai-response",
+    path: "/ai-recommendations",
     route:aiRespnonseRoute
   },
 

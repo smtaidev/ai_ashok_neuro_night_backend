@@ -10,7 +10,7 @@ const getTrendAirecommendations=catchAsync(async(req,res)=>{
     sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "Clarhet RecommendationAnalysis successfully get!",
+    message: "Trend RecommendationAnalysis successfully get!",
     data:result
   });
 })
@@ -26,6 +26,18 @@ const getSwotirecommendations=catchAsync(async(req,res)=>{
     data:result
   });
 })
+const challengeRixScore=catchAsync(async(req,res)=>{
+    const company=req.user
+
+    const result=await aiRespnonseServices.getChallengeRixScoreData(company?.companyName)
+   
+    sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "challenge RecommendationAnalysis successfully get!",
+    data:result
+  });
+})
 const challengerecommendations=catchAsync(async(req,res)=>{
     const company=req.user
 
@@ -38,11 +50,25 @@ const challengerecommendations=catchAsync(async(req,res)=>{
     data:result
   });
 })
+const createThemesAi=catchAsync(async(req,res)=>{
+    const company=req.user
+
+    const result=await aiRespnonseServices.createThemesAiData(company?.companyName)
+   
+    sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "thems ai data  successfully created",
+    data:result
+  });
+})
 
 
 
 export const aiRespnonseContllors={
     getTrendAirecommendations,
     getSwotirecommendations, 
-  challengerecommendations
+  challengerecommendations,
+  challengeRixScore,
+  createThemesAi
 }

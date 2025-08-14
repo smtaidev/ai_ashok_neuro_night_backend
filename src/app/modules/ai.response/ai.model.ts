@@ -107,8 +107,6 @@ export const RiskModel= mongoose.model("RiskScore", RiskMainSchema);
 
 
 
-
-
 const recommendationsSchema = new Schema({
   companyName: {
     type: String,

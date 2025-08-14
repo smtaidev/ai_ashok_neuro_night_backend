@@ -7,6 +7,7 @@ import UserModel from "../user/user.model";
 
 
 const createFoundation = async (data: IFoundation): Promise<IFoundation> => {
+  console.log(data)
   const session = await mongoose.startSession();
 
   try {

@@ -3,8 +3,8 @@ import { v4 } from "uuid";
 
 
 const StrategicThemeSchema = new Schema({
-  title: { type: String, required: true },
-  detail: { type: String, required: true }
+  name: { type: String, required: true },
+  description: { type: String, required: true }
 });
 
 const BusinessGoalSchema = new Schema({

@@ -22,10 +22,11 @@ const FoundationSchema = new Schema<IFoundation>(
       keyCustomerNeed: { type: String},
       valueProposition: { type: String},
     },
-    capability: {
-      coreCapabilities: { type: [String]},
-      differentiatingCapabilities: { type: [String]},
+    capabilitys: {
+         capability:{type:String},
+         type:{type:String}
     },
+    differentiatingCapabilities: { type: [String]},
   },
   {
     timestamps: true,

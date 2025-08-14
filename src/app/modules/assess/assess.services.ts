@@ -221,17 +221,35 @@ const createtrendIntoDb = async (companyName: string, payload: Trend[]) => {
 
    const AiTrendsUpdate=await AiTrendModel.findOneAndUpdate(query,{$set:aiSubmitData})
 
+  // ১. Existing trends নাও
+  const existingDoc = await AssessModel.findOne(query, { trends: 1 });
+  const existingTrends = existingDoc?.trends || [];
 
-  console.log('check ai trend updates')
+  // ২. Map তৈরি করে deduplication & edit handle করা
+  const mergedMap = new Map<string, any>();
 
+  // আগের trends add করো
+  for (const trend of existingTrends) {
+    mergedMap.set(trend.trendName, trend);
+  }
+
+  // AI trends add/update করো
+  for (const trend of payload) {
+    mergedMap.set(trend.trendName, trend); // same trendName হলে replace, না থাকলে add
+  }
+
+  // ৩. Limit 12 trends
+  const mergedTrends = Array.from(mergedMap.values()).slice(0, 12);
+
+  // ৪. DB update
   const result = await AssessModel.findOneAndUpdate(
     query,
-    { $set: { trends: payload } },
+    { $set: { trends: mergedTrends } },
     { new: true }
   );
-
   return result;
 };
+
 
 const updateTrendInDb = async (
   companyName: string,

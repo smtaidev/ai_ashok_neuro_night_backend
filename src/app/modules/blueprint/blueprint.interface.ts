@@ -11,8 +11,8 @@ export interface BusinessGoal {
 }
 
 export interface StrategicTheme {
-  title: string;
-  detail: string;
+  name: string;
+  description: string;
 }
 
 export interface Blueprint {
