@@ -8,6 +8,7 @@ import status from "http-status";
 import AssessModel from "../assess/assess.model";
 import { BlueprintModel } from "../blueprint/blueprint.model";
 import choreographModel from "../choreograph/choreograph.model";
+import { FoundationModel } from "../foundation/foundation.model";
 const createUser = async (userData: IUser): Promise<IUser> => {
   const companyRole = (userData.role == 'companyAdmin') ? "admin" : null;
 
@@ -42,6 +43,10 @@ const createUser = async (userData: IUser): Promise<IUser> => {
       { session }
     );
     await choreographModel.create(
+      [{ companyName: user?.companyName }],
+      { session }
+    );
+    await FoundationModel.create(
       [{ companyName: user?.companyName }],
       { session }
     );

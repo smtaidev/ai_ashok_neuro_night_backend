@@ -1,5 +1,5 @@
-import { Schema, model } from 'mongoose';
-import { IFoundation } from './foundation.interface'; 
+import { model, Schema } from "mongoose";
+import { IFoundation } from "./foundation.interface";
 
 const FoundationSchema = new Schema<IFoundation>(
   {
@@ -13,20 +13,20 @@ const FoundationSchema = new Schema<IFoundation>(
       required: true,
     },
     identity: {
-      mission: { type: String},
-      value: { type: String},
-      purpose: { type: String},
+      mission: { type: String, default: null },
+      value: { type: String, default: null },
+      purpose: { type: String, default: null },
     },
     zeroIn: {
-      targetCustomer: { type: String},
-      keyCustomerNeed: { type: String},
-      valueProposition: { type: String},
+      targetCustomer: { type: String, default: null },
+      keyCustomerNeed: { type: String, default: null },
+      valueProposition: { type: String, default: null },
     },
     capabilitys: {
-         capability:{type:String},
-         type:{type:String}
+      capability: { type: String, default: null },
+      type: { type: String, default: null }
     },
-    differentiatingCapabilities: { type: [String]},
+    differentiatingCapabilities: { type: [String], default: [] },
   },
   {
     timestamps: true,

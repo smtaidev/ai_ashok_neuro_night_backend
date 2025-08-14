@@ -34,11 +34,32 @@ const updateFoundation = catchAsync(async (req: Request, res: Response, next: Ne
 });
 
 const deleteFoundation = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const { id } = req.params;
+  const { id } = req.user;
   await FoundationService.deleteFoundation(id);
   res.status(status.OK).json({
     success: true,
     message: "Foundation deleted successfully",
+  });
+});
+const createIdentity = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const company = req.user;
+  console.log(company)
+const result=  await FoundationService.createIdentityIntoDb(company.companyName,req.body)
+  res.status(status.OK).json({
+    success: true,
+    message: " Identity  successfully created",
+    data:result
+  });
+
+});
+const createZeroFoundation = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+   const { companyName} = req.user;
+   console.log(companyName)
+const result=  await FoundationService.createZeroInIntoDb(companyName,req.body);
+  res.status(status.OK).json({
+    success: true,
+    message: "zero foundation successfully created",
+    data:result
   });
 });
 
@@ -47,4 +68,6 @@ export const FoundationController = {
   getSpecificFoundationByCompanyName,
   updateFoundation,
   deleteFoundation,
+  createIdentity,
+  createZeroFoundation
 };

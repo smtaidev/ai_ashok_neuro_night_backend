@@ -5,7 +5,8 @@ export interface IJwtPayload{
     userName: string
     role: string,
     companyName: string,
-    companyRole: string
+    companyRole: string,
+    userId:Types.ObjectId
 }
 
 export interface IAuth{

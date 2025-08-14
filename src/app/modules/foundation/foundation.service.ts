@@ -72,9 +72,108 @@ const deleteFoundation = async (id: string): Promise<void> => {
   }
 };
 
+// const createIdentityIntoDb = async (
+//   companyName: string,
+//   payload: { mission?: string; value?: string; purpose?: string[] }
+// ) => {
+
+//   console.log(payload)
+//   if (!companyName) {
+//     throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+//   }
+
+//   const query = {
+//     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+//   };
+
+//   const updateData: any = {};
+
+//   if (payload.mission !== undefined) updateData["identity.mission"] = payload.mission;
+//   if (payload.value !== undefined) updateData["identity.value"] = payload.value;
+//   if (payload.purpose !== undefined) updateData["identity.purpose"] = payload.purpose;
+
+//   const result = await FoundationModel.findOneAndUpdate(
+//     query,
+//     { $set: updateData },
+//     { new: true } // na thakle add hobe
+//   );
+
+//   return result;
+// };
+
+const  createIdentityIntoDb = async (
+  companyName: string,
+  payload: { mission?: string; value?: string; purpose?: string[] }
+) => {
+  console.log(payload);
+
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  }
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+
+  // Je field gulo ache, sudhu oigulo update hobe
+  const updateData: any = {};
+  if (payload.mission !== undefined) updateData["identity.mission"] = payload.mission;
+  if (payload.value !== undefined) updateData["identity.value"] = payload.value;
+  if (payload.purpose !== undefined) updateData["identity.purpose"] = payload.purpose;
+  const result = await FoundationModel.findOneAndUpdate(
+    {companyName:companyName},
+    { $set: updateData },
+    { new: true } 
+  );
+
+  if (!result) {
+    throw new AppError(status.NOT_FOUND, "Company not found to update identity!");
+  }
+
+  return result;
+};
+
+
+const createZeroInIntoDb = async (
+  companyName: string,
+  payload: { targetCustomer?: string; keyCustomerNeed?: string; valueProposition?: string }
+) => {
+  console.log(payload);
+
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  }
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName.trim()}$`, "i") },
+  };
+
+  // Je field gulo ache, sudhu oigulo update hobe
+  const updateData: any = {};
+  if (payload.targetCustomer !== undefined) updateData["zeroIn.targetCustomer"] = payload.targetCustomer;
+  if (payload.keyCustomerNeed !== undefined) updateData["zeroIn.keyCustomerNeed"] = payload.keyCustomerNeed;
+  if (payload.valueProposition !== undefined) updateData["zeroIn.valueProposition"] = payload.valueProposition;
+
+  const result = await FoundationModel.findOneAndUpdate(
+    query,
+    { $set: updateData },
+    { new: true } // only update existing document, no create
+  );
+
+  if (!result) {
+    throw new AppError(status.NOT_FOUND, "Company not found to update zeroIn!");
+  }
+
+  return result;
+};
+
+
+
 export const FoundationService = {
   createFoundation,
   getSpecificFoundationByCompanyName,
   updateFoundation,
   deleteFoundation,
+  createIdentityIntoDb,
+  createZeroInIntoDb
 };

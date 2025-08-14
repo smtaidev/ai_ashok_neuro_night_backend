@@ -11,6 +11,7 @@ import { assessSwotRouter } from "../modules/assess/swot/inex";
 import { blueprintRouter} from "../modules/blueprint/blueprint.route";
 import { choregorapRoute } from "../modules/choreograph/choreograph.router";
 import { aiRespnonseRoute } from "../modules/ai.response/ai.route";
+import { chatBotRoute } from "../modules/chat-bot/chat.route";
 
 
 
@@ -65,6 +66,10 @@ const moduleRoutes = [
   {
     path: "/ai-recommendations",
     route:aiRespnonseRoute
+  },
+  {
+    path: "/chat-bot",
+    route:chatBotRoute
   },
 
 ];
