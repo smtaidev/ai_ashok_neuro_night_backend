@@ -17,9 +17,12 @@ export interface IFoundation {
         valueProposition?: string;
     };
 
-    capabilitys: {
-            capability?: string;
-            type?: string;
-    };
+    capabilitys: [
+  {
+    _id?:{type:string},
+    capability: { type: String, default: null },
+    type: { type: String, default: null }
+  }
+]
     differentiatingCapabilities?: string[];
 }

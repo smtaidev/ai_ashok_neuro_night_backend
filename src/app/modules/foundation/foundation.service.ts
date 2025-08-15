@@ -5,19 +5,20 @@ import status from "http-status";
 import { FoundationModel } from "./foundation.model";
 import UserModel from "../user/user.model";
 
-
 const createFoundation = async (data: IFoundation): Promise<IFoundation> => {
-  console.log(data)
+  console.log(data);
   const session = await mongoose.startSession();
 
   try {
     session.startTransaction();
 
     // 1. Check if user with this company exists
-    const user = await UserModel.findOne({ companyName: data.companyName }).session(session);
+    const user = await UserModel.findOne({
+      companyName: data.companyName,
+    }).session(session);
 
     if (!user) {
-      throw new Error('Company not found');
+      throw new Error("Company not found");
     }
 
     // 2. Create Foundation
@@ -40,15 +41,23 @@ const createFoundation = async (data: IFoundation): Promise<IFoundation> => {
   }
 };
 
-const getSpecificFoundationByCompanyName = async (companyName: string): Promise<IFoundation | null> => {
+const getSpecificFoundationByCompanyName = async (
+  companyName: string
+): Promise<IFoundation | null> => {
   const foundation = await FoundationModel.findOne({ companyName });
   if (!foundation) {
-    throw new AppError(status.NOT_FOUND, `Foundation with company name ${companyName} not found`);
+    throw new AppError(
+      status.NOT_FOUND,
+      `Foundation with company name ${companyName} not found`
+    );
   }
   return foundation;
 };
 
-const updateFoundation = async (id: string, data: Partial<IFoundation>): Promise<IFoundation | null> => {
+const updateFoundation = async (
+  id: string,
+  data: Partial<IFoundation>
+): Promise<IFoundation | null> => {
   if (!Types.ObjectId.isValid(id)) {
     throw new AppError(status.BAD_REQUEST, "Invalid foundation ID");
   }
@@ -101,7 +110,7 @@ const deleteFoundation = async (id: string): Promise<void> => {
 //   return result;
 // };
 
-const  createIdentityIntoDb = async (
+const createIdentityIntoDb = async (
   companyName: string,
   payload: { mission?: string; value?: string; purpose?: string[] }
 ) => {
@@ -117,26 +126,34 @@ const  createIdentityIntoDb = async (
 
   // Je field gulo ache, sudhu oigulo update hobe
   const updateData: any = {};
-  if (payload.mission !== undefined) updateData["identity.mission"] = payload.mission;
+  if (payload.mission !== undefined)
+    updateData["identity.mission"] = payload.mission;
   if (payload.value !== undefined) updateData["identity.value"] = payload.value;
-  if (payload.purpose !== undefined) updateData["identity.purpose"] = payload.purpose;
+  if (payload.purpose !== undefined)
+    updateData["identity.purpose"] = payload.purpose;
   const result = await FoundationModel.findOneAndUpdate(
-    {companyName:companyName},
+    { companyName: companyName },
     { $set: updateData },
-    { new: true } 
+    { new: true }
   );
 
   if (!result) {
-    throw new AppError(status.NOT_FOUND, "Company not found to update identity!");
+    throw new AppError(
+      status.NOT_FOUND,
+      "Company not found to update identity!"
+    );
   }
 
   return result;
 };
 
-
 const createZeroInIntoDb = async (
   companyName: string,
-  payload: { targetCustomer?: string; keyCustomerNeed?: string; valueProposition?: string }
+  payload: {
+    targetCustomer?: string;
+    keyCustomerNeed?: string;
+    valueProposition?: string;
+  }
 ) => {
   console.log(payload);
 
@@ -150,9 +167,12 @@ const createZeroInIntoDb = async (
 
   // Je field gulo ache, sudhu oigulo update hobe
   const updateData: any = {};
-  if (payload.targetCustomer !== undefined) updateData["zeroIn.targetCustomer"] = payload.targetCustomer;
-  if (payload.keyCustomerNeed !== undefined) updateData["zeroIn.keyCustomerNeed"] = payload.keyCustomerNeed;
-  if (payload.valueProposition !== undefined) updateData["zeroIn.valueProposition"] = payload.valueProposition;
+  if (payload.targetCustomer !== undefined)
+    updateData["zeroIn.targetCustomer"] = payload.targetCustomer;
+  if (payload.keyCustomerNeed !== undefined)
+    updateData["zeroIn.keyCustomerNeed"] = payload.keyCustomerNeed;
+  if (payload.valueProposition !== undefined)
+    updateData["zeroIn.valueProposition"] = payload.valueProposition;
 
   const result = await FoundationModel.findOneAndUpdate(
     query,
@@ -167,7 +187,98 @@ const createZeroInIntoDb = async (
   return result;
 };
 
+const createcapabilitys = async (
+  companyName: string,
+  payload: { capability: string; type: string }
+) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  }
 
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+
+  const result = await FoundationModel.findOneAndUpdate(
+    query,
+    { $push: { capabilitys: payload } },
+    { new: true }
+  );
+
+  if (!result) {
+    throw new AppError(
+      status.NOT_FOUND,
+      "Company not found to update capabilitys!"
+    );
+  }
+
+  return result;
+};
+
+const getAllCapabilitys = async (companyName: string) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  }
+
+  const result = await FoundationModel.findOne(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
+    { capabilitys: 1, _id: 0 }
+  );
+
+  if (!result) {
+    throw new AppError(
+      status.NOT_FOUND,
+      "No capabilitys found for this company!"
+    );
+  }
+
+  return result.capabilitys;
+};
+
+const updateCapabilityById = async (
+  companyName: string,
+  capabilityId: string,
+  payload: { capability?: string; type?: string }
+) => {
+  if (!companyName)
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+
+  const updateData: any = {};
+  if (payload.capability !== undefined)
+    updateData["capabilitys.$.capability"] = payload.capability;
+  if (payload.type !== undefined)
+    updateData["capabilitys.$.type"] = payload.type;
+
+  const result = await FoundationModel.findOneAndUpdate(
+    {
+      companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+      "capabilitys._id": capabilityId,
+    },
+    { $set: updateData },
+    { new: true }
+  );
+
+  if (!result)
+    throw new AppError(status.NOT_FOUND, "Capability not found to update!");
+
+  return result;
+};
+
+const createDifrentCapabilitys = async (companyName: string, payload: any) => {
+  if (!companyName)
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+
+  const result = await FoundationModel.findOneAndUpdate(query, {
+    $push: {
+      differentiatingCapabilities: payload?.differentiatingCapabilities,
+    },
+  });
+
+  return result;
+};
 
 export const FoundationService = {
   createFoundation,
@@ -175,5 +286,9 @@ export const FoundationService = {
   updateFoundation,
   deleteFoundation,
   createIdentityIntoDb,
-  createZeroInIntoDb
+  createZeroInIntoDb,
+  createcapabilitys,
+  getAllCapabilitys,
+  updateCapabilityById,
+  createDifrentCapabilitys,
 };

@@ -41,12 +41,13 @@ const challengeSchema = new Schema({
 // Competitor Analysis Schema
 const competitorAnalysisSchema = new Schema({
   name: { type: String, default: "" },
-  companyUrl: { type: String, default: "" },
-  stockSymbol: { type: String, default: "" },
-  twitterLink: { type: String, default: "" },
-  linkedinLink: { type: String, default: "" },
-  instagramLink: { type: String, default: "" },
-  glassdoorLink: { type: String, default: "" },
+  description:{type:String,default:""}
+  // companyUrl: { type: String, default: "" },
+  // stockSymbol: { type: String, default: "" },
+  // twitterLink: { type: String, default: "" },
+  // linkedinLink: { type: String, default: "" },
+  // instagramLink: { type: String, default: "" },
+  // glassdoorLink: { type: String, default: "" },
 });
 
 // Clarhet Recommendation Schema

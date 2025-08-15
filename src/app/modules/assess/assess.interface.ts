@@ -26,12 +26,13 @@ export interface Challenge {
 
 export interface CompetitorAnalysis {
   name: string;
-  companyUrl: string;
-  stockSymbol: string;
-  twitterLink: string;
-  linkedinLink: string;
-  instagramLink: string;
-  glassdoorLink: string;
+  description:string
+  // companyUrl: string;
+  // stockSymbol: string;
+  // twitterLink: string;
+  // linkedinLink: string;
+  // instagramLink: string;
+  // glassdoorLink: string;
 }
 
 export interface ClarhetRecommendation {
@@ -46,7 +47,7 @@ export interface TAssess {
   trends: Trend[];
   swot: SWOT[];       // <-- এখানে অ্যারে হিসাবে রাখা হয়েছে
   challenges: Challenge[];
-  competitorAnalysis: CompetitorAnalysis;
+  competitorAnalysis:[ CompetitorAnalysis];
   clarhetRecommendation: ClarhetRecommendation;
   alignmentCheckId: string;
 }

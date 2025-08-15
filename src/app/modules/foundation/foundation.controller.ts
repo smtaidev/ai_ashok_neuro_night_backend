@@ -52,6 +52,50 @@ const result=  await FoundationService.createIdentityIntoDb(company.companyName,
   });
 
 });
+const getAllcapabilitysFoundation = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+   const { companyName} = req.user;
+   console.log(companyName)
+const result=  await FoundationService.getAllCapabilitys(companyName);
+  res.status(status.OK).json({
+    success: true,
+    message: "capabilitys foundation successfully get",
+    data:result
+  });
+});
+const createcapabilitysFoundation = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+   const { companyName} = req.user;
+   console.log(companyName)
+const result=  await FoundationService.createcapabilitys(companyName,req.body);
+  res.status(status.OK).json({
+    success: true,
+    message: "capabilitys foundation successfully created",
+    data:result
+  });
+});
+const updatecapabilitysFoundation = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+   const { companyName} = req.user;
+   const{id}=req.params
+   console.log(companyName)
+const result=  await FoundationService.updateCapabilityById(companyName,id,req.body);
+  res.status(status.OK).json({
+    success: true,
+    message: "capabilitys foundation successfully updated",
+    data:result
+  });
+
+});
+
+const createDifrentCapabilitysFoundation = catchAsync(async (req, res) => {
+   const { companyName} = req.user;
+   console.log(companyName)
+const result=  await FoundationService.createDifrentCapabilitys(companyName,req.body);
+  res.status(status.OK).json({
+    success: true,
+    message: "difrent capabilitys  foundation successfully created",
+    data:result
+  });
+});
+
 const createZeroFoundation = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
    const { companyName} = req.user;
    console.log(companyName)
@@ -63,11 +107,18 @@ const result=  await FoundationService.createZeroInIntoDb(companyName,req.body);
   });
 });
 
+
+
+
 export const FoundationController = {
   createFoundation,
   getSpecificFoundationByCompanyName,
   updateFoundation,
   deleteFoundation,
   createIdentity,
-  createZeroFoundation
+  createZeroFoundation,
+  createcapabilitysFoundation,
+  getAllcapabilitysFoundation,
+  updatecapabilitysFoundation,
+  createDifrentCapabilitysFoundation
 };

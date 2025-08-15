@@ -806,20 +806,31 @@ const createCompetitorAnalysisIntoDb = async (
   payload: CompetitorAnalysis
 ) => {
   if (!companyName) {
-    throw new AppError(status.BAD_REQUEST, "company name is not found !");
+    throw new AppError(status.BAD_REQUEST, "company name is not found!");
   }
+
   const query = {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
   };
 
-  const result = await AssessModel.findOneAndUpdate(
-    query,
-    { $push: { competitorAnalysis: payload } },
-    { new: true }
-  );
+  const doc = await AssessModel.findOne(query);
 
-  return result;
+  if (!doc) {
+    throw new AppError(status.NOT_FOUND, "Company not found");
+  }
+
+  // যদি ইতিমধ্যে ৩ টা element থাকে, নতুন add করা হবে না
+  if ((doc.competitorAnalysis?.length || 0) >= 3) {
+    return doc; // বা চাইলে throw করতে পারো error
+  }
+
+  doc.competitorAnalysis.push(payload);
+
+  await doc.save();
+
+  return doc;
 };
+
 
 const updateCompetitorAnalysisInDb = async (
   companyName: string,

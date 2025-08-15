@@ -22,10 +22,19 @@ const FoundationSchema = new Schema<IFoundation>(
       keyCustomerNeed: { type: String, default: null },
       valueProposition: { type: String, default: null },
     },
-    capabilitys: {
-      capability: { type: String, default: null },
-      type: { type: String, default: null }
-    },
+  capabilitys: {
+  type: [
+    new Schema(
+      {
+        _id:{type: String, },
+        capability: { type: String, default: null },
+        type: { type: String, default: null }
+      },
+      
+    )
+  ],
+  default: []
+},
     differentiatingCapabilities: { type: [String], default: [] },
   },
   {
