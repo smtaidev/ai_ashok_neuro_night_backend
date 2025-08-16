@@ -4,6 +4,7 @@ import AppError from "../../errors/AppError";
 import status from "http-status";
 import { FoundationModel } from "./foundation.model";
 import UserModel from "../user/user.model";
+import { id } from "zod/v4/locales/index.cjs";
 
 const createFoundation = async (data: IFoundation): Promise<IFoundation> => {
   console.log(data);
@@ -187,6 +188,22 @@ const createZeroInIntoDb = async (
   return result;
 };
 
+
+const getAllIdentityFromDb = async (companyName:string) => {
+    const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+  const result = await FoundationModel.find(query, { companyName: 1, identity: 1, _id: 0 });
+  return result;
+};
+
+const getAllZeroInFromDb = async (companyName:string) => {
+    const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+  const result = await FoundationModel.find(query, { companyName: 1, zeroIn: 1, _id: 0 });
+  return result;
+};
 const createcapabilitys = async (
   companyName: string,
   payload: { capability: string; type: string }
@@ -263,6 +280,32 @@ const updateCapabilityById = async (
 
   return result;
 };
+const deleteCapability = async (companyName: string, id: string) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  }
+  if (!id) {
+    throw new AppError(status.BAD_REQUEST, "Capability ID is required!");
+  }
+
+  const query = { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } };
+
+  const result = await FoundationModel.findOneAndUpdate(
+    query,
+    { $pull: { capabilitys: { _id: id } } }, // string _id
+    { new: true }
+  );
+
+  if (!result) {
+    throw new AppError(
+      status.NOT_FOUND,
+      "Company not found or capability not found to delete!"
+    );
+  }
+
+
+  return result;
+};
 
 const createDifrentCapabilitys = async (companyName: string, payload: any) => {
   if (!companyName)
@@ -291,4 +334,7 @@ export const FoundationService = {
   getAllCapabilitys,
   updateCapabilityById,
   createDifrentCapabilitys,
+  getAllIdentityFromDb,
+  getAllZeroInFromDb,
+  deleteCapability
 };

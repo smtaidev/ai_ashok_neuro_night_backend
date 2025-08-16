@@ -9,6 +9,7 @@ route.get("/get-swot",auth("companyAdmin"),aiRespnonseContllors.getSwotirecommen
 route.get("/get-challenge",auth("companyAdmin"),aiRespnonseContllors.challengerecommendations)
 route.get("/challenge-rixScore",auth("companyAdmin"),aiRespnonseContllors.challengeRixScore)
 route.post("/create-themes",auth("companyAdmin"),aiRespnonseContllors.createThemesAi)
+route.post("/create-business-goal",auth("companyAdmin"),aiRespnonseContllors.createBusinessGoalAi)
 
 
 export const aiRespnonseRoute=route

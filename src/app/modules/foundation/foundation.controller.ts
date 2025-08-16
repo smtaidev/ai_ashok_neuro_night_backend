@@ -52,6 +52,25 @@ const result=  await FoundationService.createIdentityIntoDb(company.companyName,
   });
 
 });
+const getAllIdentity = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+   const { companyName} = req.user;
+  const result = await FoundationService.getAllIdentityFromDb(companyName);
+  res.status(status.OK).json({
+    success: true,
+    message: "All identity data retrieved successfully",
+    data: result
+  });
+});
+
+const getAllZeroIn = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+   const { companyName} = req.user;
+  const result = await FoundationService.getAllZeroInFromDb(companyName);
+  res.status(status.OK).json({
+    success: true,
+    message: "All zeroIn data retrieved successfully",
+    data: result
+  });
+});
 const getAllcapabilitysFoundation = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
    const { companyName} = req.user;
    console.log(companyName)
@@ -80,6 +99,18 @@ const result=  await FoundationService.updateCapabilityById(companyName,id,req.b
   res.status(status.OK).json({
     success: true,
     message: "capabilitys foundation successfully updated",
+    data:result
+  });
+
+});
+const deletecapabilitysFoundation = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+   const { companyName} = req.user;
+   const{id}=req.params
+   console.log(companyName)
+const result=  await FoundationService.deleteCapability(companyName,id);
+  res.status(status.OK).json({
+    success: true,
+    message: "deleted capability foundation successfully updated",
     data:result
   });
 
@@ -120,5 +151,8 @@ export const FoundationController = {
   createcapabilitysFoundation,
   getAllcapabilitysFoundation,
   updatecapabilitysFoundation,
-  createDifrentCapabilitysFoundation
+  createDifrentCapabilitysFoundation,
+  getAllIdentity,
+  getAllZeroIn,
+  deletecapabilitysFoundation
 };

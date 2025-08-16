@@ -200,6 +200,20 @@ const getsingleSwotIntDb = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const deletesingleSwotIntDb = catchAsync(async (req, res) => {
+  const company = req.user;
+const {id}=req.params
+  console.log(company)
+  const result = await AssessServices.deleteSwotFromDb(
+    company.companyName,id,req.body
+  );
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "delelted swot successfully !",
+    data: result,
+  });
+});
 
 //----------------Challenge contllors section  -----------------------------------------------------------
 const createChallengeIntDb = catchAsync(async (req, res) => {
@@ -348,5 +362,6 @@ export const AssessContllors = {
   createsingleSwotIntDb,
   getsingleSwotIntDb,
   getAllChallengesFromDb,
-  getSingleChallengeFromDb
+  getSingleChallengeFromDb,
+  deletesingleSwotIntDb
 };

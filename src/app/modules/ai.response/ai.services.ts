@@ -145,10 +145,43 @@ const createThemesAiData = async (companyName: string) => {
   return {themesAiData,difrentcapabilites,}
 };
 
+
+const createBusinessGoalAi=async(companyName:string)=>{
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "company name is not found !");
+  }
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+
+  const business=await BlueprintModel.findOne(query).lean()  
+
+  const themesData = await BlueprintModel.findOne(query);
+  const strategic_themes = themesData?.strategicThemes;
+
+  const goals=business?.businessGoals 
+
+
+const aichallengeDataFind=await RiskModel.findOne({companyName:companyName},{companyName:0,_id:0, __v: 0}).lean()
+
+
+const challenges=aichallengeDataFind?.challenge
+const visionData=await BlueprintModel.findOne(query)
+
+const allData={
+  strategic_themes,
+  goals,
+  challenges
+}
+
+console.log(allData)
+
+}
 export const aiRespnonseServices = {
   getAllTrendsAiData,
   getAllSowtAiData,
   getChallengetAiData,
   getChallengeRixScoreData,
   createThemesAiData,
+  createBusinessGoalAi
 };

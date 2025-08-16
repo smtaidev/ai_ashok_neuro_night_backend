@@ -11,6 +11,7 @@ router.patch('/create',auth('companyAdmin'),AssessContllors.createsingleSwotIntD
 router.get('/get-swot',auth('companyAdmin'),AssessContllors.getsingleSwotIntDb)
 // router.patch('/',auth('companyAdmin'),AssessContllors.createSwotIntDb)
 router.patch('/:id',auth('companyAdmin'),AssessContllors.updateSwotIntDb)
+router.delete('/:id',auth('companyAdmin'),AssessContllors.deletesingleSwotIntDb)
 
 
 

@@ -62,6 +62,19 @@ const createThemesAi=catchAsync(async(req,res)=>{
     data:result
   });
 })
+const createBusinessGoalAi=catchAsync(async(req,res)=>{
+    const company=req.user
+
+    const result=await aiRespnonseServices.createBusinessGoalAi(company?.companyName)
+   
+    sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "business Goal ai data  successfully created",
+    data:result
+  });
+
+})
 
 
 
@@ -70,5 +83,7 @@ export const aiRespnonseContllors={
     getSwotirecommendations, 
   challengerecommendations,
   challengeRixScore,
-  createThemesAi
+  createThemesAi,
+  createBusinessGoalAi
+
 }
