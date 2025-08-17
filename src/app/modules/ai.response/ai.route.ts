@@ -10,6 +10,7 @@ route.get("/get-challenge",auth("companyAdmin"),aiRespnonseContllors.challengere
 route.get("/challenge-rixScore",auth("companyAdmin"),aiRespnonseContllors.challengeRixScore)
 route.post("/create-themes",auth("companyAdmin"),aiRespnonseContllors.createThemesAi)
 route.post("/create-business-goal",auth("companyAdmin"),aiRespnonseContllors.createBusinessGoalAi)
+route.post("/create-vision",auth("companyAdmin"),aiRespnonseContllors.createVision)
 
 
 export const aiRespnonseRoute=route

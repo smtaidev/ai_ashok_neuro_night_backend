@@ -2,6 +2,8 @@ import status from "http-status";
 import AppError from "../../errors/AppError";
 import { Blueprint, BusinessGoal, StrategicTheme } from "./blueprint.interface";
 import { BlueprintModel } from "./blueprint.model";
+import config from "../../../config";
+import axios from "axios";
 
 const createVision = async (companyName: string, payload: Partial<Blueprint>) => {
   if (!companyName) {
@@ -16,11 +18,16 @@ const createVision = async (companyName: string, payload: Partial<Blueprint>) =>
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
   };
 
+
+
   const result = await BlueprintModel.findOneAndUpdate(
     query,
     { $set: { vision: payload.vision } },
     { new: true, upsert: true } 
   );
+
+
+
 
   return result;
 };

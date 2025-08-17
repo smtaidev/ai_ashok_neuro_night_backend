@@ -12,7 +12,7 @@ router.patch("/create-capability",auth("companyAdmin"), FoundationController.cre
 router.get("/get-capability",auth("companyAdmin"), FoundationController.getAllcapabilitysFoundation);
 router.delete("/:id/delete-capability",auth("companyAdmin"), FoundationController.deletecapabilitysFoundation);
 
-router.get("/:id/update-capability",auth("companyAdmin"), FoundationController.updatecapabilitysFoundation);
+router.patch("/:id/update-capability",auth("companyAdmin"), FoundationController.updatecapabilitysFoundation);
 router.post("/", FoundationController.createFoundation);
 router.get("/:companyName", FoundationController.getSpecificFoundationByCompanyName);
 router.patch("/:id", FoundationController.updateFoundation);

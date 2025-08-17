@@ -280,33 +280,19 @@ const updateCapabilityById = async (
 
   return result;
 };
-const deleteCapability = async (companyName: string, id: string) => {
-  if (!companyName) {
-    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
-  }
-  if (!id) {
-    throw new AppError(status.BAD_REQUEST, "Capability ID is required!");
-  }
+const deleteCapability = async (companyName: string,id:string) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  if (!id) throw new AppError(status.BAD_REQUEST, "Capability ID is required!");
 
-  const query = { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } };
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") }
+  };
 
-  const result = await FoundationModel.findOneAndUpdate(
-    query,
-    { $pull: { capabilitys: { _id: id } } }, // string _id
-    { new: true }
-  );
+  const update = { $pull: { capabilitys: { _id: id } } };
 
-  if (!result) {
-    throw new AppError(
-      status.NOT_FOUND,
-      "Company not found or capability not found to delete!"
-    );
-  }
-
-
+  const result = await FoundationModel.findOneAndUpdate(query, update, { new: true });
   return result;
 };
-
 const createDifrentCapabilitys = async (companyName: string, payload: any) => {
   if (!companyName)
     throw new AppError(status.BAD_REQUEST, "Company name is not found!");

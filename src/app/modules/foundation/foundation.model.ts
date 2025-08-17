@@ -1,6 +1,33 @@
 import { model, Schema } from "mongoose";
 import { IFoundation } from "./foundation.interface";
+// Capability Schema আলাদা করা হলো
+const CapabilitySchema = new Schema(
+  {
+    capability: { type: String, default: null },
+    type: { type: String, default: null },
+  },
+  
+);
 
+// Identity Schema
+const IdentitySchema = new Schema(
+  {
+    mission: { type: String, default: null },
+    value: { type: String, default: null },
+    purpose: { type: String, default: null },
+  }
+);
+
+// ZeroIn Schema
+const ZeroInSchema = new Schema(
+  {
+    targetCustomer: { type: String, default: null },
+    keyCustomerNeed: { type: String, default: null },
+    valueProposition: { type: String, default: null },
+  }
+);
+
+// Main Foundation Schema
 const FoundationSchema = new Schema<IFoundation>(
   {
     _id: {
@@ -13,33 +40,23 @@ const FoundationSchema = new Schema<IFoundation>(
       required: true,
     },
     identity: {
-      mission: { type: String, default: null },
-      value: { type: String, default: null },
-      purpose: { type: String, default: null },
+      type: IdentitySchema,
+      default: {},
     },
     zeroIn: {
-      targetCustomer: { type: String, default: null },
-      keyCustomerNeed: { type: String, default: null },
-      valueProposition: { type: String, default: null },
+      type: ZeroInSchema,
+      default: {},
     },
-  capabilitys: {
-  type: [
-    new Schema(
-      {
-        _id:{type: String, },
-        capability: { type: String, default: null },
-        type: { type: String, default: null }
-      },
-      
-    )
-  ],
-  default: []
-},
-    differentiatingCapabilities: { type: [String], default: [] },
+    capabilitys: {
+      type: [CapabilitySchema],
+      default: [],
+    },
+    differentiatingCapabilities: {
+      type: [String],
+      default: [],
+    },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 export const FoundationModel = model<IFoundation>('Foundation', FoundationSchema);

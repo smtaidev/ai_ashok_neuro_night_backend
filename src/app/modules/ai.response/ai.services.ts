@@ -171,10 +171,46 @@ const visionData=await BlueprintModel.findOne(query)
 const allData={
   strategic_themes,
   goals,
-  challenges
+  challenges,
+  vision:visionData?.vision
+}
+console.log(allData)
+
+
+   const apiUrls = `${config.ai_base_url}/blueprint/vision`;
+  
+    const responses = await axios.post(apiUrls, allData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+console.log(responses.data)
+    return responses.data
+
 }
 
-console.log(allData)
+
+const createVisionAI=async(companyName:string)=>{
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+
+  
+    const visionData=await BlueprintModel.findOne(query)
+  
+    const vision_statement=visionData?.vision
+    console.log(vision_statement)
+     const apiUrls = `${config.ai_base_url}/blueprint/vision`;
+  
+    const responses = await axios.post(apiUrls, {vision_statement}, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+
+    return responses.data
 
 }
 export const aiRespnonseServices = {
@@ -183,5 +219,6 @@ export const aiRespnonseServices = {
   getChallengetAiData,
   getChallengeRixScoreData,
   createThemesAiData,
-  createBusinessGoalAi
+  createBusinessGoalAi,
+  createVisionAI
 };

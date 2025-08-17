@@ -597,30 +597,41 @@ const updateSwotInDb = async (
 };
 
 
-const deleteSwotFromDb = async (
-  companyName: string,
-  id: string, // SWOT item _id
-  category: "strengths" | "weaknesses" | "opportunities" | "threats"
-) => {
-  if (!companyName)
+const deleteSwotFromDb = async (companyName: string, detailId: string,payload: { categoryName: string }) => {
+  // Validate company name
+  if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "Company name is not found!");
-  if (!id) throw new AppError(status.BAD_REQUEST, "SWOT item id is required!");
-  if (!category)
-    throw new AppError(status.BAD_REQUEST, "SWOT category is required!");
+  }
 
-  // Query to find the company
-  const query = { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } };
+  const { categoryName} = payload;
 
-  // Pull (delete) the SWOT item from the specific category array by _id
-  const update = { $pull: { [`swot.${category}`]: { _id:id } } };
+  // Validate category name
+  console.log(categoryName)
+  const allowedCategories = ["strengths", "weaknesses", "opportunities", "threats"];
+  if (!allowedCategories.includes(categoryName)) {
+    throw new AppError(status.BAD_REQUEST, "Invalid category name!");
+  }
 
-  // Update in DB and return the updated document
-  const result = await AssessModel.findOneAndUpdate(query, update, { new: true });
+  // Case-insensitive query for company name
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
 
-  if (!result) throw new AppError(status.NOT_FOUND, "Company or SWOT item not found!");
+  // Remove the specific detail from the SWOT category using $pull
+  const result = await AssessModel.findOneAndUpdate(
+    query,
+    { $pull: { [`swot.0.${categoryName}`]: { _id: detailId } } },
+    { new: true }
+  );
+
+  // Check if company exists
+  if (!result) {
+    throw new AppError(status.NOT_FOUND, "Company not found");
+  }
 
   return result;
 };
+
 
 //----------------Challenge services section  -----------------------------------------------------------
 const createChallengeIntoDb = async (companyName: string, payload: any) => {
@@ -653,6 +664,7 @@ const createChallengeIntoDb = async (companyName: string, payload: any) => {
     ...aichallenge,
     swot,
   };
+
 
   const apiUrl = `${config.ai_base_url}/challenge/evaluate`;
 
@@ -714,15 +726,15 @@ const createChallengeIntoDb = async (companyName: string, payload: any) => {
   }
 
   const MainResult = responses?.data?.recommendations;
-  console.log(MainResult);
+
 
   const createMainRecommendsation = await AiRecommendModel.findOneAndUpdate(
     query,
     { $set: { recommendations: MainResult } }
   );
 
-  console.log(createMainRecommendsation);
-  return MainResult;
+
+  return response.data
 };
 
 const updateChallengeInDb = async (

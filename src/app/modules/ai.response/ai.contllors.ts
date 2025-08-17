@@ -75,6 +75,19 @@ const createBusinessGoalAi=catchAsync(async(req,res)=>{
   });
 
 })
+const createVision=catchAsync(async(req,res)=>{
+    const company=req.user
+
+    const result=await aiRespnonseServices.createVisionAI(company?.companyName)
+   
+    sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "vision ai data  successfully created",
+    data:result
+  });
+
+})
 
 
 
@@ -84,6 +97,7 @@ export const aiRespnonseContllors={
   challengerecommendations,
   challengeRixScore,
   createThemesAi,
-  createBusinessGoalAi
+  createBusinessGoalAi,
+  createVision
 
 }

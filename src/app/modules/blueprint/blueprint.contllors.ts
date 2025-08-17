@@ -4,7 +4,6 @@ import { blueprintServices } from "./blueprint.services";
 
 const createVisonDb=catchAsync(async(req,res)=>{
     const company=req.user 
-  console.log("check vison",req.body)
 const result=await blueprintServices.createVision(company.companyName,req.body)
  sendResponse(res, {
     statusCode: 200,
