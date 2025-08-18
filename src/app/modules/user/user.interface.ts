@@ -9,4 +9,6 @@ export interface IUser {
   companyRole: string;
   role: "companyAdmin" | "superAdmin" | "companyEmployee";
   isDeleted: boolean;
+  isSubscribed: Boolean;
+    planExpiration  :Date
 }

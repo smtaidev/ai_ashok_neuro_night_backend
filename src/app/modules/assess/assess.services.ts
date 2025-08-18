@@ -18,7 +18,7 @@ import {
   AnalysisModel,
   RiskModel,
 } from "../ai.response/ai.model";
-import mongoose from "mongoose";
+import mongoose, { ObjectId, Types } from "mongoose";
 const createAssess = async (payload: TAssess) => {
   if (payload) {
     throw new AppError(status.BAD_REQUEST, "data is massing !");
@@ -233,156 +233,187 @@ const createtrendIntoDb = async (companyName: string, payload: Trend[]) => {
   return result;
 };
 
+
 const updateTrendInDb = async (
   companyName: string,
-  id: string,
-  payload: Partial<Trend>
+  trendId: string,
+  payload: any
 ) => {
-  if (!companyName)
-    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
-  if (!id) throw new AppError(status.BAD_REQUEST, "Trend id is required!");
+  if (!companyName) throw new AppError(400, "Company name is required!");
+  if (!trendId) throw new AppError(400, "Trend _id is required!");
 
   const query = {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
-    "trends._id": id,
+    "trends._id": trendId,
   };
 
-  const setObj: Record<string, any> = {};
-  for (const key in payload) {
-    const typedKey = key as keyof typeof payload;
-    setObj[`trends.$.${typedKey}`] = payload[typedKey];
-  }
+  const updateObj = {
+    "trends.$.trendDetails": payload, // পুরা array replace
+  };
 
+  console.log(payload)
   const result = await AssessModel.findOneAndUpdate(
     query,
-    { $set: setObj },
+    { $set: updateObj },
     { new: true }
   );
 
-  const isEexistTrendAi = await AssessModel.findOne({
-    companyName: companyName,
-  });
-
-  const trendData = isEexistTrendAi?.trends || [];
-  const schema2: any = {
-    customer_insights: [],
-    competitor_landscape: [],
-    EconomicConsiderations: [],
-    technological_advances: [],
-    regulatory_and_legal: [],
-    supply_chain_logistics: [],
-    global_market_trends: [],
-    environmental_social_impact: [],
-    collaboration_partnerships: [],
-    scenarios_risk_assessment: [],
-    emerging_markets_opportunities: [],
-    on_the_radar: [],
-  };
-
-  // Basic mapping logic
-  for (let i = 0; i < trendData.length; i++) {
-    const trend = trendData[i];
-
-    for (let j = 0; j < trend.trendDetails.length; j++) {
-      const detail = trend.trendDetails[j];
-
-      if (trend.trendName === "Customer Insights") {
-        schema2.customer_insights.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Competitor Landscape") {
-        schema2.competitor_landscape.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Economic Considerations") {
-        schema2.EconomicConsiderations.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Technological Advances") {
-        schema2.technological_advances.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Regulatory and Legal Factors") {
-        schema2.regulatory_and_legal.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Supply Chain and Logistics") {
-        schema2.supply_chain_logistics.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Global Market Trends") {
-        schema2.global_market_trends.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Environmental and Social Impact") {
-        schema2.environmental_social_impact.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Collaboration and Partnerships") {
-        schema2.collaboration_partnerships.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Scenarios and Risk Assessment") {
-        schema2.scenarios_risk_assessment.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Emerging Markets and Opportunities") {
-        schema2.emerging_markets_opportunities.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "On The Radar") {
-        schema2.on_the_radar.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      }
-    }
-  }
-
-  const apiUrl = `${config.ai_base_url}/trends/analyze`;
-
-  const response = await axios.post(apiUrl, schema2, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  const aiData = response.data;
-  const aiSubmitData = {
-    companyName: companyName,
-    ...aiData,
-  };
-
-  const AiTrendsUpdate = await AiTrendModel.findOneAndUpdate(query, {
-    $set: aiSubmitData,
-  });
-  console.log("check update data ", AiTrendsUpdate);
+  if (!result) throw new AppError(404, "Trend or Company not found!");
 
   return result;
 };
+
+
+// const updateTrendInDb = async (
+//   companyName: string,
+//   id: string,
+//   payload: Partial<Trend>
+// ) => {
+//   if (!companyName)
+//     throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+//   if (!id) throw new AppError(status.BAD_REQUEST, "Trend id is required!");
+
+//   const query = {
+//     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+//     "trends._id": id,
+//   };
+
+//   const setObj: Record<string, any> = {};
+//   for (const key in payload) {
+//     const typedKey = key as keyof typeof payload;
+//     setObj[`trends.$.${typedKey}`] = payload[typedKey];
+//   }
+
+//   const result = await AssessModel.findOneAndUpdate(
+//     query,
+//     { $set: setObj },
+//     { new: true }
+//   );
+
+//   const isEexistTrendAi = await AssessModel.findOne({
+//     companyName: companyName,
+//   });
+
+//   const trendData = isEexistTrendAi?.trends || [];
+//   const schema2: any = {
+//     customer_insights: [],
+//     competitor_landscape: [],
+//     EconomicConsiderations: [],
+//     technological_advances: [],
+//     regulatory_and_legal: [],
+//     supply_chain_logistics: [],
+//     global_market_trends: [],
+//     environmental_social_impact: [],
+//     collaboration_partnerships: [],
+//     scenarios_risk_assessment: [],
+//     emerging_markets_opportunities: [],
+//     on_the_radar: [],
+//   };
+
+//   // Basic mapping logic
+//   for (let i = 0; i < trendData.length; i++) {
+//     const trend = trendData[i];
+
+//     for (let j = 0; j < trend.trendDetails.length; j++) {
+//       const detail = trend.trendDetails[j];
+
+//       if (trend.trendName === "Customer Insights") {
+//         schema2.customer_insights.push({
+//           question: detail.question,
+//           answer: detail.answer,
+//           impact: detail.impactLevel,
+//         });
+//       } else if (trend.trendName === "Competitor Landscape") {
+//         schema2.competitor_landscape.push({
+//           question: detail.question,
+//           answer: detail.answer,
+//           impact: detail.impactLevel,
+//         });
+//       } else if (trend.trendName === "Economic Considerations") {
+//         schema2.EconomicConsiderations.push({
+//           question: detail.question,
+//           answer: detail.answer,
+//           impact: detail.impactLevel,
+//         });
+//       } else if (trend.trendName === "Technological Advances") {
+//         schema2.technological_advances.push({
+//           question: detail.question,
+//           answer: detail.answer,
+//           impact: detail.impactLevel,
+//         });
+//       } else if (trend.trendName === "Regulatory and Legal Factors") {
+//         schema2.regulatory_and_legal.push({
+//           question: detail.question,
+//           answer: detail.answer,
+//           impact: detail.impactLevel,
+//         });
+//       } else if (trend.trendName === "Supply Chain and Logistics") {
+//         schema2.supply_chain_logistics.push({
+//           question: detail.question,
+//           answer: detail.answer,
+//           impact: detail.impactLevel,
+//         });
+//       } else if (trend.trendName === "Global Market Trends") {
+//         schema2.global_market_trends.push({
+//           question: detail.question,
+//           answer: detail.answer,
+//           impact: detail.impactLevel,
+//         });
+//       } else if (trend.trendName === "Environmental and Social Impact") {
+//         schema2.environmental_social_impact.push({
+//           question: detail.question,
+//           answer: detail.answer,
+//           impact: detail.impactLevel,
+//         });
+//       } else if (trend.trendName === "Collaboration and Partnerships") {
+//         schema2.collaboration_partnerships.push({
+//           question: detail.question,
+//           answer: detail.answer,
+//           impact: detail.impactLevel,
+//         });
+//       } else if (trend.trendName === "Scenarios and Risk Assessment") {
+//         schema2.scenarios_risk_assessment.push({
+//           question: detail.question,
+//           answer: detail.answer,
+//           impact: detail.impactLevel,
+//         });
+//       } else if (trend.trendName === "Emerging Markets and Opportunities") {
+//         schema2.emerging_markets_opportunities.push({
+//           question: detail.question,
+//           answer: detail.answer,
+//           impact: detail.impactLevel,
+//         });
+//       } else if (trend.trendName === "On The Radar") {
+//         schema2.on_the_radar.push({
+//           question: detail.question,
+//           answer: detail.answer,
+//           impact: detail.impactLevel,
+//         });
+//       }
+//     }
+//   }
+
+//   const apiUrl = `${config.ai_base_url}/trends/analyze`;
+
+//   const response = await axios.post(apiUrl, schema2, {
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//   });
+
+//   const aiData = response.data;
+//   const aiSubmitData = {
+//     companyName: companyName,
+//     ...aiData,
+//   };
+
+//   const AiTrendsUpdate = await AiTrendModel.findOneAndUpdate(query, {
+//     $set: aiSubmitData,
+//   });
+//   console.log("check update data ", AiTrendsUpdate);
+
+//   return result;
+// };
 
 const getAllTrendsFromDb = async (companyName: string) => {
   if (!companyName)
@@ -808,6 +839,33 @@ const getSingleChallengeFromDb = async (companyName: string, id: string) => {
 
   return result.challenges[0];
 };
+const deleteSingleChallengeFromDb = async (companyName: string, id: string) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is required!");
+  }
+  if (!id) {
+    throw new AppError(status.BAD_REQUEST, "Challenge id is required!");
+  }
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+
+  const update = {
+    $pull: {
+      challenges: { _id: id }
+    }
+  };
+
+  const result = await AssessModel.updateOne(query, update);
+
+  if (result.modifiedCount === 0) {
+    throw new AppError(status.NOT_FOUND, "Challenge not found or already deleted!");
+  }
+
+  return { success: true, message: "Challenge deleted successfully." };
+};
+
 //----------------CompetitorAnalysis services section  -------------------------------------------
 const createCompetitorAnalysisIntoDb = async (
   companyName: string,
@@ -946,4 +1004,5 @@ export const AssessServices = {
   getAllChallengesFromDb,
   getSingleChallengeFromDb,
   deleteSwotFromDb,
+  deleteSingleChallengeFromDb
 };

@@ -32,6 +32,21 @@ const createVision = async (companyName: string, payload: Partial<Blueprint>) =>
   return result;
 };
 
+const getVision=async(companyName: string)=>{
+    if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  }
+
+
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+
+  const result=await BlueprintModel.findOne(query,{vision:1})
+
+  return result
+}
 
 const createstategicTheme = async (companyName: string, payload: Partial<BusinessGoal>) => {
   
@@ -105,6 +120,29 @@ const getSingleStrategicTheme = async (id: string, companyName: string) => {
 
   const result = await BlueprintModel.findOne(query, { "strategicThemes.$": 1, _id: 0 });
   return result?.strategicThemes?.[0] || null;
+};
+
+const deleteSingleStrategicTheme = async (id: string, companyName: string) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  if (!id) throw new AppError(status.BAD_REQUEST, "Theme ID is required!");
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+
+  const update = {
+    $pull: {
+      strategicThemes: { _id: id }
+    }
+  };
+
+  const result = await BlueprintModel.updateOne(query, update);
+
+  if (result.modifiedCount === 0) {
+    throw new AppError(status.NOT_FOUND, "Strategic theme not found or already deleted!");
+  }
+
+  return { success: true, message: "Strategic theme deleted successfully." };
 };
 
 // ------------------this is the business goal services -------------------------------------areya 
@@ -210,5 +248,9 @@ export const blueprintServices = {
   updateBusinessGoal,
   getAllBusinessGoals,
   getSingleBusinessGoal,
-  deleteBusinessGoal
+  deleteBusinessGoal,
+  getVision,
+  getAllStrategicThemes,
+  getSingleStrategicTheme,
+  deleteSingleStrategicTheme
 };

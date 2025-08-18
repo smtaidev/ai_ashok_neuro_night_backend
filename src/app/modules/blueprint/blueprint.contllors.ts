@@ -12,6 +12,17 @@ const result=await blueprintServices.createVision(company.companyName,req.body)
     data: result,
   });
 })
+
+const getVisonDb=catchAsync(async(req,res)=>{
+    const company=req.user 
+const result=await blueprintServices.getVision(company.companyName)
+ sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "vision  successfully get !",
+    data: result,
+  });
+})
 const creatstategicThemeDb=catchAsync(async(req,res)=>{
     const company=req.user 
 
@@ -35,6 +46,41 @@ const result=await blueprintServices.updatestategicTheme(id,company.companyName,
   });
 })
 
+const getAllstategicThemeDb=catchAsync(async(req,res)=>{
+    const company=req.user 
+
+const result=await blueprintServices.getAllStrategicThemes(company.companyName)
+ sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "stategic Theme  successfully get all !",
+    data: result,
+  });
+})
+const getSinglestategicThemeDb=catchAsync(async(req,res)=>{
+    const company=req.user 
+const {id}=req.params
+const result=await blueprintServices.getSingleStrategicTheme(id,company.companyName)
+ sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "stategic Theme  successfully get single  !",
+    data: result,
+  });
+})
+const deleteSingleStrategicThemeDb = catchAsync(async (req, res) => {
+  const company = req.user;
+  const { id } = req.params;
+
+  const result = await blueprintServices.deleteSingleStrategicTheme(id, company.companyName);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Strategic Theme successfully deleted!",
+    data: result, 
+  });
+});
 //------------this si the business gold services----------------------------------------------
 const createbusinessGoalDb=catchAsync(async(req,res)=>{
     const company=req.user 
@@ -103,5 +149,9 @@ export const blueprintContllors={
     updatetstategicThemeDb,
     createbusinessGoalDb,
     updatebusinessGoalDb,
-    getAllBusinessGoalsDb,getSingleBusinessGoalDb,deleteBusinessGoalDb
+    getAllBusinessGoalsDb,getSingleBusinessGoalDb,deleteBusinessGoalDb,
+    getVisonDb,
+    getAllstategicThemeDb,
+    getSinglestategicThemeDb,
+    deleteSingleStrategicThemeDb
 }

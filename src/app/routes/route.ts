@@ -12,6 +12,7 @@ import { blueprintRouter} from "../modules/blueprint/blueprint.route";
 import { choregorapRoute } from "../modules/choreograph/choreograph.router";
 import { aiRespnonseRoute } from "../modules/ai.response/ai.route";
 import { chatBotRoute } from "../modules/chat-bot/chat.route";
+import { PlanRouters } from "../modules/Plan/plan.route";
 
 
 
@@ -70,6 +71,10 @@ const moduleRoutes = [
   {
     path: "/chat-bot",
     route:chatBotRoute
+  },
+  {
+    path: "/plan",
+    route:PlanRouters
   },
 
 ];

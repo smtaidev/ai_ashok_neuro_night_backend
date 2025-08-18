@@ -2,7 +2,6 @@ import { model, Schema } from "mongoose";
 import { IUser } from "./user.interface";
 import bcrypt from "bcrypt";
 
-
 const userSchema = new Schema<IUser>(
   {
     userName: { type: String, required: true },
@@ -10,11 +9,13 @@ const userSchema = new Schema<IUser>(
     password: { type: String, required: true },
     companyName: { type: String, required: true, unique: true },
     companyRole: { type: String, required: true, default: null },
-
-      foundationId: {type: Schema.Types.ObjectId, default: null},
+    isSubscribed: { type: Boolean, required: true, default: false },
+    planExpiration: { type: Date, required: false },
+    foundationId: { type: Schema.Types.ObjectId, default: null },
     role: {
       type: String,
-      enum: ["companyAdmin","superAdmin","companyEmployee"],default:"companyEmployee",
+      enum: ["companyAdmin", "superAdmin", "companyEmployee"],
+      default: "companyEmployee",
       required: true,
     },
     isDeleted: { type: Boolean, default: false },

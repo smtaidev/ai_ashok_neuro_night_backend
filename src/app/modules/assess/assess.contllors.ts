@@ -75,6 +75,8 @@ const createTrendIntDb = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+
 const updateTrendIntDb = catchAsync(async (req, res) => {
   const company = req.user;
   const { id } = req.params;
@@ -278,6 +280,24 @@ const getSingleChallengeFromDb = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+const deleteSingleChallengeFromDb = catchAsync(async (req, res) => {
+  const company = req.user;
+  const { id } = req.params;
+
+  console.log(id)
+  const result = await AssessServices.deleteSingleChallengeFromDb(
+    company.companyName,
+    id
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Challenge deleted successfully!",
+    data: result,
+  });
+});
 //----------------CompetitorAnalysis contllors section  -----------------------------------------------------------
 const createCompetitorAnalysisIntDb = catchAsync(async (req, res) => {
   const company = req.user;
@@ -363,5 +383,6 @@ export const AssessContllors = {
   getsingleSwotIntDb,
   getAllChallengesFromDb,
   getSingleChallengeFromDb,
-  deletesingleSwotIntDb
+  deletesingleSwotIntDb,
+  deleteSingleChallengeFromDb
 };
