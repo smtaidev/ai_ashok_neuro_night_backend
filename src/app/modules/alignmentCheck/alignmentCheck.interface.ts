@@ -1,21 +1,22 @@
+import { Types } from "mongoose";
 
-interface Note {
-  _id?: string;
-  userId: string;
-  noteText: string;
+interface Answer {
+  questionNumber: number;
+  selectedOptions: string[]; // default: [" "] যদি কোনো answer না থাকে
 }
 
-interface AssessAlignmentCheck {
-  _id?: string;
-  stakeholdersInvolved1: string[];
-  stakeholdersInvolved2: string[];
-  stakeholdersInvolved3: string[];
-  sharedUnderstanding1: string[];
-  sharedUnderstanding2: string[];
-  sharedUnderstanding3: string[];
-  onTrends: string[];
-  onSwot: string[];
-  onChallenges: string[];
-  onCA: string[];
-  notes: Note[];
+interface SelectedComponent {
+  name: string;
+  checked: boolean; // default: false
+}
+
+export interface AssessAlignmentCheck {
+  title: string;
+  userId: Types.ObjectId;
+  companyName: string;
+  answers: Answer[];
+  selectedComponents: SelectedComponent[];
+  suggestions?: string; // default: ""
+  createdAt?: Date; // timestamps
+  updatedAt?: Date; // timestamps
 }

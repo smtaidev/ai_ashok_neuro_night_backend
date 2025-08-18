@@ -12,6 +12,7 @@ const router=express.Router()
 router.patch('/create-challenge',auth('companyAdmin'),AssessContllors.createChallengeIntDb)
 router.get('/get-challenge',auth('companyAdmin'),AssessContllors.getAllChallengesFromDb)
 router.get('/:id/get-challenge',auth('companyAdmin'),AssessContllors.getSingleChallengeFromDb)
+router.patch('/:id/update-ai-challenge',auth('companyAdmin'),AssessContllors.UpdateSingleChallengeAiDataFromDb)
 router.patch('/:id/update-challenge',auth('companyAdmin'),AssessContllors.updatChallengeIntDb)
 router.delete('/delete-challenge/:id',auth('companyAdmin'),AssessContllors.deleteSingleChallengeFromDb)
 

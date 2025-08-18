@@ -1,27 +1,30 @@
+const mongoose = require('mongoose');
+const { Schema, model } = mongoose;
 
-import { Schema, model } from "mongoose";
+// Answer Schema
+const answerSchema = new Schema({
+  questionNumber: { type: Number, required: true }, // questionId এর পরিবর্তে
+  selectedOptions: {
+    type: [String],
+    default: [" "] // কোন answer না দিলে default " "
+  }
+});
 
-// Note Schema
-const noteSchema = new Schema({
-  userId: { type: String, required: true },
-  noteText: { type: String, required: true },
-}, { timestamps: true });
+// Selected Component Schema
+const selectedComponentSchema = new Schema({
+  name: { type: String, required: true }, // componentId এর পরিবর্তে
+  checked: { type: Boolean, default: false }
+});
 
-// AssessAlignmentCheck Schema
-const assessAlignmentCheckSchema = new Schema({
-  stakeholdersInvolved1: { type: [String], default: [] },
-  stakeholdersInvolved2: { type: [String], default: [] },
-  stakeholdersInvolved3: { type: [String], default: [] },
-  sharedUnderstanding1: { type: [String], default: [] },
-  sharedUnderstanding2: { type: [String], default: [] },
-  sharedUnderstanding3: { type: [String], default: [] },
-  onTrends: { type: [String], default: [] },
-  onSwot: { type: [String], default: [] },
-  onChallenges: { type: [String], default: [] },
-  onCA: { type: [String], default: [] },
-  notes: { type: [noteSchema], default: [] },
-}, { timestamps: true });
-
-const AssessAlignmentCheckModel = model("AssessAlignmentCheck", assessAlignmentCheckSchema);
+// User Response Schema
+const userResponseSchema = new Schema({
+  title:{type:String, required: true },
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  companyName: { type: String, required: true }, // moduleId এর পরিবর্তে companyName
+  answers: [answerSchema],
+  selectedComponents: [selectedComponentSchema],
+  suggestions: { type: String,default:"" },
+}, { timestamps: true }); // createdAt & updatedAt auto generate হবে
+const AssessAlignmentCheckModel = model("AssessAlignmentCheck", userResponseSchema);
 
 export default AssessAlignmentCheckModel;

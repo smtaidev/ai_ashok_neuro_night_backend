@@ -281,6 +281,21 @@ const getSingleChallengeFromDb = catchAsync(async (req, res) => {
   });
 });
 
+const UpdateSingleChallengeAiDataFromDb = catchAsync(async (req, res) => {
+  const company = req.user;
+  const { id } = req.params;
+  const result = await AssessServices.updateChallengeAiDataInDb(
+    company.companyName,
+    id,req.body
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Challenge updated successfully!",
+    data: result,
+  });
+});
 const deleteSingleChallengeFromDb = catchAsync(async (req, res) => {
   const company = req.user;
   const { id } = req.params;
@@ -384,5 +399,6 @@ export const AssessContllors = {
   getAllChallengesFromDb,
   getSingleChallengeFromDb,
   deletesingleSwotIntDb,
-  deleteSingleChallengeFromDb
+  deleteSingleChallengeFromDb,
+  UpdateSingleChallengeAiDataFromDb
 };

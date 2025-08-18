@@ -146,49 +146,66 @@ const createThemesAiData = async (companyName: string) => {
 };
 
 
-const createBusinessGoalAi=async(companyName:string)=>{
-  if (!companyName) {
-    throw new AppError(status.BAD_REQUEST, "company name is not found !");
-  }
-  const query = {
-    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+const createBusinessGoalAi = async (companyName: string) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "company name is not found !");
+
+  const query = { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } };
+
+  const business = await BlueprintModel.findOne(query).lean();
+  const themesData = await BlueprintModel.findOne(query);
+  const aichallengeDataFind = await RiskModel.findOne(
+    { companyName },
+    { companyName: 0, _id: 0, __v: 0 }
+  ).lean();
+  const visionData = await BlueprintModel.findOne(query).lean();
+
+  // Clean strategic_themes
+  const strategic_themes = themesData?.strategicThemes.map(theme => {
+    const obj = (theme as any).toObject ? (theme as any).toObject() : theme;
+    const { _id, createdAt, updatedAt, ...rest } = obj;
+    return rest;
+  });
+
+  // Clean goals and nested impact_ratings
+  const goals = business?.businessGoals.map(goal => {
+    const g = goal as any;
+    const { _id, createdAt, updatedAt, impact_ratings, ...rest } = g;
+
+    let cleanImpactRatings = undefined;
+    if (impact_ratings) {
+      const ir = impact_ratings as any;
+      const { _id: irId, createdAt: irCreatedAt, updatedAt: irUpdatedAt, ...otherRatings } = ir;
+      cleanImpactRatings = otherRatings;
+    }
+
+    return { ...rest, impact_ratings: cleanImpactRatings };
+  });
+
+  // Clean challenges
+  const challenges = aichallengeDataFind?.challenge.map(ch => {
+    const c = ch as any;
+    const { _id, createdAt, updatedAt, ...rest } = c;
+    return rest;
+  });
+
+  const allData = {
+    strategic_themes,
+    goals,
+    challenges,
+    vision: visionData?.vision,
   };
 
-  const business=await BlueprintModel.findOne(query).lean()  
-
-  const themesData = await BlueprintModel.findOne(query);
-  const strategic_themes = themesData?.strategicThemes;
-
-  const goals=business?.businessGoals 
 
 
-const aichallengeDataFind=await RiskModel.findOne({companyName:companyName},{companyName:0,_id:0, __v: 0}).lean()
+  const apiUrls = `${config.ai_base_url}/business-goal/analyze2`;
+  const responses = await axios.post(apiUrls, allData, {
+    headers: { "Content-Type": "application/json" },
+  });
+
+  return responses.data;
+};
 
 
-const challenges=aichallengeDataFind?.challenge
-const visionData=await BlueprintModel.findOne(query)
-
-const allData={
-  strategic_themes,
-  goals,
-  challenges,
-  vision:visionData?.vision
-}
-console.log(allData)
-
-
-   const apiUrls = `${config.ai_base_url}/blueprint/vision`;
-  
-    const responses = await axios.post(apiUrls, allData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-console.log(responses.data)
-    return responses.data
-
-}
 
 
 const createVisionAI=async(companyName:string)=>{

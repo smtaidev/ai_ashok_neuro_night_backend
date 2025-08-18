@@ -5,7 +5,6 @@ import { alignmentCheckServices } from "./alignmentCheck.services";
 
 const createalignmentCheckIntDb=catchAsync(async(req,res)=>{
     console.log(req.body)
-  
 const result=await alignmentCheckServices.createalignmentCheck(req.body)
 
  sendResponse(res, {

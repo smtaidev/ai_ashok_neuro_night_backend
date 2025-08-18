@@ -72,14 +72,16 @@ const deleteAssess = async (payloadId: string) => {
 
 //----------------trends services section  -----------------------------------------------------------
 const createtrendIntoDb = async (companyName: string, payload: Trend[]) => {
-  console.log(companyName);
+  console.log("▶ companyName:", companyName);
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "company name is not found !");
   }
+
   const query = {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
   };
 
+  // -------- schema2 build ----------
   const schema2: any = {
     customer_insights: [],
     competitor_landscape: [],
@@ -95,144 +97,97 @@ const createtrendIntoDb = async (companyName: string, payload: Trend[]) => {
     on_the_radar: [],
   };
 
-  // Basic mapping logic
-  for (let i = 0; i < payload.length; i++) {
-    const trend = payload[i];
+  for (const trend of payload) {
+    for (const detail of trend.trendDetails) {
+      const mappedData = {
+        question: detail.question,
+        answer: detail.answer,
+        impact: detail.impactLevel,
+      };
 
-    for (let j = 0; j < trend.trendDetails.length; j++) {
-      const detail = trend.trendDetails[j];
-
-      if (trend.trendName === "Customer Insights") {
-        schema2.customer_insights.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Competitor Landscape") {
-        schema2.competitor_landscape.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Economic Considerations") {
-        schema2.EconomicConsiderations.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Technological Advances") {
-        schema2.technological_advances.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Regulatory and Legal Factors") {
-        schema2.regulatory_and_legal.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Supply Chain and Logistics") {
-        schema2.supply_chain_logistics.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Global Market Trends") {
-        schema2.global_market_trends.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Environmental and Social Impact") {
-        schema2.environmental_social_impact.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Collaboration and Partnerships") {
-        schema2.collaboration_partnerships.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Scenarios and Risk Assessment") {
-        schema2.scenarios_risk_assessment.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "Emerging Markets and Opportunities") {
-        schema2.emerging_markets_opportunities.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      } else if (trend.trendName === "On The Radar") {
-        schema2.on_the_radar.push({
-          question: detail.question,
-          answer: detail.answer,
-          impact: detail.impactLevel,
-        });
-      }
+      if (trend.trendName === "Customer Insights") schema2.customer_insights.push(mappedData);
+      else if (trend.trendName === "Competitor Landscape") schema2.competitor_landscape.push(mappedData);
+      else if (trend.trendName === "Economic Considerations") schema2.EconomicConsiderations.push(mappedData);
+      else if (trend.trendName === "Technological Advances") schema2.technological_advances.push(mappedData);
+      else if (trend.trendName === "Regulatory and Legal Factors") schema2.regulatory_and_legal.push(mappedData);
+      else if (trend.trendName === "Supply Chain and Logistics") schema2.supply_chain_logistics.push(mappedData);
+      else if (trend.trendName === "Global Market Trends") schema2.global_market_trends.push(mappedData);
+      else if (trend.trendName === "Environmental and Social Impact") schema2.environmental_social_impact.push(mappedData);
+      else if (trend.trendName === "Collaboration and Partnerships") schema2.collaboration_partnerships.push(mappedData);
+      else if (trend.trendName === "Scenarios and Risk Assessment") schema2.scenarios_risk_assessment.push(mappedData);
+      else if (trend.trendName === "Emerging Markets and Opportunities") schema2.emerging_markets_opportunities.push(mappedData);
+      else if (trend.trendName === "On The Radar") schema2.on_the_radar.push(mappedData);
     }
   }
 
+  // -------- AI API --------
   const apiUrl = `${config.ai_base_url}/trends/analyze`;
-
   const response = await axios.post(apiUrl, schema2, {
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
   });
 
-  const aiData = response.data;
-  const aiSubmitData = {
-    companyName: companyName,
-    ...aiData,
-  };
+  const aiData = response.data || {};
+  const aiSubmitData = { companyName, ...aiData };
 
-  const isEexistTrendAi = await AiTrendModel.findOne({
-    companyName: companyName,
-  });
+  // Upsert into AiTrendModel
+  await AiTrendModel.findOneAndUpdate(query, { $set: aiSubmitData }, { new: true, upsert: true });
 
-  if (!isEexistTrendAi) {
-    const AiTrends = await AiTrendModel.create(aiSubmitData);
-    console.log(AiTrends);
-  }
-
-  const AiTrendsUpdate = await AiTrendModel.findOneAndUpdate(query, {
-    $set: aiSubmitData,
-  });
-
-  // ১. Existing trends নাও
+  // -------- Merge Trends with existing --------
   const existingDoc = await AssessModel.findOne(query, { trends: 1 });
-  const existingTrends = existingDoc?.trends || [];
+  const existingTrends = existingDoc?.trends ?? [];
 
-  // ২. Map তৈরি করে deduplication & edit handle করা
   const mergedMap = new Map<string, any>();
 
-  // আগের trends add করো
+  // পুরানো trends রাখো
   for (const trend of existingTrends) {
     mergedMap.set(trend.trendName, trend);
   }
 
-  // AI trends add/update করো
+  // নতুন trends merge করো
   for (const trend of payload) {
-    mergedMap.set(trend.trendName, trend); // same trendName হলে replace, না থাকলে add
+    if (mergedMap.has(trend.trendName)) {
+      const oldTrend = mergedMap.get(trend.trendName);
+
+      // trendDetails preserve করার জন্য inner merge
+      const mergedDetails: any[] = [];
+      for (const detail of trend.trendDetails) {
+        const oldDetail = oldTrend.trendDetails?.find((d: any) => d.question === detail.question);
+        if (oldDetail) {
+          mergedDetails.push({ ...detail, _id: oldDetail._id });
+        } else {
+          mergedDetails.push({ ...detail, _id: new Types.ObjectId() });
+        }
+      }
+
+      mergedMap.set(trend.trendName, {
+        ...trend,
+        _id: oldTrend._id, // preserve outer id
+        trendDetails: mergedDetails,
+      });
+    } else {
+      // completely new trend
+      mergedMap.set(trend.trendName, {
+        ...trend,
+        _id: new Types.ObjectId(),
+        trendDetails: trend.trendDetails.map((d) => ({
+          ...d,
+          _id: new Types.ObjectId(),
+        })),
+      });
+    }
   }
 
   const mergedTrends = Array.from(mergedMap.values()).slice(0, 12);
 
-  // ৪. DB update
+  // -------- Save back to DB --------
   const result = await AssessModel.findOneAndUpdate(
     query,
     { $set: { trends: mergedTrends } },
-    { new: true }
+    { new: true, upsert: true }
   );
+
   return result;
 };
-
 
 const updateTrendInDb = async (
   companyName: string,
@@ -599,33 +554,81 @@ const getAllSwotByCompany = async (companyName: string) => {
   return result.swot;
 };
 
+
 const updateSwotInDb = async (
   companyName: string,
-  id: string,
-  payload: Partial<SWOT>
+  detailId: string,
+  payload: { categoryName: string; details: string }
 ) => {
-  if (!companyName)
-    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
-  if (!id) throw new AppError(status.BAD_REQUEST, "SWOT id is required!");
+  if (!companyName?.trim()) throw new AppError(status.BAD_REQUEST, "Company name is required!");
 
-  const query = {
-    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
-    "swot._id": id,
+  const { categoryName, details } = payload;
+  const allowedCategories = ["strengths", "weaknesses", "opportunities", "threats"];
+  if (!categoryName || !allowedCategories.includes(categoryName.toLowerCase()))
+    throw new AppError(status.BAD_REQUEST, "Invalid category name!");
+
+  if (!details?.trim()) throw new AppError(status.BAD_REQUEST, "Details are required!");
+
+  const query = { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } };
+
+  const updateQuery = {
+    $set: {
+      [`swot.0.${categoryName}.$[swotElem].details`]: details
+    }
   };
 
-  const setObj: Record<string, any> = {};
-  for (const key in payload) {
-    const typedKey = key as keyof typeof payload;
-    setObj[`swot.$.${typedKey}`] = payload[typedKey];
-  }
+  const options = {
+    new: true,
+    arrayFilters: [{ "swotElem._id": detailId }]
+  };
 
-  const result = await AssessModel.findOneAndUpdate(
-    query,
-    { $set: setObj },
-    { new: true }
-  );
+  const result = await AssessModel.findOneAndUpdate(query, updateQuery, options);
+
+  if (!result) throw new AppError(status.NOT_FOUND, "Company or SWOT item not found");
+
   return result;
 };
+
+// const updateSwotInDb = async (
+//   companyName: string,
+//   detailId: string,
+//   payload: { categoryName: string; updatedData: any }
+// ) => {
+//   // Validate company name
+//   if (!companyName) {
+//     throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+//   }
+
+//   const { categoryName, updatedData } = payload;
+
+//   // Validate category name
+//   const allowedCategories = ["strengths", "weaknesses", "opportunities", "threats"];
+//   if (!allowedCategories.includes(categoryName)) {
+//     throw new AppError(status.BAD_REQUEST, "Invalid category name!");
+//   }
+
+//   // Case-insensitive query for company name
+//   const query = {
+//     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+//     [`swot.0.${categoryName}._id`]: detailId, // find the specific SWOT item
+//   };
+
+//   // Update the specific detail in the SWOT category using $set
+//   const updateQuery = {
+//     $set: {
+//       [`swot.0.${categoryName}.$`]: updatedData,
+//     },
+//   };
+
+//   const result = await AssessModel.findOneAndUpdate(query, updateQuery, { new: true });
+
+//   // Check if company exists
+//   if (!result) {
+//     throw new AppError(status.NOT_FOUND, "Company or SWOT item not found");
+//   }
+
+//   return result;
+// };
 
 
 const deleteSwotFromDb = async (companyName: string, detailId: string,payload: { categoryName: string }) => {
@@ -695,6 +698,7 @@ const createChallengeIntoDb = async (companyName: string, payload: any) => {
     ...aichallenge,
     swot,
   };
+
 
 
   const apiUrl = `${config.ai_base_url}/challenge/evaluate`;
@@ -796,6 +800,66 @@ const updateChallengeInDb = async (
   return result;
 };
 
+const updateChallengeAiDataInDb = async (
+  companyName: string,
+  challengeId: string,
+  updatedPayload: any
+) => {
+  if (!companyName) throw new AppError(400, "Company name is required!");
+  if (!challengeId) throw new AppError(400, "Challenge ID is required!");
+
+  const query = { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } };
+
+  // Update challenge inside RiskModel
+
+  // Regenerate AI recommendations after update
+  const trends = await AiTrendModel.findOne(
+    { companyName: companyName },
+    { companyName: 0, _id: 0, summary: 0, error: 0, __v: 0 }
+  ).lean();
+
+  const swotData = await AnalysisModel.findOne(
+    { companyName: companyName },
+    { companyName: 0, _id: 0, scores: 0, error: 0, __v: 0 }
+  ).lean();
+
+
+   const swot = swotData?.recommendations;
+  const aichallenge = { challenge: updatedPayload };
+  const allData = {
+    trends,
+    ...aichallenge,
+    swot,
+  };
+  
+
+  const apiUrl = `${config.ai_base_url}/challenge/evaluate`;
+
+  const response = await axios.post(apiUrl, allData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+ const aiData = response.data;
+
+  const challengess = { ...updatedPayload, ...aiData };
+
+    const updatedChallenge = await RiskModel.findOneAndUpdate(
+    { ...query, "challenge._id": challengeId },
+    { $set: { "challenge.$": challengess } },
+    { new: true }
+  );
+
+  if (!updatedChallenge) {
+    throw new AppError(404, "Challenge not found for update");
+  }
+
+  
+  return updatedChallenge
+};
+
+
 const getAllChallengesFromDb = async (companyName: string) => {
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "Company name is required!");
@@ -818,52 +882,44 @@ const getAllChallengesFromDb = async (companyName: string) => {
 };
 
 // ---------- Get Single Challenge ----------
-const getSingleChallengeFromDb = async (companyName: string, id: string) => {
+const getSingleChallengeFromDb = async (companyName: string, challengeId: string) => {
   if (!companyName) {
-    throw new AppError(status.BAD_REQUEST, "Company name is required!");
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
   }
-  if (!id) {
-    throw new AppError(status.BAD_REQUEST, "Challenge id is required!");
+  if (!challengeId) {
+    throw new AppError(status.BAD_REQUEST, "Challenge ID is required!");
   }
 
   const query = {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
-    "challenges._id": id,
+    "challenge._id": challengeId,
   };
 
-  const result = await AssessModel.findOne(query, { "challenges.$": 1 });
-
-  if (!result || !result.challenges || result.challenges.length === 0) {
-    throw new AppError(status.NOT_FOUND, "Challenge not found!");
-  }
-
-  return result.challenges[0];
+  const result = await RiskModel.findOne(query, { "challenge.$": 1, _id: 0 });
+  console.log(result);
+  return result?.challenge?.[0] || null;
 };
-const deleteSingleChallengeFromDb = async (companyName: string, id: string) => {
+
+const deleteSingleChallengeFromDb = async (companyName: string, challengeId: string) => {
   if (!companyName) {
-    throw new AppError(status.BAD_REQUEST, "Company name is required!");
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
   }
-  if (!id) {
-    throw new AppError(status.BAD_REQUEST, "Challenge id is required!");
+  if (!challengeId) {
+    throw new AppError(status.BAD_REQUEST, "Challenge ID is required!");
   }
 
   const query = {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
   };
 
-  const update = {
-    $pull: {
-      challenges: { _id: id }
-    }
-  };
+  const result = await RiskModel.findOneAndUpdate(
+    query,
+    { $pull: { challenge: { _id: challengeId } } },
+    { new: true }
+  );
 
-  const result = await AssessModel.updateOne(query, update);
-
-  if (result.modifiedCount === 0) {
-    throw new AppError(status.NOT_FOUND, "Challenge not found or already deleted!");
-  }
-
-  return { success: true, message: "Challenge deleted successfully." };
+  console.log(result);
+  return result;
 };
 
 //----------------CompetitorAnalysis services section  -------------------------------------------
@@ -1004,5 +1060,6 @@ export const AssessServices = {
   getAllChallengesFromDb,
   getSingleChallengeFromDb,
   deleteSwotFromDb,
-  deleteSingleChallengeFromDb
+  deleteSingleChallengeFromDb,
+  updateChallengeAiDataInDb
 };
