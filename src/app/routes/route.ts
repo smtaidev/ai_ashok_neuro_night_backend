@@ -13,6 +13,7 @@ import { choregorapRoute } from "../modules/choreograph/choreograph.router";
 import { aiRespnonseRoute } from "../modules/ai.response/ai.route";
 import { chatBotRoute } from "../modules/chat-bot/chat.route";
 import { PlanRouters } from "../modules/Plan/plan.route";
+import { alignmentCheckRoute } from "../modules/alignmentCheck/alignmentCheck.route";
 
 
 
@@ -75,6 +76,10 @@ const moduleRoutes = [
   {
     path: "/plan",
     route:PlanRouters
+  },
+  {
+    path: "/alignments",
+    route:alignmentCheckRoute
   },
 
 ];

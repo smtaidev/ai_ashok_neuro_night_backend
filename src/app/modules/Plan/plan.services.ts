@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 import { IPlan } from "./plan.interface";
-import { Plan } from "./plan.model";
+
 import { stripe } from "../../utils/stripe";
+import { PlanModel } from "./plan.model";
+import AppError from "../../errors/AppError";
+import status from "http-status";
 
 
 
@@ -41,9 +44,16 @@ export const createPlan = async (payload: Plan) => {
       recurring: recurringData,
       product: product.id,
     });
+  const query = {
+    companyName: { $regex: new RegExp(`^${payload.planName}$`, "i") },
+  };
 
+    const isEexist=await PlanModel.findOne(query)
+    if(isEexist){
+      throw new AppError(status.BAD_REQUEST,"This plan already exist in database ")
+    }
     // Step 3: Create Plan Record in MongoDB
-    const dbPlan = await Plan.create(
+    const dbPlan = await PlanModel.create(
       [
         {
           amount: payload.amount || 0,
@@ -74,13 +84,13 @@ export const createPlan = async (payload: Plan) => {
 };
 // Get all plans
  const getAllPlans = async () => {
-  const plans = await Plan.find().sort({ createdAt: -1 });
+  const plans = await PlanModel.find().sort({ createdAt: -1 });
   return plans;
 };
 
 // Get single plan by ID
  const getSinglePlan = async (planId: string) => {
-  const plan = await Plan.findById(planId);
+  const plan = await PlanModel.findById(planId);
   if (!plan) {
     throw new Error("Plan not found");
   }
@@ -93,7 +103,7 @@ const updatePlan = async (planId: string, payload: Partial<IPlan>) => {
     throw new Error("Update data is required");
   }
 
-  const plan = await Plan.findByIdAndUpdate(planId, payload, { new: true });
+  const plan = await PlanModel.findByIdAndUpdate(planId, payload, { new: true });
   if (!plan) {
     throw new Error("Plan not found");
   }
@@ -109,7 +119,7 @@ const updatePlan = async (planId: string, payload: Partial<IPlan>) => {
     session.startTransaction();
 
     // Step 1: Find the plan in MongoDB
-    const plan = await Plan.findById(planId).session(session);
+    const plan = await PlanModel.findById(planId).session(session);
 
     if (!plan) {
       throw new Error(`Plan with ID ${planId} not found`);
@@ -126,7 +136,7 @@ const updatePlan = async (planId: string, payload: Partial<IPlan>) => {
     }
 
     // Step 4: Delete the plan from MongoDB
-    await Plan.deleteOne({ _id: planId }).session(session);
+    await PlanModel.deleteOne({ _id: planId }).session(session);
 
     // Commit transaction
     await session.commitTransaction();

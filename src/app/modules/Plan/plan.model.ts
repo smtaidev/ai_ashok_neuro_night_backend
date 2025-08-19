@@ -1,45 +1,24 @@
-import { Schema, model, Document } from "mongoose";
+const mongoose = require('mongoose');
+const { Schema, model } = mongoose;
 
-// Interface (TypeScript optional)
-export interface IPlan extends Document {
-  name: "Basic" | "Standard" | "Premium";
-  price: number;
-  durationInMonths: number;
-  features: string[];
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// Schema
-const planSchema = new Schema<IPlan>(
+const planSchema = new Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      enum: ["Basic", "Standard", "Premium"], // fixed options
-    },
-    price: {
-      type: Number,
-      required: true,
-      min: 0, // negative price prevent
-    },
-    durationInMonths: {
-      type: Number,
-      required: true,
-      min: 1, // minimum 1 month
-    },
-    features: {
-      type: [String],
-      default: [],
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+    planName: { type: String, required: true },
+    amount: { type: Number, required: true },
+    currency: { type: String, required: true },
+    interval: { type: String, enum: ['day', 'week', 'month', 'year'], default: 'month' },
+    intervalCount: { type: Number, required: true },
+    freeTrialDays: { type: Number, default: 0 },
+    productId: { type: String, required: true },
+    priceId: { type: String, required: true },
+    active: { type: Boolean, default: true },
+    description: { type: String, default: '' },
+    features: { type: Schema.Types.Mixed, default: {} }, // JSON type
+    Subscription: [{ type: Schema.Types.ObjectId, ref: 'Subscription' }],
   },
-  { timestamps: true }
+  { timestamps: true } // createdAt & updatedAt
 );
 
-// Model
-export const Plan = model<IPlan>("Plan", planSchema);
+export const PlanModel = model('Plan', planSchema, 'plans'); // 'plans' collection explicitly
+
+

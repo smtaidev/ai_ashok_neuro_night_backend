@@ -15,17 +15,17 @@ const result=await alignmentCheckServices.createalignmentCheck(req.body)
   });
 })
 
-// const getalignmentCheckIntDb=catchAsync(async(req,res)=>{
-    
+const getalignmentCheckIntDb=catchAsync(async(req,res)=>{
+    const company=req.params
  
-// const result=await alignmentCheckServices.getAllalignmentCheck()
-//  sendResponse(res, {
-//     statusCode: 200,
-//     success: true,
-//     message: "alignmentCheck retrieved successfully",
-//     data: result,
-//   });
-// })
+const result=await alignmentCheckServices.getAllalignmentCheck(company.companyName)
+ sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "alignmentCheck retrieved successfully",
+    data: result,
+  });
+})
 // const getSinglealignmentCheckIntDb=catchAsync(async(req,res)=>{
 //     const {id}=req.params
  
@@ -65,5 +65,6 @@ export const alignmentCheckContllors={
     createalignmentCheckIntDb,
     updatedalignmentCheckIntDb,
     deletedalignmentCheckIntDb,
+    getalignmentCheckIntDb
 
 }
