@@ -28,7 +28,7 @@ console.log(payloadData)
   return result;
 };
 
-// ✅ Get Single Meeting by ID
+
  const getSingleMeetingFromDb = async (companyName:string,id: string) => {
        if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "company name is not found !");
