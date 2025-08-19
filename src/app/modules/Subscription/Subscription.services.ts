@@ -9,8 +9,7 @@ import { Subscription } from "./Subscription.model";
 import { handlePaymentIntentFailed, handlePaymentIntentSucceeded } from "../../utils/webhook";
 import { ISubscription } from "./Subscription.interface";
 
-
-const createSubscription = async (userId: string, planId: string) => {
+const createSubscription = async (userId :string , planId:string) => {
   // 1. Verify user exists
   const user = await UserModel.findById(userId);
   if (!user) throw new AppError(status.NOT_FOUND, "User not found");
@@ -42,7 +41,7 @@ const createSubscription = async (userId: string, planId: string) => {
   let subscription = await Subscription.findOne({ userId: user.id }) as ISubscription
 
   if (subscription?.paymentStatus === "PENDING") {
-    subscription.planId = planId;
+    subscription.planId = planId ;
     subscription.stripePaymentId = paymentIntent.id;
     subscription.startDate = startDate;
     subscription.amount = plan.amount;

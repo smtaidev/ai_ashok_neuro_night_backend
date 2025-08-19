@@ -14,6 +14,8 @@ import { aiRespnonseRoute } from "../modules/ai.response/ai.route";
 import { chatBotRoute } from "../modules/chat-bot/chat.route";
 import { PlanRouters } from "../modules/Plan/plan.route";
 import { alignmentCheckRoute } from "../modules/alignmentCheck/alignmentCheck.route";
+import { SubscriptionRoutes } from "../modules/Subscription/Subscription.route";
+import { meetingRoute } from "../modules/meetings/meeting.route";
 
 
 
@@ -80,6 +82,14 @@ const moduleRoutes = [
   {
     path: "/alignments",
     route:alignmentCheckRoute
+  },
+  {
+    path: "/subscription",
+    route:SubscriptionRoutes
+  },
+  {
+    path: "/meetings",
+    route:meetingRoute
   },
 
 ];

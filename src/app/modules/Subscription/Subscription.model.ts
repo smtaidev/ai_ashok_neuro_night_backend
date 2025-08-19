@@ -1,8 +1,9 @@
 import { model, Schema } from "mongoose";
+import { ISubscription } from "./Subscription.interface";
 // PaymentStatus enum values
 const paymentStatusEnum = ['PENDING', 'COMPLETED', 'CANCELED', 'REFUNDED'];
 
-const subscriptionSchema = new Schema({
+const subscriptionSchema = new Schema <ISubscription>({
   userId: { type: Schema.Types.ObjectId, ref: 'User' },
   planId: {  type: Schema.Types.ObjectId, ref: 'Plan'},
   startDate: { type: Date, required: true },

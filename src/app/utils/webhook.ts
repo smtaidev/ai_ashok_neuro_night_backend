@@ -4,17 +4,8 @@ import status from "http-status";
 import AppError from "../errors/AppError";
 import { Subscription } from "../modules/Subscription/Subscription.model";
 import UserModel from "../modules/user/user.model";
-import { IPlan } from "../modules/Plan/plan.interface";
 import { ISubscription } from "../modules/Subscription/Subscription.interface";
 
-interface ISubscriptionPopulated extends Document {
-  userId: string;
-  stripePaymentId: string;
-  plan: IPlan & Document; // populate করা plan
-  paymentStatus: string;
-  startDate?: Date;
-  endDate?: Date;
-}
 
 // Helper function to calculate end date based on plan interval
 const calculateEndDate = (

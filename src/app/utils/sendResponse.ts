@@ -11,16 +11,16 @@ type TMeta = {
 
 type TResponse<T> = {
   statusCode: number;
-  success: boolean;
-  message?: string;
+  success?: boolean;
+  message: string;
   meta?: TMeta;
-  data: T;
+  data?: T;
   PaymentGatewayPageURL?: string;
 };
 
 const sendResponse = <T>(res: Response, data: TResponse<T>, PaymentGatewayPageURL?: string) => {
   const responsePayload: any = {
-    success: data.success,
+    success: true ,
     message: data.message,
     meta: data.meta,
     data: data.data,
