@@ -16,6 +16,7 @@ import { PlanRouters } from "../modules/Plan/plan.route";
 import { alignmentCheckRoute } from "../modules/alignmentCheck/alignmentCheck.route";
 import { SubscriptionRoutes } from "../modules/Subscription/Subscription.route";
 import { meetingRoute } from "../modules/meetings/meeting.route";
+import { agendaRoute } from "../modules/Agenda/Agenda.route";
 
 
 
@@ -90,6 +91,10 @@ const moduleRoutes = [
   {
     path: "/meetings",
     route:meetingRoute
+  },
+  {
+    path: "/agendas",
+    route:agendaRoute
   },
 
 ];

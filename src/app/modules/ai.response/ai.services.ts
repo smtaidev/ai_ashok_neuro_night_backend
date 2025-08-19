@@ -167,19 +167,49 @@ const createBusinessGoalAi = async (companyName: string) => {
   });
 
   // Clean goals and nested impact_ratings
+  // const goals = business?.businessGoals.map(goal => {
+  //   const g = goal as any;
+  //   const { _id, createdAt, updatedAt, impact_ratings, ...rest } = g;
+
+  //   let cleanImpactRatings = undefined;
+  //   if (impact_ratings) {
+  //     const ir = impact_ratings as any;
+  //     const { _id: irId, createdAt: irCreatedAt, updatedAt: irUpdatedAt, ...otherRatings } = ir;
+  //     cleanImpactRatings = otherRatings;
+  //   }
+
+  //   return { ...rest, impact_ratings: cleanImpactRatings };
+  // });
+
+
   const goals = business?.businessGoals.map(goal => {
-    const g = goal as any;
-    const { _id, createdAt, updatedAt, impact_ratings, ...rest } = g;
+  const g = goal as any;
+  const { impact_ratings } = g;
 
-    let cleanImpactRatings = undefined;
-    if (impact_ratings) {
-      const ir = impact_ratings as any;
-      const { _id: irId, createdAt: irCreatedAt, updatedAt: irUpdatedAt, ...otherRatings } = ir;
-      cleanImpactRatings = otherRatings;
-    }
+  let cleanImpactRatings = undefined;
+  if (impact_ratings) {
+    const ir = impact_ratings as any;
+    const { _id: irId, createdAt: irCreatedAt, updatedAt: irUpdatedAt, ...otherRatings } = ir;
+    cleanImpactRatings = otherRatings;
+  }
+ 
+  const businessGoalForAi = {
+    title: g.title,
+    description: g.description,
+    related_strategic_theme: g.related_strategic_theme,
+    priority: g.priority,
+    resource_readiness: g.resource_readiness,
+    assigned_functions: g.assigned_functions,
+    duration: g.duration,
+    esg_issues: g.esg_issues,
+    new_capabilities_needed: g.new_capabilities_needed,
+    existing_capabilities_to_enhance: g.existing_capabilities_to_enhance,
+    impact_ratings: cleanImpactRatings
+  };
 
-    return { ...rest, impact_ratings: cleanImpactRatings };
-  });
+  return { ...businessGoalForAi };
+});
+
 
   // Clean challenges
   const challenges = aichallengeDataFind?.challenge.map(ch => {
@@ -187,6 +217,7 @@ const createBusinessGoalAi = async (companyName: string) => {
     const { _id, createdAt, updatedAt, ...rest } = c;
     return rest;
   });
+
 
   const allData = {
     strategic_themes,

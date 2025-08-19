@@ -6,7 +6,6 @@ const meetingSchema = new Schema<IMeeting>(
   { 
     companyName:{ type: String, required: true },
     name: { type: String, required: true },
-    agendaId: { type: mongoose.Types.ObjectId,default:null },
     location: { type: String, required: true },
     type: { type: String, required: true },
     meetingDate: { type: Date, required: true },
