@@ -89,6 +89,20 @@ const createVision=catchAsync(async(req,res)=>{
 
 })
 
+const createSwotAiData=catchAsync(async(req,res)=>{
+    const company=req.user
+
+    const result=await aiRespnonseServices.createSwotAiData(company?.companyName)
+   
+    sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "swot ai data  successfully created",
+    data:result
+  });
+
+})
+
 
 
 export const aiRespnonseContllors={
@@ -98,6 +112,6 @@ export const aiRespnonseContllors={
   challengeRixScore,
   createThemesAi,
   createBusinessGoalAi,
-  createVision
+  createVision,createSwotAiData
 
 }

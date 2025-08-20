@@ -11,6 +11,6 @@ route.get("/challenge-rixScore",auth("companyAdmin"),aiRespnonseContllors.challe
 route.post("/create-themes",auth("companyAdmin"),aiRespnonseContllors.createThemesAi)
 route.post("/create-business-goal",auth("companyAdmin"),aiRespnonseContllors.createBusinessGoalAi)
 route.post("/create-vision",auth("companyAdmin"),aiRespnonseContllors.createVision)
-
+route.post('/create-swot',auth('companyAdmin'),aiRespnonseContllors.createSwotAiData)
 
 export const aiRespnonseRoute=route

@@ -6,7 +6,7 @@ import { finalcialTrackerRouter } from "../modules/finalcialTracker/finalcialTra
 import { assessRouter } from "../modules/assess/assess.route";
 import { assessChallengeRouter } from "../modules/assess/challenge/inde";
 import { assessClarhetRouter } from "../modules/assess/clarhet/inde";
-import { assessCompetiorRouter } from "../modules/assess/competior/inde";
+import { assessCompetiorRouter } from "../modules/assess/competior/competior.route";
 import { assessSwotRouter } from "../modules/assess/swot/inex";
 import { blueprintRouter} from "../modules/blueprint/blueprint.route";
 import { choregorapRoute } from "../modules/choreograph/choreograph.router";

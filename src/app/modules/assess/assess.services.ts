@@ -479,59 +479,6 @@ const createSwotSingleIntoDb = async (companyName: string, payload: any) => {
     throw new AppError(status.NOT_FOUND, "Company not found");
   }
 
-  const rawData = await AssessModel.findOne(query, { swot: 1, _id: 0 });
-  const cleanResponse = {
-    swot: {
-      strengths:
-        rawData?.swot?.[0]?.strengths?.map((s: any) => s.details) || [],
-      weaknesses:
-        rawData?.swot?.[0]?.weaknesses?.map((w: any) => w.details) || [],
-      opportunities:
-        rawData?.swot?.[0]?.opportunities?.map((o: any) => o.details) || [],
-      threats: rawData?.swot?.[0]?.threats?.map((t: any) => t.details) || [],
-    },
-    context: {
-      challenges:
-        rawData?.challenges?.map((c: any) => ({
-          title: c?.title || "",
-          category: c?.category || "",
-          impact_on_business: c?.impact_on_business || "",
-          ability_to_address: c?.ability_to_address || "",
-          description: c?.description || "",
-          risk_score: c?.risk_score || 0,
-        })) || [],
-    },
-  };
-
-  const apiUrl = `${config.ai_base_url}/swot/analysis2`;
-
-  const response = await axios.post(apiUrl, cleanResponse, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  const isEexistTrendAi = await AnalysisModel.findOne({
-    companyName: companyName,
-  });
-
-  const aiData = response.data;
-  const aiSubmitData = {
-    companyName: companyName,
-    ...aiData,
-  };
-
-  console.log(aiSubmitData);
-
-  if (!isEexistTrendAi) {
-    const AiSwotanalysis = await AnalysisModel.create(aiSubmitData);
-    console.log(AiSwotanalysis);
-  }
-
-  const AiTrendsUpdate = await AnalysisModel.findOneAndUpdate(query, {
-    $set: aiSubmitData,
-  });
-
   return result;
 };
 

@@ -261,6 +261,32 @@ const createVisionAI=async(companyName:string)=>{
     return responses.data
 
 }
+
+const createSwotAiData=async(companyName:string)=>{
+  const query = { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } };
+
+  const rawData = await AssessModel.findOne(query, { swot: 1, _id: 0 });
+  const cleanResponse = {
+      strengths:
+        rawData?.swot?.[0]?.strengths?.map((s: any) => s.details) || [],
+      weaknesses:
+        rawData?.swot?.[0]?.weaknesses?.map((w: any) => w.details) || [],
+      opportunities:
+        rawData?.swot?.[0]?.opportunities?.map((o: any) => o.details) || [],
+      threats: rawData?.swot?.[0]?.threats?.map((t: any) => t.details) || [],
+  }
+
+  const apiUrl = `${config.ai_base_url}/swot/analysis`;
+
+  const response = await axios.post(apiUrl, cleanResponse, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  console.log(response.data)
+
+return response.data
+}
 export const aiRespnonseServices = {
   getAllTrendsAiData,
   getAllSowtAiData,
@@ -268,5 +294,6 @@ export const aiRespnonseServices = {
   getChallengeRixScoreData,
   createThemesAiData,
   createBusinessGoalAi,
-  createVisionAI
+  createVisionAI,
+  createSwotAiData
 };
