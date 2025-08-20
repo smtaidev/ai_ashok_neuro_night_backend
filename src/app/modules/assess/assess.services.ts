@@ -757,28 +757,24 @@ const updateChallengeAiDataInDb = async (
 
   const query = { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } };
 
-  // Update challenge inside RiskModel
-
-  // Regenerate AI recommendations after update
+  // AI data collect করার জন্য trends আর swot নিয়ে আসি
   const trends = await AiTrendModel.findOne(
-    { companyName: companyName },
+    { companyName },
     { companyName: 0, _id: 0, summary: 0, error: 0, __v: 0 }
   ).lean();
 
   const swotData = await AnalysisModel.findOne(
-    { companyName: companyName },
+    { companyName },
     { companyName: 0, _id: 0, scores: 0, error: 0, __v: 0 }
   ).lean();
 
-
-   const swot = swotData?.recommendations;
+  const swot = swotData?.recommendations;
   const aichallenge = { challenge: updatedPayload };
   const allData = {
     trends,
     ...aichallenge,
     swot,
   };
-  
 
   const apiUrl = `${config.ai_base_url}/challenge/evaluate`;
 
@@ -788,13 +784,20 @@ const updateChallengeAiDataInDb = async (
     },
   });
 
- const aiData = response.data;
+  const aiData = response.data;
 
-  const challengess = { ...updatedPayload, ...aiData };
+  // partial update (nested field update)
+  const updateFields: any = {};
+  for (const key in updatedPayload) {
+    updateFields[`challenge.$.${key}`] = updatedPayload[key];
+  }
+  for (const key in aiData) {
+    updateFields[`challenge.$.${key}`] = aiData[key];
+  }
 
-    const updatedChallenge = await RiskModel.findOneAndUpdate(
+  const updatedChallenge = await RiskModel.findOneAndUpdate(
     { ...query, "challenge._id": challengeId },
-    { $set: { "challenge.$": challengess } },
+    { $set: updateFields },
     { new: true }
   );
 
@@ -802,8 +805,7 @@ const updateChallengeAiDataInDb = async (
     throw new AppError(404, "Challenge not found for update");
   }
 
-  
-  return updatedChallenge
+  return updatedChallenge;
 };
 
 

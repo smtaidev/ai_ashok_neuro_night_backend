@@ -17,8 +17,7 @@ import { alignmentCheckRoute } from "../modules/alignmentCheck/alignmentCheck.ro
 import { SubscriptionRoutes } from "../modules/Subscription/Subscription.route";
 import { meetingRoute } from "../modules/meetings/meeting.route";
 import { agendaRoute } from "../modules/Agenda/Agenda.route";
-
-
+import { organizationUserRoute } from "../modules/organization-role/organization-role.route";
 
 const router = express.Router()
 
@@ -95,6 +94,10 @@ const moduleRoutes = [
   {
     path: "/agendas",
     route:agendaRoute
+  },
+  {
+    path: "/organization",
+    route:organizationUserRoute
   },
 
 ];
