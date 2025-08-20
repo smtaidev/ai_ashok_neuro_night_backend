@@ -5,6 +5,7 @@ import { IMeeting } from "./meeting.interface";
 const meetingSchema = new Schema<IMeeting>(
   { 
     companyName:{ type: String, required: true },
+     agendaItems: [{ type: mongoose.Schema.Types.ObjectId, ref: "Agenda" }],
     name: { type: String, required: true },
     location: { type: String, required: true },
     type: { type: String, required: true },
@@ -19,6 +20,7 @@ const meetingSchema = new Schema<IMeeting>(
       enum: ["Not Started", "In Progress", "Need More Information", "Done"],
       default: "Not Started",
     },
+    
   },
   { timestamps: true }
 );

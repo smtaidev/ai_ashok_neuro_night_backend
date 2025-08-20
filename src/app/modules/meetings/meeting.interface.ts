@@ -21,4 +21,5 @@ export interface IMeeting extends Document {
   status: MeetingStatus;
   createdAt: Date;
   updatedAt: Date;
+   agendaItems?:string
 }

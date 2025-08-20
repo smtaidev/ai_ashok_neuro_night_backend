@@ -3,6 +3,7 @@ import AppError from "../../errors/AppError";
 import mongoose from "mongoose";
 import { AgendaSchema } from "./Agenda.model";
 import { IAgenda } from "./Agenda.interface";
+import { Meeting } from "../meetings/meeting.model";
 
 // ✅ Create Agenda
 const createAgenda = async (
@@ -15,6 +16,7 @@ const createAgenda = async (
   }
   const payloadData = { ...payload, companyName, meetingId };
   const result = await AgendaSchema.create(payloadData);
+  await Meeting.findByIdAndUpdate(meetingId, { $push: { agendaItems: result._id } });
   return result;
 };
 
@@ -28,7 +30,7 @@ const getAllAgendas = async (companyName: string,meetingId:string) => {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
     meetingId: new mongoose.Types.ObjectId(meetingId),
   };
-  const result = await AgendaSchema.find(query);
+  const result = await AgendaSchema.find(query).populate("meetingId")
   return result;
 };
 
@@ -45,7 +47,7 @@ const getSingleAgenda = async (companyName: string, id: string,meetingId:string)
     _id: new mongoose.Types.ObjectId(id),
     meetingId: new mongoose.Types.ObjectId(meetingId),
   };
-  const result = await AgendaSchema.findOne(query);
+  const result = await AgendaSchema.findOne(query).populate("meetingId")
   if (!result) {
     throw new AppError(status.NOT_FOUND, "Agenda not found!");
   }

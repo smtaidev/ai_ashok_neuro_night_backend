@@ -15,7 +15,7 @@ const AgendaItemSchema = new Schema({
 const MeetingSchema = new Schema(
   {
     companyName: { type: String, required: true },
-    meetingId: { type: mongoose.Types.ObjectId, required: true },
+    meetingId: { type: mongoose.Types.ObjectId, ref: "Meeting", required: true },
     inviteAttendees: {
       attendees: { type: [String], required: true },
     },
