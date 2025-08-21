@@ -19,3 +19,4 @@ route.patch('/:id/get-business-goals',auth('companyAdmin'),blueprintContllors.up
 route.delete('/:id/get-business-goals',auth('companyAdmin'),blueprintContllors.deleteBusinessGoalDb)
 route.get('/business-goal-overview',auth('companyAdmin'),blueprintContllors.businessGoalOverview)
 export const blueprintRouter=route
+//dfsdfsaf
