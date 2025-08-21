@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 import { v4 } from "uuid";
 
 
@@ -45,6 +45,7 @@ const ImpactRatingsSchema = new Schema({
 });
 
 const BusinessGoalSchema = new Schema({
+  strategicID:{type:mongoose.Types.ObjectId,ref:"Blueprint",required:true},
   title: { type: String, required: true },
   description: { type: String, required: true },
   related_strategic_theme: { type: String, required: true },

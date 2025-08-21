@@ -16,6 +16,29 @@ const createOrganizationUser = async (
   if (!payload.name || !payload.email) {
     throw new AppError(status.BAD_REQUEST, "Name and Email are required!");
   }
+const {
+  businessFunction,
+  notes,
+  permissions: {
+    foundations,
+    trends,
+    swot,
+    challenges,
+    competitorsAnalysis,
+    clarhetAIRec,
+    alignment,
+    vision,
+    themes,
+    choreographObjectives,
+    teams,
+    generateReport,
+    reportArchives,
+    agendaBuilder,
+    archives
+  }
+} = payload;
+
+
   const userData = {
     userName: payload.name,
     email: payload.email,
@@ -25,6 +48,7 @@ const createOrganizationUser = async (
     role:"companyEmployee",
     isDeleted: true,
   };
+
 
   const isEexistUser = await organizationUserModels.findOne({
        email: userData.email 
@@ -41,8 +65,30 @@ const createOrganizationUser = async (
 
    const [user] = await organizationUserModels.create([userData], { session });
    console.log(payload)
+
+  const permissionsData={
+userId: user._id,companyName,
+  businessFunction,
+  notes,
+ foundations,
+    trends,
+    swot,
+    challenges,
+    competitorsAnalysis,
+    clarhetAIRec,
+    alignment,
+    vision,
+    themes,
+    choreographObjectives,
+    teams,
+    generateReport,
+    reportArchives,
+    agendaBuilder,
+    archives
+  }
+
     const result = await organizationUserModel.create([
-      { ...payload, userId: user._id,companyName }],
+     permissionsData],
       { session },
     );
 
@@ -92,9 +138,11 @@ const getAllOrganizationUsers = async (companyName: string) => {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
   };
   const result = await organizationUserModel
-    .find(query)
-    .populate("userId")
-    .select("-password");
+    .find(query).populate({
+    path: "userId",
+    select: "-password", // password বাদ দিয়ে সব field আনবে
+  })
+    
   return result;
 };
 
@@ -103,14 +151,13 @@ const getSingleOrganizationUser = async (companyName: string, id: string) => {
     throw new AppError(status.BAD_REQUEST, "company name is not found !");
   }
   const query = {
-    companyName: {
-      $regex: new RegExp(`^${companyName}$`, "i"),
-      _id: new mongoose.Types.ObjectId(id),
-    },
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") }, // আলাদা
+    _id: new mongoose.Types.ObjectId(id), // আলাদা
   };
-  const result = await organizationUserModels.findOne(query)
-    .select("-password")
-    .populate("userId");
+  const result = await organizationUserModel.findOne(query).populate({
+    path: "userId",
+    select: "-password", // password বাদ দিয়ে সব field আনবে
+  })
   if (!result) {
     throw new AppError(status.NOT_FOUND, "User not found!");
   }

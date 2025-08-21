@@ -238,7 +238,27 @@ const deleteBusinessGoal = async (id: string, companyName: string) => {
   return result;
 };
 
+const businessGoalOverview = async (companyName: string) => {
+  if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is required!");
 
+  const blueprint = await BlueprintModel.findOne(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
+    { strategicThemes: 1, businessGoals: 1, _id: 0 } // sob business goals niye aso
+  );
+
+  if (!blueprint) return [];
+
+  // Prottekta strategic theme er niche tar relevant business goals filter koro
+  const strategicThemesWithGoals = blueprint.strategicThemes.map(theme => {
+    const goals = blueprint.businessGoals.filter(bg => bg.strategicID.toString() === theme._id.toString());
+    return {
+      ...theme.toObject(),
+      businessGoals: goals
+    };
+  });
+
+  return strategicThemesWithGoals;
+};
 export const blueprintServices = {
   createVision,
   createstategicTheme,
@@ -253,4 +273,5 @@ export const blueprintServices = {
   getAllStrategicThemes,
   getSingleStrategicTheme,
   deleteSingleStrategicTheme
+  ,businessGoalOverview
 };

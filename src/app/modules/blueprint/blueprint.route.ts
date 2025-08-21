@@ -17,4 +17,5 @@ route.get('/get-business-goals',auth('companyAdmin'),blueprintContllors.getAllBu
 route.get('/:id/get-business-goals',auth('companyAdmin'),blueprintContllors.getSingleBusinessGoalDb)
 route.patch('/:id/get-business-goals',auth('companyAdmin'),blueprintContllors.updatebusinessGoalDb)
 route.delete('/:id/get-business-goals',auth('companyAdmin'),blueprintContllors.deleteBusinessGoalDb)
+route.get('/business-goal-overview',auth('companyAdmin'),blueprintContllors.businessGoalOverview)
 export const blueprintRouter=route

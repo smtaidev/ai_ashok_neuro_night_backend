@@ -39,6 +39,7 @@ const getAllOrganizationUsers = catchAsync(async (req, res) => {
 const getSingleOrganizationUser = catchAsync(async (req, res) => {
   const company = req.user;
   const { id } = req.params;
+  console.log(id)
   const result = await organizationUserServices.getSingleOrganizationUser(
     company?.companyName,
     id

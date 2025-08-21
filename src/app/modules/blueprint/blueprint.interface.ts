@@ -10,8 +10,11 @@
 //   Ld: string;  // assuming "L&d" means Learning & Development, renamed to Ld for TS
 // }
 
+import { Types } from "mongoose";
+
 
 export interface BusinessGoal {
+  strategicID:Types.ObjectId;
   title: string;
   description: string;
   related_strategic_theme: string;

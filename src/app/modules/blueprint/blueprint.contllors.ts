@@ -142,6 +142,18 @@ const deleteBusinessGoalDb = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const businessGoalOverview = catchAsync(async (req, res) => {
+  const company = req.user;
+
+  const result = await blueprintServices.businessGoalOverview(company.companyName);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Business goal overview successfully get!",
+    data: result,
+  });
+});
 
 export const blueprintContllors={
     createVisonDb,
@@ -153,5 +165,6 @@ export const blueprintContllors={
     getVisonDb,
     getAllstategicThemeDb,
     getSinglestategicThemeDb,
-    deleteSingleStrategicThemeDb
+    deleteSingleStrategicThemeDb,
+    businessGoalOverview
 }
