@@ -26,6 +26,5 @@ export interface IOrganizationUser {
   clarhetRole: string;
   businessFunction: string;
   notes: string;
-  collaboratesWith: string[];
   permissions: Permissions;
 }

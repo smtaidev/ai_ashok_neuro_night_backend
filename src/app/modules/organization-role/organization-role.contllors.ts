@@ -85,6 +85,20 @@ const deleteOrganizationUser = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const setupNewPasswordUser = catchAsync(async (req, res) => {
+  const { token } = req.params;
+  const result = await organizationUserServices.setupPassword(
+    token,
+    req.body
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Your password is success fully updated is done ",
+  
+  });
+});
 
 export const organizationUserControllers = {
   createOrganizationUser,
@@ -92,4 +106,5 @@ export const organizationUserControllers = {
   getSingleOrganizationUser,
   updateOrganizationUser,
   deleteOrganizationUser,
+  setupNewPasswordUser
 };

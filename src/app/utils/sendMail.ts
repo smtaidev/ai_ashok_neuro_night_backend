@@ -181,3 +181,44 @@
 
 //   await sendMail({ to: storePersonEmail, subject, text, html });
 // };
+
+
+
+import nodemailer from "nodemailer";
+import config from "../../config";
+
+export const sendEmail = async (
+  to: string,
+  title: string,
+  html: string,
+  text?: string // optional text fallback
+) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: config.brevo_email,
+        pass: config.brevo_pass,
+      },
+    });
+
+    const formattedDate = new Intl.DateTimeFormat("en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(new Date());
+
+    await transporter.sendMail({
+      from: `"Mail for Ai Ashok  " <${config.email_from}>`,
+      to,
+      subject: `${title} - ${formattedDate}`,
+      html,
+      text: text || "Please check your email to complete the action.", // fallback text
+    });
+
+  } catch (err) {
+    console.error("Failed to send email:", err);
+    throw err;
+  }
+};

@@ -9,7 +9,7 @@ const userSchema = new Schema<IUser>(
     password: { type: String, required: true },
     companyName: { type: String, required: true, unique: true },
     companyRole: { type: String, required: true, default: null },
-    isSubscribed: { type: Boolean, required: false, default: false },
+    isSubscribed: { type: Boolean, required: true, default: false },
     planExpiration: { type: Date, required: false },
     foundationId: { type: Schema.Types.ObjectId, default: null },
     role: {

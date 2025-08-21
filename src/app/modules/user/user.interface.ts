@@ -10,5 +10,6 @@ export interface IUser {
   role: "companyAdmin" | "superAdmin" | "companyEmployee";
   isDeleted: boolean;
   isSubscribed: Boolean;
-    planExpiration  :Date
+    planExpiration  :Date;
+     companyId?:Types.ObjectId
 }

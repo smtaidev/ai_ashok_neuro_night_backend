@@ -1,12 +1,12 @@
-import dotenv from 'dotenv';
-import path from 'path';
+import dotenv from "dotenv";
+import path from "path";
 
-dotenv.config({ path: path.join((process.cwd(), '.env')) });
+dotenv.config({ path: path.join((process.cwd(), ".env")) });
 
 export default {
   NODE_ENV: process.env.NODE_ENV,
   port: process.env.PORT,
-  ai_base_url:process.env.AI_URL,
+  ai_base_url: process.env.AI_URL,
   database_url: process.env.DB_URL,
   bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
   default_password: process.env.DEFAULT_PASS,
@@ -19,5 +19,10 @@ export default {
   cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
   cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET,
   super_admin_password: process.env.SUPER_ADMIN_PASSWORD,
-  secret_key:process.env.STRIPE_SECRET_KEY
+  secret_key: process.env.STRIPE_SECRET_KEY,
+  jwt_password_setup_secret: process.env.JWT_PASSWORD_SETUP_SECRET,
+  email_from: process.env.EMAIL_FROM,
+  brevo_pass: process.env.BREVO_PASS,
+  brevo_email: process.env.BREVO_EMAIL,
+  frontend_url:process.env.CLIENT_URL
 };

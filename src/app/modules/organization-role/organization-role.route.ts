@@ -38,5 +38,9 @@ router.delete(
   auth("companyAdmin"),
   organizationUserControllers.deleteOrganizationUser
 );
+router.patch(
+  "/:token",
+  organizationUserControllers.setupNewPasswordUser
+);
 
 export const organizationUserRoute = router;
