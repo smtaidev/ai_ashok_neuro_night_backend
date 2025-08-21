@@ -6,7 +6,6 @@ const UserSchema = new mongoose.Schema({
  userId:{type:mongoose.Types.ObjectId ,required:true,ref:"User"},
   name: {type:String,required:true},
   email:  {type:String,required:true},
-  organizationRole:  {type:String,required:true},
   businessFunction:  {type:String,required:true},
   notes:  {type:String,required:true},
  companyName: { type: String, required: true }, 
@@ -36,9 +35,9 @@ const UserSchema = new mongoose.Schema({
   const userSchema = new Schema(
   {
     userName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true },
     password: { type: String, required: true },
-    companyName: { type: String, required: true, unique: true },
+    companyName: { type: String, required: true },
     companyRole: { type: String, required: true, default: null },
     role: {
       type: String,

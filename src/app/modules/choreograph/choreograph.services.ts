@@ -6,21 +6,30 @@ import { Member, Objective, Team } from "./choreograph.interface";
 
 const createTeamsIntoDb = async (companyName: string, payload: Team) => {
   if (!companyName) {
-    throw new AppError(status.BAD_REQUEST, "company name is not found !");
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
   }
+
+  // Ensure members is always an array
+  const teamPayload = {
+    ...payload,
+    members: Array.isArray(payload.members) ? payload.members : []
+  };
+
   const query = {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
   };
 
-  console.log("Payload to save:", payload);  // Debug
+  console.log("Payload to save:", teamPayload); // Debug
 
+  console.log(teamPayload)
   const result = await choreographModel.findOneAndUpdate(
     query,
-    { $push: { teams: payload } },
+    { $push: { teams: teamPayload } },
     { new: true, upsert: true }
   );
+  console.log(teamPayload)
 
-  console.log("Saved  result:", result);  // Debug
+  console.log("Saved result:", result); // Debug
 
   return result;
 };

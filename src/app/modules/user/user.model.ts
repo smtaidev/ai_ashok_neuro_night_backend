@@ -5,9 +5,9 @@ import bcrypt from "bcrypt";
 const userSchema = new Schema<IUser>(
   {
     userName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true},
     password: { type: String, required: true },
-    companyName: { type: String, required: true, unique: true },
+    companyName: { type: String, required: true },
     companyRole: { type: String, required: true, default: null },
     isSubscribed: { type: Boolean, required: true, default: false },
     planExpiration: { type: Date, required: false },

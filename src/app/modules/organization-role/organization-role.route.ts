@@ -10,7 +10,10 @@ router.post(
   auth("companyAdmin"),
   organizationUserControllers.createOrganizationUser
 );
-
+router.post(
+  "/set-password",
+  organizationUserControllers.setupNewPasswordUser
+);
 // ✅ Get All Organization Users
 router.get(
   "/get-all-organization-users",
@@ -38,9 +41,6 @@ router.delete(
   auth("companyAdmin"),
   organizationUserControllers.deleteOrganizationUser
 );
-router.patch(
-  "/:token",
-  organizationUserControllers.setupNewPasswordUser
-);
+
 
 export const organizationUserRoute = router;

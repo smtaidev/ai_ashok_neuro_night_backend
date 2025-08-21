@@ -21,14 +21,13 @@ const createOrganizationUser = async (
     email: payload.email,
     password: "vtemporary-initial",
     companyName: companyName,
+    companyRole: payload.companyRole ,
+    role:"companyEmployee",
     isDeleted: true,
   };
 
-  const isEexistUser = await UserModel.findOne({
-    $or: [
-      { email: userData.email },
-      { companyName: { $regex: new RegExp(`^${userData.companyName}$`, "i") } },
-    ],
+  const isEexistUser = await organizationUserModels.findOne({
+       email: userData.email 
   });
 
   if (isEexistUser) {
@@ -40,11 +39,11 @@ const createOrganizationUser = async (
   try {
     session.startTransaction();
 
-    const newUser = new organizationUserModels(userData, { session });
-    const user = await newUser.save();
-    const result = await organizationUserModel.create(
-      { ...payload, userId: user._id,companyName },
-      { session }
+   const [user] = await organizationUserModels.create([userData], { session });
+   console.log(payload)
+    const result = await organizationUserModel.create([
+      { ...payload, userId: user._id,companyName }],
+      { session },
     );
 
     const token = createPasswordSetupToken({ userId: String(user._id), email: user.email });
@@ -189,7 +188,7 @@ const deleteOrganizationUser = async (companyName: string, id: string) => {
  const setupPassword = async (token: string, newPassword: string) => {
   if (!token) throw new AppError(status.BAD_REQUEST, "Token is required");
   if (!newPassword) throw new AppError(status.BAD_REQUEST, "New password is required");
-
+console.log(token)
   let payload: any;
   try {
     payload = jwt.verify(token, config.jwt_password_setup_secret as string);

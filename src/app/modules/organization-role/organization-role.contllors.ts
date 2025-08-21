@@ -1,3 +1,4 @@
+import AppError from "../../errors/AppError";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { organizationUserServices } from "./organization-role.services";
@@ -86,16 +87,23 @@ const deleteOrganizationUser = catchAsync(async (req, res) => {
   });
 });
 const setupNewPasswordUser = catchAsync(async (req, res) => {
-  const { token } = req.params;
+console.log("API hit");   
+const password = req.body.password;
+  const token = req.body.token;
+    if (!token || !password) {
+    throw new AppError(400, "Token and password are required");
+  }
+
+  console.log(req.body)
   const result = await organizationUserServices.setupPassword(
     token,
-    req.body
+    password
   );
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "Your password is success fully updated is done ",
+    message: "Your password is success fully updated done ",
   
   });
 });

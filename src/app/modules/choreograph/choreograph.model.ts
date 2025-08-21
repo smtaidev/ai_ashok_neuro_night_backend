@@ -26,7 +26,7 @@ export const teamSchema = new Schema(
     skillNeed: { type: [String], required: true },
    members: {
   type: [memberSchema],
-  default: null,
+  default: [],
 },
 
   },
