@@ -19,14 +19,18 @@ export interface Permissions {
 }
 
 export interface IOrganizationUser {
-    userId?:Types.ObjectId,
+  userId?: Types.ObjectId;
   name: string;
-  role:"companyEmployee";
+  role: "companyEmployee";
   email: string;
   organizationRole: string;
   companyRole: string;
   businessFunction: string;
   notes: string;
   permissions: Permissions;
-
+  skills?: string[];
+  location?: string;
+  teamRole?: string;
+  type?: string;
+  availability?: number;
 }

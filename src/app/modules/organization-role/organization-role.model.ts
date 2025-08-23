@@ -98,6 +98,11 @@ const userSchema = new Schema(
     password: { type: String, required: true },
     companyName: { type: String, required: true },
     companyRole: { type: String, required: true, default: null },
+    skills:{type:[String],required:true,default:[]},
+    location:{ type: String, required: false ,default:""},
+    teamRole:{ type: String, required: false ,default:""},
+    type:{ type: String, required: false ,default:""},
+    availability:{ type: String, required: false ,default:0},
     role: {
       type: String,
       enum: ["companyEmployee"],

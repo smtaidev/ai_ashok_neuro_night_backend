@@ -228,6 +228,7 @@ const createBusinessGoalAi = async (companyName: string) => {
 
 
 
+  console.log(allData)
   const apiUrls = `${config.ai_base_url}/business-goal/analyze2`;
   const responses = await axios.post(apiUrls, allData, {
     headers: { "Content-Type": "application/json" },

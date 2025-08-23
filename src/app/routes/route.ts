@@ -18,6 +18,7 @@ import { SubscriptionRoutes } from "../modules/Subscription/Subscription.route";
 import { meetingRoute } from "../modules/meetings/meeting.route";
 import { agendaRoute } from "../modules/Agenda/Agenda.route";
 import { organizationUserRoute } from "../modules/organization-role/organization-role.route";
+import { businessFunctionRoute } from "../modules/businessfuncation/businessfuncation.route";
 
 const router = express.Router()
 
@@ -98,6 +99,10 @@ const moduleRoutes = [
   {
     path: "/organization",
     route:organizationUserRoute
+  },
+  {
+    path: "/business-function",
+    route:businessFunctionRoute
   },
 
 ];

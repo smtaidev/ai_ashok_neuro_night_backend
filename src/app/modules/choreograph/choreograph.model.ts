@@ -16,16 +16,20 @@ export const teamSchema = new Schema(
   {
     teamName: { type: String, required: true },
     headcount: { type: Number, required: true },
-    teamAllocation: { type: String, required: true },
-    teamAvailability: {
-      type: String,
-      enum: ["available", "busy", "partial"],
-      required: true,
-    },
-    talentNeed: { type: String, required: true },
-    skillNeed: { type: [String], required: true },
+    description:{ type: String, required: true },
+    // teamAllocation: { type: String, required: true },
+    // teamAvailability: {
+    //   type: String,
+    //   enum: ["available", "busy", "partial"],
+    //   required: true,
+    // },
+    // talentNeed: { type: String, required: true },
+    // skillNeed: { type: [String], required: true },
    members: {
-  type: [memberSchema],
+  type: [ {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Organization-User", 
+  }],
   default: [],
 },
 

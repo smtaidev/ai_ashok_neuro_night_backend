@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 // ---------- Member ----------
 export interface Member {
   _id?: string;
@@ -13,12 +15,9 @@ export interface Member {
 export interface Team {
   _id?: string;
   teamName: string;
-  headcount: number;
-  teamAllocation: string;
-  teamAvailability: "available" | "busy" | "partial";
-  talentNeed: string;
-  skillNeed: string[];
-  members: Member[]; // Embedded Member objects
+  headcount?: number;
+ description:string,
+  members: Types.ObjectId[]; // Embedded Member objects
   createdAt?: string;
   updatedAt?: string;
 }
@@ -44,7 +43,7 @@ export interface Choreograph {
   _id?: string;
   companyName: string; // FK to Company (_id string)
   objectives: Objective[];
-  teams: Team[];
+  teams: Types.ObjectId[];
   alignmentCheckId?: string | null; // FK to AlignmentCheck
   createdAt?: string;
   updatedAt?: string;
