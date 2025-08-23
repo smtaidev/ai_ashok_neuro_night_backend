@@ -131,7 +131,7 @@ This link is valid for 12 hours. If you did not expect this email, please ignore
     await session.commitTransaction();
     session.endSession();
 
-    return result;
+    return user
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
@@ -144,7 +144,7 @@ const getAllOrganizationUsers = async (companyName: string) => {
     throw new AppError(status.BAD_REQUEST, "company name is not found !");
   }
   const query = {
-    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") }
   };
   const result = await organizationUserModel.find(query).populate({
     path: "userId",

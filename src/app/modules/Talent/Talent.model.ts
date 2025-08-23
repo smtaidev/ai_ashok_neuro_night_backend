@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 
 const talentOverviewSchema = new mongoose.Schema(
-  {
+  { 
+    companyName:{ type: String ,required:true},
+    talent:{ type: String ,required:true},
+    function: { type: String ,required:true},
     identifiedSkillsGaps: { type: String ,required:true},
     priorityForFillingGaps: { type: String ,required:true},
     trainingAndDevelopmentNeeds: { type: String,required:true },

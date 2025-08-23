@@ -19,6 +19,7 @@ import { meetingRoute } from "../modules/meetings/meeting.route";
 import { agendaRoute } from "../modules/Agenda/Agenda.route";
 import { organizationUserRoute } from "../modules/organization-role/organization-role.route";
 import { businessFunctionRoute } from "../modules/businessfuncation/businessfuncation.route";
+import { TalentRoute } from "../modules/Talent/Telent.route";
 
 const router = express.Router()
 
@@ -103,6 +104,10 @@ const moduleRoutes = [
   {
     path: "/business-function",
     route:businessFunctionRoute
+  },
+  {
+    path: "/talents",
+    route:TalentRoute
   },
 
 ];

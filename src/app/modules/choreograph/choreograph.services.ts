@@ -315,7 +315,7 @@ export const getAllMembers = async (companyName: string, teamId: string) => {
       "teams._id": teamId,
     },
     { "teams.$": 1 }
-  );
+  ).populate("teams.members", "-password");
 
   if (!doc) throw new AppError(status.NOT_FOUND, "Team or company not found");
 
@@ -333,27 +333,27 @@ export const getMemberById = async (
   if (!memberId)
     throw new AppError(status.BAD_REQUEST, "Member ID is required");
 
-  const doc = await choreographModel.findOne(
-    {
+  const doc = await choreographModel
+    .findOne({
       companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
       "teams._id": teamId,
-      "teams.members._id": memberId,
-    },
-    {
-      "teams.$": 1,
-    }
-  );
+      "teams.members": { $in: [new mongoose.Types.ObjectId(memberId)] },
+    })
+    .populate("teams.members", "-password"); // Populate & hide password
 
   if (!doc)
     throw new AppError(status.NOT_FOUND, "Member, team or company not found");
 
-  const team = doc.teams[0];
-  const member = team.members.find((m) => m._id.toString() === memberId);
+  const team = doc.teams.find((t) => t._id.toString() === teamId);
+  const member = team?.members.find(
+    (m: any) => m._id.toString() === memberId
+  );
 
   if (!member) throw new AppError(status.NOT_FOUND, "Member not found");
 
   return member;
 };
+
 
 export const updateMemberById = async (
   companyName: string,
@@ -361,9 +361,11 @@ export const updateMemberById = async (
   memberId: string,
   payload: Partial<{
     name: string;
-    role: string;
+    teamRole: string;
     skills: string[];
-    allocation: string;
+    location: string;
+    type: string;
+    availability: string;
   }>
 ) => {
   if (!companyName)
@@ -372,30 +374,38 @@ export const updateMemberById = async (
   if (!memberId)
     throw new AppError(status.BAD_REQUEST, "Member ID is required");
 
-  const setObj: Record<string, any> = {};
-  for (const key in payload) {
-    setObj[`teams.$[team].members.$[member].${key}`] =
-      payload[key as keyof typeof payload];
-  }
-
+  // Update main choreographModel team member reference if needed
   const result = await choreographModel.findOneAndUpdate(
-    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
-    { $set: setObj },
     {
-      arrayFilters: [{ "team._id": teamId }, { "member._id": memberId }],
-      new: true,
-    }
+      companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+      "teams._id": teamId,
+      "teams.members": { $in: [memberId] },
+    },
+    { $set: {} }, // No change in reference array
+    { new: true }
   );
 
-  if (!result)
-    throw new AppError(status.NOT_FOUND, "Member, team or company not found");
+  if (!result) {
+    throw new AppError(
+      status.NOT_FOUND,
+      "Member not found in this team or company"
+    );
+  }
 
-  // Return the updated member
-  const team = result.teams.find((t) => t._id.toString() === teamId);
-  const member = team?.members.find((m) => m._id.toString() === memberId);
-  if (!member) throw new AppError(status.NOT_FOUND, "Member not found");
+  // Update member details in organizationUserModels
+  const updateMember = await organizationUserModels.findOneAndUpdate(
+    {
+      companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+      _id: new mongoose.Types.ObjectId(memberId),
+    },
+    { $set: payload },
+    { new: true }
+  );
 
-  return member;
+  if (!updateMember)
+    throw new AppError(status.NOT_FOUND, "Member profile not found");
+
+  return updateMember;
 };
 
 export const deleteMemberById = async (
@@ -412,9 +422,9 @@ export const deleteMemberById = async (
   const result = await choreographModel.findOneAndUpdate(
     {
       companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
-      "teams._id": teamId,
+      "teams._id": new mongoose.Types.ObjectId(teamId),
     },
-    { $pull: { "teams.$.members": { _id: memberId } } },
+    { $pull: { "teams.$.members": memberId } }, // সরাসরি memberId
     { new: true }
   );
 
@@ -423,6 +433,7 @@ export const deleteMemberById = async (
 
   return result;
 };
+
 
 export const choreographServices = {
   createTeamsIntoDb,
