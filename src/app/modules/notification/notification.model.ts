@@ -8,7 +8,7 @@ const notificationSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Types.ObjectId,
       required: true,
-      ref: "User",
+      ref: "Organization-User",
     },
     title: {
       type: String,

@@ -5,7 +5,8 @@ import { alignmentCheckServices } from "./alignmentCheck.services";
 
 const createalignmentCheckIntDb=catchAsync(async(req,res)=>{
     console.log(req.body)
-const result=await alignmentCheckServices.createalignmentCheck(req.body)
+    const {companyName,userId}=req.user
+const result=await alignmentCheckServices.createalignmentCheck(companyName,userId,req.body)
 
  sendResponse(res, {
     statusCode: 200,

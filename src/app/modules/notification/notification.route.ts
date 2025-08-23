@@ -8,21 +8,21 @@ const router = express.Router();
 // ✅ Create Notification
 router.post(
   "/create-notification",
-  auth("companyAdmin"),
+  auth(),
   notificationControllers.createNotificationIntoDb
 );
 
 // ✅ Get All Notifications
 router.get(
   "/get-all-notifications",
-  auth("companyAdmin"),
+  auth("companyAdmin","companyEmployee"),
   notificationControllers.getAllNotificationsFromDb
 );
 
 // ✅ Get Single Notification
 router.get(
   "/:id",
-  auth("companyAdmin"),
+  auth("companyAdmin","companyEmployee"),
   notificationControllers.getSingleNotificationFromDb
 );
 

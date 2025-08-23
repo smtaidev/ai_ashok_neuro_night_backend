@@ -5,7 +5,8 @@ import status from "http-status";
 import AssessAlignmentCheckModel from "./alignmentCheck.model";
 import UserModel from "../user/user.model";
 import { AssessAlignmentCheck } from "./alignmentCheck.interface";
-const createalignmentCheck = async (payload:AssessAlignmentCheck) => {
+import notificationModel from "../notification/notification.model";
+const createalignmentCheck = async (companyName:string,userId:string,payload:AssessAlignmentCheck) => {
 if (!payload) {
     throw new AppError(status.BAD_REQUEST, "payload  is  required");
   }
@@ -14,10 +15,20 @@ if (!payload) {
   if(!isEexist){
     throw new AppError(status.BAD_REQUEST, "company Name id is not found");
   }
+
+
+  const notificationData={
+  companyName: companyName,
+  userId:userId,
+  title: payload?.title,
+  message:payload.suggestions || "User action in  alignment check",
+}
+
+  const result = await AssessAlignmentCheckModel.create({...payload,userId,companyName});
+    const createNotification=await notificationModel.create(notificationData)
   
-  const result = await AssessAlignmentCheckModel.create(payload);
   return result;
-};
+}
 const getAllalignmentCheck = async (companyName:string) => {
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "company Name id is not found");

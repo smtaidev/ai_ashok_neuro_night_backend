@@ -20,6 +20,7 @@ import { agendaRoute } from "../modules/Agenda/Agenda.route";
 import { organizationUserRoute } from "../modules/organization-role/organization-role.route";
 import { businessFunctionRoute } from "../modules/businessfuncation/businessfuncation.route";
 import { TalentRoute } from "../modules/Talent/Telent.route";
+import { NotificationRoute } from "../modules/notification/notification.route";
 
 const router = express.Router()
 
@@ -108,6 +109,10 @@ const moduleRoutes = [
   {
     path: "/talents",
     route:TalentRoute
+  },
+  {
+    path: "/notifications",
+    route:NotificationRoute
   },
 
 ];

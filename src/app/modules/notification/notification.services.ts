@@ -29,7 +29,7 @@ const getAllNotificationsFromDb = async (companyName: string) => {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
   };
 
-  const result = await notificationModel.find(query);
+  const result = await notificationModel.find(query).populate("userId","-password");
   return result;
 };
 
