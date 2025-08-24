@@ -88,10 +88,45 @@ const query = {
   return result;
 };
 
+const getUpcomingMeetingsFromDb = async (companyName: string) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is required!");
+  }
+
+  const today = new Date();
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    meetingDate: { $gt: today } 
+  };
+
+  const result = await Meeting.find(query).sort({ meetingDate: 1 }); // date ascending
+  return result;
+};
+
+const getPastMeetingsFromDb = async (companyName: string) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is required!");
+  }
+
+  const now = new Date(); // এখনকার সময়
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    endDate: { $lt: now } 
+  };
+
+  const result = await Meeting.find(query).sort({ endDate: -1 }); // latest finished first
+  return result;
+};
+
+
 export const meetingsServices={
     createMeetingIntoDb,
     updateMeetingIntoDb,
     deleteMeetingFromDb,
     getAllMeetingsFromDb,
-    getSingleMeetingFromDb
+    getSingleMeetingFromDb,
+    getUpcomingMeetingsFromDb,
+    getPastMeetingsFromDb
 }

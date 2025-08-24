@@ -66,6 +66,35 @@ const deleteMeetingFromDb = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getUpcomingMeetingsFromDb = catchAsync(async (req, res) => {
+  const company = req.user; // auth middleware থেকে company info
+  console.log(company.companyName)
+  const result = await meetingsServices.getUpcomingMeetingsFromDb(
+    company?.companyName
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Upcoming meetings retrieved successfully",
+    data: result,
+  });
+});
+
+const getPastMeetingsFromDb = catchAsync(async (req, res) => {
+  const company = req.user; // auth middleware থেকে company info
+  const result = await meetingsServices.getPastMeetingsFromDb(
+    company?.companyName
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Past meetings retrieved successfully",
+    data: result,
+  });
+});
+
 
 export const meetingControllers = {
   createMeetingIntoDb,
@@ -73,4 +102,6 @@ export const meetingControllers = {
   getSingleMeetingFromDb,
   updateMeetingIntoDb,
   deleteMeetingFromDb,
+  getUpcomingMeetingsFromDb,
+  getPastMeetingsFromDb
 };

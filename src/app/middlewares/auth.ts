@@ -9,6 +9,8 @@ import config from "../../config";
 import AppError from "../errors/AppError";
 import catchAsync from "../utils/catchAsync";
 import UserModel from "../modules/user/user.model";
+import mongoose from "mongoose";
+import { organizationUserModels } from "../modules/organization-role/organization-role.model";
 
 
 export type TUserRole = 'companyAdmin' | 'superAdmin' | "companyEmployee";
@@ -31,6 +33,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
 
     try {
       decoded = jwt.verify(token, config.jwt_access_secret as string) as JwtPayload;
+      console.log(decoded)
     } catch (error) {
       if (error instanceof TokenExpiredError) {
         throw new AppError(httpStatus.UNAUTHORIZED, "Token has expired");
@@ -41,13 +44,16 @@ const auth = (...requiredRoles: TUserRole[]) => {
       throw new AppError(httpStatus.UNAUTHORIZED, "Token verification failed");
     }
 
-    const { role, email } = decoded;
+    const { role, email,userId } = decoded;
 
     console.log("logged in user: ",decoded)
 
-
+if (!mongoose.Types.ObjectId.isValid(userId)) {
+  throw new AppError(httpStatus.BAD_REQUEST, "Invalid user ID from token");
+}
     // Check if user exists
-    const user = await UserModel.findOne({email});
+    const user = await UserModel.findOne({email}) || await organizationUserModels.findOne({email})
+    console.log (user)
     if (!user) {
       throw new AppError(httpStatus.NOT_FOUND, "User not found");
     }

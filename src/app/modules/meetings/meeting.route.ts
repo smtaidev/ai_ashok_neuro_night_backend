@@ -8,6 +8,17 @@ const router = express.Router();
 // ✅ Create Meeting
 router.post("/create-meeting",auth('companyAdmin'), meetingControllers.createMeetingIntoDb);
 
+router.get(
+  "/upcoming-meetings",
+  auth("companyAdmin"),
+  meetingControllers.getUpcomingMeetingsFromDb
+);
+
+router.get(
+  "/past-meetings",
+  auth("companyAdmin"), 
+  meetingControllers.getPastMeetingsFromDb
+);
 // ✅ Get All Meetings
 router.get("/get-all-meeting",auth('companyAdmin'), meetingControllers.getAllMeetingsFromDb);
 
@@ -19,5 +30,7 @@ router.patch("/:id",auth('companyAdmin'), meetingControllers.updateMeetingIntoDb
 
 // ✅ Delete Meeting by ID
 router.delete("/:id",auth('companyAdmin'), meetingControllers.deleteMeetingFromDb);
+
+
 
 export const meetingRoute= router;
