@@ -17,8 +17,9 @@ const result=await alignmentCheckServices.createalignmentCheck(companyName,userI
 })
 
 const getalignmentCheckIntDb=catchAsync(async(req,res)=>{
-    const company=req.params
+    const company=req.user
  
+    console.log(company)
 const result=await alignmentCheckServices.getAllalignmentCheck(company.companyName)
  sendResponse(res, {
     statusCode: 200,

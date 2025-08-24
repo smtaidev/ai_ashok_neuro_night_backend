@@ -116,6 +116,22 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
 });
 
 
+const getMeUser = catchAsync(async (req, res) => {
+  const company = req.user;
+  const result = await UserServices.getMe(
+    company?.companyName,
+    company.userId
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "get me user retrieved successfully",
+    data: result,
+  });
+});
+
+
 
 export const UserControllers ={
   createUser,
@@ -123,5 +139,6 @@ export const UserControllers ={
   getUserById,
   changePassword,
   deleteUser,
-  updateUser
+  updateUser,
+  getMeUser
 }

@@ -1,11 +1,11 @@
-import mongoose, { Schema, model } from "mongoose";
+import mongoose, { Schema, Types, model } from "mongoose";
 import { IMeeting } from "./meeting.interface";
 
 
 const meetingSchema = new Schema<IMeeting>(
   { 
     companyName:{ type: String, required: true },
-     agendaItems: [{ type: mongoose.Schema.Types.ObjectId, ref: "Agenda" }],
+     agendaId:{type:Types.ObjectId,default:null, ref:"Agenda"},
     name: { type: String, required: true },
     location: { type: String, required: true },
     type: { type: String, required: true },

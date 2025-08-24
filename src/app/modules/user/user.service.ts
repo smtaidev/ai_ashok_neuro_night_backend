@@ -1,4 +1,4 @@
-import { fi } from "zod/v4/locales/index.cjs";
+import { fi, is } from "zod/v4/locales/index.cjs";
 import { IUser } from "./user.interface";
 import UserModel from "./user.model";
 import bcrypt from "bcrypt";
@@ -9,6 +9,7 @@ import AssessModel from "../assess/assess.model";
 import { BlueprintModel } from "../blueprint/blueprint.model";
 import choreographModel from "../choreograph/choreograph.model";
 import { FoundationModel } from "../foundation/foundation.model";
+import { organizationUserModels } from "../organization-role/organization-role.model";
 const createUser = async (userData: IUser): Promise<IUser> => {
   const companyRole = (userData.role == 'companyAdmin') ? "admin" : null;
 
@@ -72,7 +73,29 @@ const getUserById = async (id: string): Promise<IUser | null> => {
   if (!Types.ObjectId.isValid(id)) {
     throw new Error("Invalid user ID");
   }
+
+  
   const user = await UserModel.findOne({ _id: id, isDeleted: false });
+  return user;
+};
+
+const getMe = async (companyName:string, userId:string) => {
+  if (!Types.ObjectId.isValid(userId)) {
+    throw new Error("Invalid user ID");
+  }
+
+   if (!companyName)
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+
+   
+     const query = {
+       companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+       _id: new mongoose.Types.ObjectId(userId),
+       isDeleted:false
+     };
+
+  const user = await UserModel.findOne(query)|| await organizationUserModels.findOne(query)
+  console.log(user)
   return user;
 };
 
@@ -133,4 +156,5 @@ export const UserServices = {
   updateUser,
   deleteUser,
   changePasswordIntoDB,
+  getMe
 };

@@ -6,6 +6,20 @@ import { IAgenda } from "./Agenda.interface";
 import { Meeting } from "../meetings/meeting.model";
 
 // ✅ Create Agenda
+// const createAgenda = async (
+//   meetingId: string,
+//   companyName: string,
+//   payload: IAgenda
+// ) => {
+//   if (!payload) {
+//     throw new AppError(status.BAD_REQUEST, "Agenda data is required!");
+//   }
+//   const payloadData = { ...payload, companyName, meetingId };
+//   const result = await AgendaSchema.create(payloadData);
+//   await Meeting.findByIdAndUpdate(meetingId, { $push: { agendaItems: result._id } });
+//   return result;
+// };
+
 const createAgenda = async (
   meetingId: string,
   companyName: string,
@@ -14,10 +28,59 @@ const createAgenda = async (
   if (!payload) {
     throw new AppError(status.BAD_REQUEST, "Agenda data is required!");
   }
-  const payloadData = { ...payload, companyName, meetingId };
-  const result = await AgendaSchema.create(payloadData);
-  await Meeting.findByIdAndUpdate(meetingId, { $push: { agendaItems: result._id } });
-  return result;
+
+  // Find existing agenda
+  let existingAgenda = await AgendaSchema.findOne({ meetingId, companyName });
+
+  if (existingAgenda) {
+    // Update welcomeAndOpeningRemark if present
+    if (payload.welcomeAndOpeningRemark) {
+      existingAgenda.welcomeAndOpeningRemark = payload.welcomeAndOpeningRemark;
+    }
+
+    // Update inviteAttendees if present
+    if (payload.inviteAttendees) {
+      existingAgenda.inviteAttendees = payload.inviteAttendees;
+    }
+
+    // Replace agendaItems (max 15)
+    existingAgenda.agendaItems.splice(0, existingAgenda.agendaItems.length); // clear existing
+    if (payload.agendaItems && payload.agendaItems.length > 0) {
+      payload.agendaItems.slice(0, 15).forEach((item) => {
+        existingAgenda.agendaItems.push(item as any);
+      });
+    }
+
+    const updatedAgenda = await existingAgenda.save();
+
+    console.log(updateAgenda)
+    // Update Meeting.agendaId properly
+    await Meeting.findByIdAndUpdate(
+      meetingId,
+      { $set: { agendaId: existingAgenda._id } }, // ObjectId directly
+      { new: true }
+    );
+
+    return updatedAgenda;
+  } else {
+    // Create new agenda
+    const agendaToSave = {
+      ...payload,
+      meetingId,
+      companyName,
+    };
+
+    const newAgenda = await AgendaSchema.create(agendaToSave);
+  
+    await Meeting.findByIdAndUpdate(
+      meetingId,
+      { $set: { agendaId: newAgenda._id  } },
+      { new: true }
+    );
+
+    console.log('check data', existingAgenda)
+    return newAgenda;
+  }
 };
 
 // ✅ Get All Agendas

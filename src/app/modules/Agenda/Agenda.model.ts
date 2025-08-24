@@ -12,7 +12,7 @@ const AgendaItemSchema = new Schema({
   details: { type: String },
 });
 
-const MeetingSchema = new Schema(
+const AgendasSchema = new Schema(
   {
     companyName: { type: String, required: true },
     meetingId: { type: mongoose.Types.ObjectId, ref: "Meeting", required: true },
@@ -28,4 +28,4 @@ const MeetingSchema = new Schema(
   { timestamps: true }
 );
 
-export const AgendaSchema = mongoose.model("Agenda", MeetingSchema);
+export const AgendaSchema = mongoose.model("Agenda", AgendasSchema);

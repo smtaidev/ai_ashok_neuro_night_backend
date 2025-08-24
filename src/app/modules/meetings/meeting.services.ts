@@ -23,7 +23,7 @@ console.log(payloadData)
   };
 
   console.log(companyName)
-  const result = await Meeting.find(query).populate("agendaItems");
+  const result = await Meeting.find(query).populate("agendaId");
   console.log(result)
   return result;
 };
@@ -38,10 +38,11 @@ const query = {
   companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
   _id: new mongoose.Types.ObjectId(id), 
 };
-  const result = await Meeting.findOne(query).populate("agendaItems");
+  const result = await Meeting.findOne(query).populate("agendaId");
   if (!result) {
     throw new AppError(status.NOT_FOUND, "Meeting not found!");
   }
+  console.log(result)
   return result;
 };
 
