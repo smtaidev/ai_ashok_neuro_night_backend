@@ -34,7 +34,7 @@ const getAllalignmentCheck = async (companyName:string) => {
     throw new AppError(status.BAD_REQUEST, "company Name id is not found");
   }
 
-  const result = await AssessAlignmentCheckModel.findOne({ companyName:companyName});
+  const result = await AssessAlignmentCheckModel.find({ companyName:companyName});
   return result;
 };
 
