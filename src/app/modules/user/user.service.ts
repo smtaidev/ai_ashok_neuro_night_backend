@@ -10,6 +10,9 @@ import { BlueprintModel } from "../blueprint/blueprint.model";
 import choreographModel from "../choreograph/choreograph.model";
 import { FoundationModel } from "../foundation/foundation.model";
 import { organizationUserModels } from "../organization-role/organization-role.model";
+import { sendEmail } from "../../utils/sendMail";
+import { createPasswordSetupToken } from "../../utils/password.create";
+import config from "../../../config";
 const createUser = async (userData: IUser): Promise<IUser> => {
   const companyRole = (userData.role == 'companyAdmin') ? "admin" : null;
 
@@ -52,6 +55,36 @@ const createUser = async (userData: IUser): Promise<IUser> => {
       { session }
     );
 
+    const token = createPasswordSetupToken({
+      userId: String(user._id),
+      email: user.email,
+    });
+
+    const setupLink = `${config.frontend_url}/setup-password?token=${token}`;
+
+    // HTML version
+    const htmlContent = `
+  <h2>Hello ${user.userName},</h2>
+  <p>Your account has been created for <b>Clarhet Admin</b>.</p>
+  <p>Please set your password by clicking the secure link below:</p>
+  <p><a href="${setupLink}" target="_blank">Set Your Password</a></p>
+  <p><small>This link is valid for 12 hours. If you did not expect this email, please ignore it.</small></p>
+`;
+
+    // Plain text version
+    const textContent = `
+Hello ${user.userName},
+
+Your account has been created for Clarhet Admin.
+
+Please set your password by visiting the link below:
+${setupLink}
+
+This link is valid for 12 hours. If you did not expect this email, please ignore it.
+`;
+
+    // Send the email
+    await sendEmail(user.email, "Set Your Password", htmlContent, textContent);
     await session.commitTransaction();
     session.endSession();
 

@@ -6,7 +6,7 @@ const userSchema = new Schema<IUser>(
   {
     userName: { type: String, required: true },
     email: { type: String, required: true},
-    password: { type: String, required: true },
+    password: { type: String ,default:"vtemporary-initial"},
     companyName: { type: String, required: true },
     companyRole: { type: String, required: true, default: null },
     isSubscribed: { type: Boolean, required: true, default: false },
@@ -18,7 +18,7 @@ const userSchema = new Schema<IUser>(
       default: "companyEmployee",
       required: true,
     },
-    isDeleted: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: true },
   },
   {
     timestamps: true,

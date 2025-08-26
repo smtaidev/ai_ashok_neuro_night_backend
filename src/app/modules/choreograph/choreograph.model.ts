@@ -14,7 +14,7 @@ export const memberSchema = new Schema(
 // ---------- Team ----------
 export const teamSchema = new Schema(
   {
-    teamName: { type: String, required: true },
+    teamName: { type: String, required: true ,unique:true},
     headcount: { type: Number, required: true },
     description:{ type: String, required: true },
     // teamAllocation: { type: String, required: true },

@@ -67,6 +67,17 @@ const deleteAgendaFromDb = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const  getAgendasByUser = catchAsync(async (req, res) => {
+  const { id} = req.params;
+  const company = req.user;
+  const result = await agendaServices.getAgendasByUser(id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "My Agenda  successfully get",
+    data: result,
+  });
+});
 
 export const agendaControllers = {
   createAgendaIntoDb,
@@ -74,4 +85,5 @@ export const agendaControllers = {
   getSingleAgendaFromDb,
   updateAgendaIntoDb,
   deleteAgendaFromDb,
+  getAgendasByUser
 };

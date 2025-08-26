@@ -73,6 +73,27 @@ const getTeamByCompanyAndId = async (companyName: string, teamId: string) => {
 
   return doc?.teams?.[0] || null;
 };
+const getTeamByTeamName = async (companyName: string, teamId: string) => {
+  if (!companyName || !teamId) {
+    throw new Error("Company name and team id are required");
+  }
+
+  const doc = await choreographModel.findOne(
+    {
+      companyName: new RegExp(`^${companyName}$`, "i"),
+      "teams.teamName":new RegExp(`^${teamId}$`, "i"),
+    },
+    {
+      teams: { $elemMatch: { teamName: teamId } },
+      _id: 0,
+    }
+  ).populate({
+      path: "teams.members",
+      select: "-password", // password exclude korbe
+    })
+
+  return doc?.teams?.[0] || null;
+};
 
 import mongoose, { Types } from "mongoose";
 import { organizationUserModels } from "../organization-role/organization-role.model";
@@ -451,4 +472,5 @@ export const choreographServices = {
   updateMemberById,
   getMemberById,
   deleteMemberById,
+  getTeamByTeamName
 };

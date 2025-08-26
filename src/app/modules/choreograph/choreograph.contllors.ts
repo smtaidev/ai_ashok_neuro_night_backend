@@ -44,6 +44,21 @@ const getSingeleChoregoraphDb = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getSingeleTeamDb = catchAsync(async (req, res) => {
+  const company = req.user;
+  const {id} = req.params;
+  console.log("check company data", company);
+  const result = await choreographServices.getTeamByTeamName(
+    company.companyName,
+    id
+  );
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: " single team successfully get!",
+    data: result,
+  });
+});
 const updateChoregoraphDb = catchAsync(async (req, res) => {
   const company = req.user;
   const { id } = req.params;
@@ -273,4 +288,5 @@ export const choregoraphContllors = {
   getMemberByIdController,
   updateMemberController,
   deleteMemberController,
+  getSingeleTeamDb
 };

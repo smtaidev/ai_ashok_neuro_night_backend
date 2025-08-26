@@ -59,9 +59,15 @@ const createOrganizationUser = async (
   const isEexistUser = await organizationUserModels.findOne({
     email: userData.email,
   });
+  const isEexistUsers = await UserModel.findOne({
+    email: userData.email,
+  });
 
   if (isEexistUser) {
     throw new AppError(status.BAD_REQUEST, "User already exists");
+  }
+  if (isEexistUsers) {
+    throw new AppError(status.BAD_REQUEST, "User already exist");
   }
 
   const session = await mongoose.startSession();
@@ -252,7 +258,9 @@ const setupPassword = async (token: string, newPassword: string) => {
 
   const isEexist = await organizationUserModels.findOne({
     email: payload?.email,
-  });
+  })||await UserModel.findOne({
+    email: payload?.email,
+  })
 
   if (!isEexist) {
     throw new AppError(status.FORBIDDEN, "User is not found ");
@@ -263,7 +271,12 @@ const setupPassword = async (token: string, newPassword: string) => {
     payload.userId,
     { password: hashedPassword, isDeleted: false },
     { new: true }
-  );
+  )|| await UserModel.findByIdAndUpdate(
+    payload.userId,
+    { password: hashedPassword, isDeleted: false },
+    { new: true }
+  )
+
 
   if (!user) throw new AppError(status.NOT_FOUND, "User not found");
 

@@ -9,6 +9,7 @@ const route=express.Router()
 route.patch("/",auth("companyAdmin"),choregoraphContllors.createChoregoraphDb)
 route.get("/",auth("companyAdmin"),choregoraphContllors.getAllChoregoraphDb)
 route.get("/:id",auth("companyAdmin"),choregoraphContllors.getSingeleChoregoraphDb)
+route.get("/:id/get-single-team",auth("companyAdmin"),choregoraphContllors.getSingeleTeamDb)
 route.patch("/update-teams/:id",auth("companyAdmin"),choregoraphContllors.updateChoregoraphDb)
 route.delete("/:id",auth("companyAdmin"),choregoraphContllors.deleteChoregorapTeamhDb)
 

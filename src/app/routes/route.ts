@@ -21,6 +21,7 @@ import { organizationUserRoute } from "../modules/organization-role/organization
 import { businessFunctionRoute } from "../modules/businessfuncation/businessfuncation.route";
 import { TalentRoute } from "../modules/Talent/Telent.route";
 import { NotificationRoute } from "../modules/notification/notification.route";
+import { companyRoute } from "../modules/company/company.route";
 
 const router = express.Router()
 
@@ -113,6 +114,10 @@ const moduleRoutes = [
   {
     path: "/notifications",
     route:NotificationRoute
+  },
+  {
+    path: "/company",
+    route:companyRoute
   },
 
 ];

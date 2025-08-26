@@ -38,6 +38,14 @@ const getAllalignmentCheck = async (companyName:string) => {
   return result;
 };
 
+const myAlignmentCheck=async(userId:string)=>{
+    if (!userId) {
+    throw new AppError(status.BAD_REQUEST, "company Name id is not found");
+  }
+
+  const result = await AssessAlignmentCheckModel.find({ userId});
+  return result;
+}
 const updatealignmentCheck = async (
   payloadId: string,
   payload: Partial<AssessAlignmentCheck>
@@ -67,4 +75,5 @@ export const alignmentCheckServices = {
   getAllalignmentCheck,
   updatealignmentCheck,
   deletealignmentCheck,
+  myAlignmentCheck
 };

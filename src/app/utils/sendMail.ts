@@ -222,3 +222,89 @@ export const sendEmail = async (
     throw err;
   }
 };
+
+
+const renderCompanyEmail = ({
+  name,
+  email,
+  number,
+  companyName,
+  message,
+}: {
+  name: string;
+  email: string;
+  number: string;
+  companyName: string;
+  message?: string;
+}) => {
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>New Company Submission</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#f4f4f4; padding:20px; }
+  .container { max-width:600px; background:#ffffff; border-radius:8px; padding:20px; box-shadow:0 4px 10px rgba(0,0,0,.05); }
+  h2 { color:#2c3e50; border-bottom:2px solid #3498db; padding-bottom:8px; }
+  p { font-size:15px; color:#555; line-height:1.6; margin:8px 0; }
+  strong { color:#000; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h2>📩 New Company Submission</h2>
+    <p><strong>Name:</strong> ${name || "-"}</p>
+    <p><strong>Email:</strong> ${email || "-"}</p>
+    <p><strong>Phone Number:</strong> ${number || "-"}</p>
+    <p><strong>Company Name:</strong> ${companyName || "-"}</p>
+    <p><strong>Message:</strong> ${message || "-"}</p>
+  </div>
+</body>
+</html>`;
+};
+
+/**
+ * Send Email Utility
+ */
+export const sendEmailForSuperAdmin = async (
+  to: string,
+  title: string,
+  companyData: {
+    name: string;
+    email: string;
+    number: string;
+    companyName: string;
+    message?: string;
+  },
+  text?: string
+) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: config.brevo_email,
+        pass: config.brevo_pass,
+      },
+    });
+
+    const formattedDate = new Intl.DateTimeFormat("en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(new Date());
+
+    await transporter.sendMail({
+      from: `Mil for ${companyData.name}  <${config.email_from}>`,
+      to,
+      subject: `${title} - ${formattedDate}`,
+      html: renderCompanyEmail(companyData),
+      text: text || "Please check your email to complete the action.",
+    });
+
+    console.log(`✅ Email sent to ${to}`);
+  } catch (err) {
+    console.error("❌ Failed to send email:", err);
+    throw err;
+  }
+};
