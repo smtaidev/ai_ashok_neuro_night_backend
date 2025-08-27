@@ -24,18 +24,30 @@ export interface Team {
 
 // ---------- Objective ----------
 export interface Objective {
-  _id?: string;
-  title: string;
-  priorityLevel: "low" | "medium" | "high";
-  department: string;
-  isActive: boolean;
-  completeness: number; // percentage
-  talent: string;
-  challengesAndRollbacks: string;
-  risk: string;
-  envAndSocial: string;
-  createdAt?: string;
-  updatedAt?: string;
+title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  priority: "Urgent" | "High" | "Medium" | "Low";
+  progress: string;
+  fundingAllocated: string;
+  envSocialIssues: string;
+  envSocialDetails: string;
+  risksAssociated: string;
+  riskDetails: string;
+
+  // ObjectId fields
+  objectiveOwner: Types.ObjectId;
+  assignedTeamMembers: Types.ObjectId;
+  invitedTeamMembers: Types.ObjectId;
+
+  crossTeamCollaboration: string;
+  businessGoals: string;
+  termType: string;
+  specificStrategic: string;
+  necessaryResources: string;
+  additionalTalent: string;
+  potentialChallenges: string;
 }
 
 // ---------- Choreograph ----------

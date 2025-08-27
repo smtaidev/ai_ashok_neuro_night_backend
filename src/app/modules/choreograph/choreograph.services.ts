@@ -97,6 +97,7 @@ const getTeamByTeamName = async (companyName: string, teamId: string) => {
 
 import mongoose, { Types } from "mongoose";
 import { organizationUserModels } from "../organization-role/organization-role.model";
+import { BlueprintModel } from "../blueprint/blueprint.model";
 
 const updateTeamInDb = async (
   companyName: string,
@@ -168,27 +169,45 @@ export const addObjective = async (
 ) => {
   if (!companyName)
     throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  console.log(objectiveData)
   const result = await choreographModel.findOneAndUpdate(
     { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
     { $push: { objectives: objectiveData } },
     { new: true }
   );
+
   if (!result) throw new Error("Company not found");
   return result;
 };
 
 // ২. Get all Objectives
 export const getAllObjectives = async (companyName: string) => {
-  console.log(companyName);
   if (!companyName)
     throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+
+  // 1️⃣ Find the company document
   const doc = await choreographModel.findOne(
     { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
     { objectives: 1, _id: 0 }
   );
+
   if (!doc) throw new Error("Company not found");
-  return doc.objectives;
+
+  // 2️⃣ Populate each objective individually
+  const populatedObjectives = await Promise.all(
+    doc.objectives.map(async (obj) => {
+      return await choreographModel.populate(obj, [
+        { path: "objectiveOwner" },
+        { path: "assignedTeamMembers" },
+        { path: "invitedTeamMembers"},
+        { path: "businessGoals" }
+      ]);
+    })
+  );
+
+  return populatedObjectives;
 };
+
 
 // ৩. Get single Objective by ID
 export const getObjectiveById = async (
@@ -456,6 +475,43 @@ export const deleteMemberById = async (
 };
 
 
+const objectivesOverview = async (companyName: string) => {
+  if (!companyName)
+    throw new AppError(status.BAD_REQUEST, "Company name is required!");
+
+  const blueprint = await BlueprintModel.findOne(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
+    { strategicThemes: 1, businessGoals: 1, _id: 0 }
+  );
+
+  if (!blueprint) return [];
+
+  // Choreograph theke objectives niye asho
+  const choreograph = await choreographModel.findOne(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
+    { objectives: 1, _id: 0 }
+  );
+
+  // console.log('this is blueprint data', blueprint)
+
+  const strategicThemesWithGoals = blueprint.strategicThemes.map(theme => {
+    const goals = blueprint.businessGoals
+      .filter(bg => bg?.strategicID?.toString() === theme._id.toString())
+      .map(bg => {
+        // Prottekta business goal er relevant objectives Choreograph theke filter koro
+        const relevantObjectives = choreograph?.objectives?.filter(
+          obj => obj.businessGoals?.toString() === bg._id.toString()
+        );
+        return { ...bg.toObject(), objectives: relevantObjectives };
+      });
+
+    
+    return { ...theme.toObject(), businessGoals: goals };
+  });
+
+    
+  return strategicThemesWithGoals;
+};
 export const choreographServices = {
   createTeamsIntoDb,
   updateTeamInDb,
@@ -472,5 +528,6 @@ export const choreographServices = {
   updateMemberById,
   getMemberById,
   deleteMemberById,
-  getTeamByTeamName
+  getTeamByTeamName,
+  objectivesOverview
 };

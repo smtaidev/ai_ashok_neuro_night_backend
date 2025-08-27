@@ -17,6 +17,7 @@ route.delete("/:id",auth("companyAdmin"),choregoraphContllors.deleteChoregorapTe
 
 route.patch("/objective",auth("companyAdmin"),choregoraphContllors.addObjectiveController)
 route.get("/objective/get-all",auth("companyAdmin"),choregoraphContllors.getAllObjectivesController)
+route.get("/objective/get-overviews",auth("companyAdmin"),choregoraphContllors.objectivesOverview)
 route.get("/objective/:id",auth("companyAdmin"),choregoraphContllors.getObjectiveByIdController)
 route.patch("/objective/update-objective/:id",auth("companyAdmin"),choregoraphContllors.updateObjectiveController)
 route.delete("/objective/:id",auth("companyAdmin"),choregoraphContllors.deleteObjectiveController)

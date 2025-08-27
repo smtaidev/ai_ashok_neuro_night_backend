@@ -117,15 +117,13 @@ export const createAgenda = async (
 
     // === Agenda Items ===
     if (payload.agendaItems && payload.agendaItems.length > 0) {
-      // Instead of clearing, just push new items
-      payload.agendaItems.forEach(item => {
-        existingAgenda.agendaItems.push({
-          ...item,
-          presenter: item.presenter.map(
-            id => new Types.ObjectId(id)
-          ) as Types.Array<Types.ObjectId>,
-        } as any);
-      });
+      // ✅ Replace existing items with new ones
+      existingAgenda.agendaItems = payload.agendaItems.map(item => ({
+        ...item,
+        presenter: item.presenter.map(
+          id => new Types.ObjectId(id)
+        ) as any
+      }))as any
     }
 
     const updatedAgenda = await existingAgenda.save();
@@ -184,6 +182,7 @@ export const createAgenda = async (
   }
 };
 
+
 // ✅ Get All Agendas
 const getAllAgendas = async (companyName: string,meetingId:string) => {
   if (!companyName) {
@@ -194,7 +193,7 @@ const getAllAgendas = async (companyName: string,meetingId:string) => {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
     meetingId: new mongoose.Types.ObjectId(meetingId),
   };
-  const result = await AgendaSchema.find(query).populate("meetingId").populate("inviteAttendees.attendees","-password") // attendees ke populate
+  const result = await AgendaSchema.findOne(query).populate("meetingId").populate("inviteAttendees.attendees","-password") // attendees ke populate
     .populate("welcomeAndOpeningRemark.presenter","-password") // welcome presenter
     .populate("agendaItems.presenter","-password"); // agendaItems presenter
   return result;

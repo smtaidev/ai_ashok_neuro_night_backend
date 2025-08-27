@@ -2,8 +2,6 @@ import status from "http-status";
 import AppError from "../../errors/AppError";
 import { Blueprint, BusinessGoal, StrategicTheme } from "./blueprint.interface";
 import { BlueprintModel } from "./blueprint.model";
-import config from "../../../config";
-import axios from "axios";
 
 const createVision = async (companyName: string, payload: Partial<Blueprint>) => {
   if (!companyName) {
@@ -207,10 +205,19 @@ const getAllBusinessGoals = async (companyName: string) => {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") }
   };
 
-  const result = await BlueprintModel.findOne(query, { businessGoals: 1, _id: 0 });
+const result = await BlueprintModel.findOne(query, { businessGoals: 1 })
+  .populate({
+    path: 'businessGoals',
+    populate: [
+      { path: 'strategicID', model: 'Blueprint' },
+      { path: 'assigned_functions', model: 'Blueprint' },
+      { path: 'capabilityInfluenced', model: 'Foundation' },
+      { path: 'capabilityOwners', model: 'Organization-User' },
+      { path: 'goalOwner', model: 'Organization-User' },
+    ]
+  });
   return result?.businessGoals || [];
 };
-
 const getSingleBusinessGoal = async (id: string, companyName: string) => {
   if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
   if (!id) throw new AppError(status.BAD_REQUEST, "Goal ID is required!");
@@ -220,8 +227,14 @@ const getSingleBusinessGoal = async (id: string, companyName: string) => {
     "businessGoals._id": id
   };
 
-  const result = await BlueprintModel.findOne(query, { "businessGoals.$": 1, _id: 0 });
-  return result?.businessGoals?.[0] || null;
+   const result = await BlueprintModel.findOne(query, { businessGoals: 1 }) // remove _id:0
+    .populate("businessGoals.strategicID")
+    .populate("businessGoals.assigned_functions")
+    .populate("businessGoals.capabilityInfluenced")
+    .populate("businessGoals.capabilityOwners")
+    .populate("businessGoals.goalOwner")
+    .exec();
+  return result?.businessGoals || [];
 };
 
 const deleteBusinessGoal = async (id: string, companyName: string) => {
@@ -250,7 +263,7 @@ const businessGoalOverview = async (companyName: string) => {
 
   // Prottekta strategic theme er niche tar relevant business goals filter koro
   const strategicThemesWithGoals = blueprint.strategicThemes.map(theme => {
-    const goals = blueprint.businessGoals.filter(bg => bg.strategicID.toString() === theme._id.toString());
+    const goals = blueprint.businessGoals.filter(bg => bg?.strategicID?.toString() === theme._id.toString());
     return {
       ...theme.toObject(),
       businessGoals: goals

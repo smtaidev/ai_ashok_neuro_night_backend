@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
 // ---------- Member ----------
 export const memberSchema = new Schema(
@@ -40,15 +40,35 @@ export const teamSchema = new Schema(
 // ---------- Objective ----------
 export const objectiveSchema = new Schema(
   {
+   
     title: { type: String, required: true },
-    priorityLevel: { type: String, enum: ["low", "medium", "high"], required: true },
-    department: { type: String, required: true },
-    isActive: { type: Boolean, required: true },
-    completeness: { type: Number, min: 0, max: 100, required: true },
-    talent: { type: String, required: true },
-    challengesAndRollbacks: { type: String, required: true },
-    risk: { type: String, required: true },
-    envAndSocial: { type: String, required: true },
+    description: { type: String, required: true },
+    startDate: { type: String, required: true },
+    endDate: { type: String, required: true },
+    priority: { 
+      type: String, 
+      required: true,
+      enum: ["Urgent", "High", "Medium", "Low"] 
+    },
+    progress: { type: String, required: true },
+    fundingAllocated: { type: String, required: true },
+    envSocialIssues: { type: String, required: true },
+    envSocialDetails: { type: String, required: true },
+    risksAssociated: { type: String, required: true },
+    riskDetails: { type: String, required: true },
+
+    // ObjectId fields
+    objectiveOwner: { type: Types.ObjectId, ref: "Organization-User", required: true },
+    assignedTeamMembers: { type: Types.ObjectId, ref: "Organization-User", required: true },
+    invitedTeamMembers: { type: Types.ObjectId, ref: "Organization-User", required: true },
+
+    crossTeamCollaboration: { type: String, required: true },
+    businessGoals:{ type: Types.ObjectId, ref:"Blueprint", required: true },
+    termType: { type: String, required: true },
+    specificStrategic: { type: String, required: true },
+    necessaryResources: { type: String, required: true },
+    additionalTalent: { type: String, required: true },
+    potentialChallenges: { type: String, required: true },
   },
   { timestamps: true }
 );

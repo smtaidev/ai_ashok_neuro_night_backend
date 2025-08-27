@@ -16,7 +16,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   if (origin) {
     res.header("Access-Control-Allow-Origin", origin);
   } else {
-    res.header("Access-Control-Allow-Origin", ["http://localhost:3000","http://localhost:3001"]); 
+    res.header("Access-Control-Allow-Origin", ["http://localhost:3000","http://localhost:3001","http://172.252.13.69:3031"]); 
   }
 
   res.header("Access-Control-Allow-Credentials", "true");

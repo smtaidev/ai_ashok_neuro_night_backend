@@ -33,7 +33,7 @@ router.put(
 
 router.delete(
   "/:subscriptionId",
-  auth('companyAdmin', "superAdmin"),
+  auth("superAdmin"),
   SubscriptionController.deleteSubscription
 );
 

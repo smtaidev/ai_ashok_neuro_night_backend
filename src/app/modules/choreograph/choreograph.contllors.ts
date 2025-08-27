@@ -271,6 +271,20 @@ const deleteMemberController = catchAsync(async (req, res) => {
     data: null,
   });
 });
+const objectivesOverview = catchAsync(async (req, res) => {
+  const company = req.user;
+
+const result=  await choreographServices.objectivesOverview(
+    company.companyName
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: " successfully  get objectives overview data!",
+    data: result,
+  });
+});
 
 export const choregoraphContllors = {
   createChoregoraphDb,
@@ -288,5 +302,6 @@ export const choregoraphContllors = {
   getMemberByIdController,
   updateMemberController,
   deleteMemberController,
-  getSingeleTeamDb
+  getSingeleTeamDb,
+  objectivesOverview
 };
