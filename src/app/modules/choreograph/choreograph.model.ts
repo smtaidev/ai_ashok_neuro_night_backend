@@ -38,9 +38,8 @@ export const teamSchema = new Schema(
 );
 
 // ---------- Objective ----------
-export const objectiveSchema = new Schema(
+const objectiveSchema = new Schema(
   {
-   
     title: { type: String, required: true },
     description: { type: String, required: true },
     startDate: { type: String, required: true },
@@ -55,20 +54,29 @@ export const objectiveSchema = new Schema(
     envSocialIssues: { type: String, required: true },
     envSocialDetails: { type: String, required: true },
     risksAssociated: { type: String, required: true },
-    riskDetails: { type: String, required: true },
 
-    // ObjectId fields
+    // Nested object for riskDetails
+    riskDetails: {
+      lavel: { type: String, required: true },
+      description: { type: String, required: true }
+    },
+
     objectiveOwner: { type: Types.ObjectId, ref: "Organization-User", required: true },
-    assignedTeamMembers: { type: Types.ObjectId, ref: "Organization-User", required: true },
-    invitedTeamMembers: { type: Types.ObjectId, ref: "Organization-User", required: true },
+    assignedTeamMembers: [{ type: Types.ObjectId, ref: "Organization-User", required: true }],
+    invitedTeamMembers: [{ type: Types.ObjectId, ref: "Organization-User", required: true }],
 
     crossTeamCollaboration: { type: String, required: true },
-    businessGoals:{ type: Types.ObjectId, ref:"Blueprint", required: true },
+    businessGoals: { type: Types.ObjectId, ref: "Blueprint", required: true },
     termType: { type: String, required: true },
     specificStrategic: { type: String, required: true },
     necessaryResources: { type: String, required: true },
     additionalTalent: { type: String, required: true },
-    potentialChallenges: { type: String, required: true },
+
+    // Nested object for potentialChallenges
+    potentialChallenges: {
+      lavel: { type: String, required: true },
+      description: { type: String, required: true }
+    }
   },
   { timestamps: true }
 );

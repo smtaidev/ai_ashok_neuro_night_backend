@@ -2,18 +2,20 @@ import AppError from "../../errors/AppError";
 import { IFinancialTracker } from "./finalcialTracker.interface";
 import { FinancialTracker } from "./finalcialTracker.model";
 import status from "http-status";
-const createfinalcialTracker = async (payload: IFinancialTracker) => {
-  const isEexistfinalcialTracker = await FinancialTracker.findOne({
-    $or: [
-      { companyName: { $regex: new RegExp(`^${payload.companyName}$`, "i") } },
-    ],
-  });
+const createfinalcialTracker = async (companyName:string,payload: IFinancialTracker) => {
+  // const isEexistfinalcialTracker = await FinancialTracker.findOne({
+  //   $or: [
+  //     { companyName: { $regex: new RegExp(`^${payload.companyName}$`, "i") } },
+  //   ],
+  // });
 
-  if (isEexistfinalcialTracker) {
-    throw new AppError(status.BAD_REQUEST, "finalcial Tracker already exists");
-  }
+  // if (isEexistfinalcialTracker) {
+  //   throw new AppError(status.BAD_REQUEST, "finalcial Tracker already exists");
+  // }
+    if (!companyName)
+      throw new AppError(status.BAD_REQUEST, "Company name is required");
 
-  const result = await FinancialTracker.create(payload);
+  const result = await FinancialTracker.create({...payload,companyName});
   return result;
 };
 const getAllfinalcialTracker = async (payloadId: string) => {

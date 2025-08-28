@@ -1,8 +1,12 @@
 import status from "http-status";
 import AppError from "../../errors/AppError";
 import mongoose, { Types } from "mongoose";
-import { AgendaSchema } from "./Agenda.model";
-import { IAgenda, IAgendaItem, IWelcomeAndOpeningRemark } from "./Agenda.interface";
+import { AgendaSchema, AssignToMeMeeting } from "./Agenda.model";
+import {
+  IAgenda,
+  IAgendaItem,
+  IWelcomeAndOpeningRemark,
+} from "./Agenda.interface";
 import { Meeting } from "../meetings/meeting.model";
 
 // ✅ Create Agenda
@@ -71,7 +75,7 @@ import { Meeting } from "../meetings/meeting.model";
 //     };
 
 //     const newAgenda = await AgendaSchema.create(agendaToSave);
-  
+
 //     await Meeting.findByIdAndUpdate(
 //       meetingId,
 //       { $set: { agendaId: newAgenda._id  } },
@@ -101,7 +105,7 @@ export const createAgenda = async (
       existingAgenda.welcomeAndOpeningRemark = {
         ...payload.welcomeAndOpeningRemark,
         presenter: payload.welcomeAndOpeningRemark.presenter.map(
-          id => new Types.ObjectId(id)
+          (id) => new Types.ObjectId(id)
         ) as any,
       };
     }
@@ -110,7 +114,7 @@ export const createAgenda = async (
     if (payload.inviteAttendees) {
       existingAgenda.inviteAttendees = {
         attendees: payload.inviteAttendees.attendees.map(
-          id => new Types.ObjectId(id)
+          (id) => new Types.ObjectId(id)
         ) as any,
       };
     }
@@ -118,12 +122,10 @@ export const createAgenda = async (
     // === Agenda Items ===
     if (payload.agendaItems && payload.agendaItems.length > 0) {
       // ✅ Replace existing items with new ones
-      existingAgenda.agendaItems = payload.agendaItems.map(item => ({
+      existingAgenda.agendaItems = payload.agendaItems.map((item) => ({
         ...item,
-        presenter: item.presenter.map(
-          id => new Types.ObjectId(id)
-        ) as any
-      }))as any
+        presenter: item.presenter.map((id) => new Types.ObjectId(id)) as any,
+      })) as any;
     }
 
     const updatedAgenda = await existingAgenda.save();
@@ -148,22 +150,22 @@ export const createAgenda = async (
         ? {
             ...payload.welcomeAndOpeningRemark,
             presenter: payload.welcomeAndOpeningRemark.presenter.map(
-              id => new Types.ObjectId(id)
+              (id) => new Types.ObjectId(id)
             ) as Types.Array<Types.ObjectId>,
           }
         : undefined,
       inviteAttendees: payload.inviteAttendees
         ? {
             attendees: payload.inviteAttendees.attendees.map(
-              id => new Types.ObjectId(id)
+              (id) => new Types.ObjectId(id)
             ) as Types.Array<Types.ObjectId>,
           }
         : undefined,
       agendaItems: payload.agendaItems
-        ? payload.agendaItems.map(item => ({
+        ? payload.agendaItems.map((item) => ({
             ...item,
             presenter: item.presenter.map(
-              id => new Types.ObjectId(id)
+              (id) => new Types.ObjectId(id)
             ) as Types.Array<Types.ObjectId>,
           }))
         : [],
@@ -177,14 +179,13 @@ export const createAgenda = async (
       { new: true }
     );
 
-    console.log('check data', newAgenda);
+    console.log("check data", newAgenda);
     return newAgenda;
   }
 };
 
-
 // ✅ Get All Agendas
-const getAllAgendas = async (companyName: string,meetingId:string) => {
+const getAllAgendas = async (companyName: string, meetingId: string) => {
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "Company name is required!");
   }
@@ -193,14 +194,20 @@ const getAllAgendas = async (companyName: string,meetingId:string) => {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
     meetingId: new mongoose.Types.ObjectId(meetingId),
   };
-  const result = await AgendaSchema.findOne(query).populate("meetingId").populate("inviteAttendees.attendees","-password") // attendees ke populate
-    .populate("welcomeAndOpeningRemark.presenter","-password") // welcome presenter
-    .populate("agendaItems.presenter","-password"); // agendaItems presenter
+  const result = await AgendaSchema.findOne(query)
+    .populate("meetingId")
+    .populate("inviteAttendees.attendees", "-password") // attendees ke populate
+    .populate("welcomeAndOpeningRemark.presenter", "-password") // welcome presenter
+    .populate("agendaItems.presenter", "-password"); // agendaItems presenter
   return result;
 };
 
 // ✅ Get Single Agenda
-const getSingleAgenda = async (companyName: string, id: string,meetingId:string) => {
+const getSingleAgenda = async (
+  companyName: string,
+  id: string,
+  meetingId: string
+) => {
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "Company name is required!");
   }
@@ -212,9 +219,11 @@ const getSingleAgenda = async (companyName: string, id: string,meetingId:string)
     _id: new mongoose.Types.ObjectId(id),
     meetingId: new mongoose.Types.ObjectId(meetingId),
   };
-  const result = await AgendaSchema.findOne(query).populate("meetingId").populate("inviteAttendees.attendees","-password") // attendees ke populate
-    .populate("welcomeAndOpeningRemark.presenter","-password") // welcome presenter
-    .populate("agendaItems.presenter","-password"); // agendaItems presenter
+  const result = await AgendaSchema.findOne(query)
+    .populate("meetingId")
+    .populate("inviteAttendees.attendees", "-password") // attendees ke populate
+    .populate("welcomeAndOpeningRemark.presenter", "-password") // welcome presenter
+    .populate("agendaItems.presenter", "-password"); // agendaItems presenter
   if (!result) {
     throw new AppError(status.NOT_FOUND, "Agenda not found!");
   }
@@ -242,7 +251,12 @@ export const updateAgenda = async (
   }
 
   // === Debug ===
-  console.log("Updating Agenda:", { companyName, agendaId, meetingId, payload });
+  console.log("Updating Agenda:", {
+    companyName,
+    agendaId,
+    meetingId,
+    payload,
+  });
 
   // Find agenda
   const existingAgenda = await AgendaSchema.findOne({
@@ -260,7 +274,7 @@ export const updateAgenda = async (
     existingAgenda.inviteAttendees = {
       attendees: payload.inviteAttendees.attendees.map(
         (id) => new Types.ObjectId(id)
-      ) as any
+      ) as any,
     };
   }
 
@@ -270,7 +284,7 @@ export const updateAgenda = async (
       ...payload.welcomeAndOpeningRemark,
       presenter: payload.welcomeAndOpeningRemark.presenter.map(
         (id) => new Types.ObjectId(id)
-      ) as any
+      ) as any,
     };
   }
 
@@ -289,12 +303,15 @@ export const updateAgenda = async (
   // Remove __v
   const result = updatedAgenda.toObject();
 
-
   return result;
 };
 
 // ✅ Delete Agenda
-const deleteAgenda = async (companyName: string, id: string,  meetingId:string,) => {
+const deleteAgenda = async (
+  companyName: string,
+  id: string,
+  meetingId: string
+) => {
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "Company name is required!");
   }
@@ -313,46 +330,107 @@ const deleteAgenda = async (companyName: string, id: string,  meetingId:string,)
   return result;
 };
 
+const CreateAssignToMeAgenda = async (
+  companyName: string,
+  userId: string,
+  meetingId: string,
+  payload: any
+) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "companyName is required!");
+  }
+  if (!userId) {
+    throw new AppError(status.BAD_REQUEST, " user id is required!");
+  }
+  if (!meetingId) {
+    throw new AppError(status.BAD_REQUEST, " meeting id is required!");
+  }
 
- const getAgendasByUser = async (userId: string) => {
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    meetingId: new mongoose.Types.ObjectId(meetingId),
+    userId: new mongoose.Types.ObjectId(userId),
+  };
+  const isExistAssignToMeAgenda = await AssignToMeMeeting.findOne(query);
+
+  if (isExistAssignToMeAgenda) {
+    throw new AppError(status.BAD_REQUEST, "already is exist in database ");
+  }
+
+  const result = await AssignToMeMeeting.create({
+    ...payload,
+    companyName,
+    meetingId,
+    userId,
+  });
+  return result;
+};
+
+const getAgendasByUser = async (userId: string) => {
   if (!mongoose.Types.ObjectId.isValid(userId)) {
     throw new AppError(status.BAD_REQUEST, "Invalid User ID!");
   }
 
-  const agendas = await AgendaSchema.find({
-    $or: [
-      { "welcomeAndOpeningRemark.presenter": new mongoose.Types.ObjectId(userId) },
-      { "agendaItems.presenter": new mongoose.Types.ObjectId(userId) },
-      { "inviteAttendees.attendees": new mongoose.Types.ObjectId(userId) }
-    ]
-  }).populate("meetingId").lean();
+  // const agendas = await AgendaSchema.find({
+  //   $or: [
+  //     { "welcomeAndOpeningRemark.presenter": new mongoose.Types.ObjectId(userId) },
+  //     { "agendaItems.presenter": new mongoose.Types.ObjectId(userId) },
+  //     { "inviteAttendees.attendees": new mongoose.Types.ObjectId(userId) }
+  //   ]
+  // }).populate("meetingId").lean();
+
+  const agendas = await AssignToMeMeeting.find({
+    userId: userId,
+  })
+    .populate("meetingId")
+    .populate("userId", "-password")
+    .populate("inviteAttendees.attendees", "-password")
+    .populate("welcomeAndOpeningRemark.presenter", "-password")
+    .populate("agendaItems.presenter", "-password")
+    .lean();
 
   if (!agendas || agendas.length === 0) {
     return {
       success: true,
       message: "No agendas found for this user",
-      data: []
+      data: [],
     };
   }
 
   // Remove __v from each agenda
-  const result = agendas.map(agenda => {
+  const result = agendas.map((agenda) => {
     if ("__v" in agenda) delete (agenda as any).__v;
     return agenda;
   });
+  console.log(agendas);
 
-  return {
-    success: true,
-    message: "Agendas retrieved successfully",
-    data: result
-  };
+return result
 };
 
+// const changeMyAssignMeetingStatus=async(userId:string,assignId:string,payload:{status:string})=>{
+
+
+//  if (!userId) {
+//     throw new AppError(status.BAD_REQUEST, " user id is required!");
+//   }
+//   if (!assignId) {
+//     throw new AppError(status.BAD_REQUEST, " assign id is required!");
+//   }
+
+//   const isExist=await AssignToMeMeeting.findOne({userId:userId,_id:assignId})
+
+//     if (!isExist) {
+//     throw new AppError(status.BAD_REQUEST, " your assign meeting is not found!");
+//   }
+
+//   const result=await AssignToMeMeeting.findOneAndUpdate({userId:userId,_id:assignId},{$set:})
+// }
 export const agendaServices = {
   createAgenda,
   getAllAgendas,
   getSingleAgenda,
   updateAgenda,
   deleteAgenda,
-   getAgendasByUser
+  getAgendasByUser,
+  CreateAssignToMeAgenda,
 };

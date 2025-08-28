@@ -132,6 +132,25 @@ const getMeUser = catchAsync(async (req, res) => {
 });
 
 
+const createClarhetUser = catchAsync(async (req: Request, res: Response) => {
+
+  const loggedInUser = req?.user
+
+  // company admin creation 
+  if(loggedInUser?.role !== "superAdmin" && req?.body?.role == "companyAdmin"){
+    throw new AppError(status.UNAUTHORIZED,"Only super admin can create  clarhet user!")
+  }
+
+
+  const user = await UserServices.createUser(req.body);
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "clarhet User created successfully",
+  data:null
+  });
+});
+
 
 export const UserControllers ={
   createUser,
@@ -140,5 +159,6 @@ export const UserControllers ={
   changePassword,
   deleteUser,
   updateUser,
-  getMeUser
+  getMeUser,
+  createClarhetUser
 }

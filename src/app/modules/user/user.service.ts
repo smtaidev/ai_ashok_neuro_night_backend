@@ -1,6 +1,6 @@
 import { fi, is } from "zod/v4/locales/index.cjs";
 import { IUser } from "./user.interface";
-import UserModel from "./user.model";
+import UserModel, { ClarhetModel } from "./user.model";
 import bcrypt from "bcrypt";
 import mongoose, { Types } from "mongoose";
 import AppError from "../../errors/AppError";
@@ -182,6 +182,91 @@ const changePasswordIntoDB = async (
   return user;
 };
 
+
+const createClarhetUser=async(payload:any)=>{
+
+if(!payload?.email)
+   throw new AppError(status.BAD_REQUEST, "email is required");
+
+const isExist=await ClarhetModel.findOne({email:payload.email})
+
+if(isExist){
+
+   throw new AppError(status.BAD_REQUEST, "user already is exist in database ");
+}
+
+
+const user=await ClarhetModel.create(payload)
+
+ const token = createPasswordSetupToken({
+      userId: String(user._id),
+      email: user.email,
+    });
+
+    const setupLink = `${config.frontend_url}/setup-password?token=${token}`;
+
+    // HTML version
+    const htmlContent = `
+  <h2>Hello ${user.userName},</h2>
+  <p>Your account has been created for <b>Clarhet Admin</b>.</p>
+  <p>Please set your password by clicking the secure link below:</p>
+  <p><a href="${setupLink}" target="_blank">Set Your Password</a></p>
+  <p><small>This link is valid for 12 hours. If you did not expect this email, please ignore it.</small></p>
+`;
+
+    // Plain text version
+    const textContent = `
+Hello ${user.userName},
+
+Your account has been created for Clarhet Admin.
+
+Please set your password by visiting the link below:
+${setupLink}
+
+This link is valid for 12 hours. If you did not expect this email, please ignore it.
+`;
+
+    // Send the email
+    await sendEmail(user.email, "Set Your Password", htmlContent, textContent);
+
+
+    return user
+}
+
+const getAllClarhetUsers = async () => {
+  const users = await ClarhetModel.find().sort({ createdAt: -1 }); // latest first
+  return users;
+};
+
+const getClarhetUserById = async (userId: string) => {
+  const user = await ClarhetModel.findById(userId);
+  if (!user) throw new AppError(status.NOT_FOUND, "User not found");
+  return user;
+};
+
+const updateClarhetUser = async (userId: string, payload: any) => {
+  const updatedUser = await ClarhetModel.findByIdAndUpdate(userId, payload, { new: true });
+  if (!updatedUser) throw new AppError(status.NOT_FOUND, "User not found");
+  return updatedUser;
+};
+
+const deleteClarhetUser = async (userId: string) => {
+  const deletedUser = await ClarhetModel.findByIdAndDelete(userId);
+  if (!deletedUser) throw new AppError(status.NOT_FOUND, "User not found");
+  return deletedUser;
+};
+// const changeClarhetUserRole = async (userId: string, newRole: string) => {
+//   // প্রথমে user খুঁজে পাওয়া
+//   const user = await ClarhetModel.findById(userId);
+//   if (!user) throw new AppError(status.NOT_FOUND, "User not found");
+
+//   // Role update
+//   user.role = newRole;
+
+//   await user.save();
+
+//   return user;
+// };
 export const UserServices = {
   createUser,
   getAllUsers,
@@ -189,5 +274,10 @@ export const UserServices = {
   updateUser,
   deleteUser,
   changePasswordIntoDB,
-  getMe
+  getMe,
+  createClarhetUser,
+  getAllClarhetUsers,
+  getClarhetUserById,
+  updateClarhetUser,
+  deleteClarhetUser
 };

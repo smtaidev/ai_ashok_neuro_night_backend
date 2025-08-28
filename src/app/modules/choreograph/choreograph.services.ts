@@ -1,7 +1,7 @@
 import status from "http-status";
 import AppError from "../../errors/AppError";
 import choreographModel from "./choreograph.model";
-import { Member, Objective, Team } from "./choreograph.interface";
+import { Member, IObjective, Team } from "./choreograph.interface";
 
 const createTeamsIntoDb = async (companyName: string, payload: Team) => {
   if (!companyName) {
@@ -165,7 +165,7 @@ const deleteTeamInDb = async (companyName: string, teamId: string) => {
 // ১. Add new Objective
 export const addObjective = async (
   companyName: string,
-  objectiveData: Partial<Objective>
+  objectiveData: Partial<IObjective>
 ) => {
   if (!companyName)
     throw new AppError(status.BAD_REQUEST, "Company name is not found!");
@@ -231,7 +231,7 @@ export const getObjectiveById = async (
 export const updateObjective = async (
   companyName: string,
   objectiveId: string,
-  updateData: Partial<Objective>
+  updateData: Partial<IObjective>
 ) => {
   if (!companyName)
     throw new AppError(status.BAD_REQUEST, "Company name is not found!");

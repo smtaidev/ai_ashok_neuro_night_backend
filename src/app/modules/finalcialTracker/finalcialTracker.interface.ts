@@ -1,34 +1,52 @@
-
 export interface IFinancialTracker {
-  companyName: string; // direct name
+  // Basic
+  companyName: string;
+
+  // Revenue Overview
   totalRevenue: number;
-  totalExpense: number;
   revenueGrowth: number;
-  grossProfit: number;
-  netProfitMargin: number;
+
+  // Expense Tracking
+  totalExpense: number;
+
+  // Cash Flow Insight
   cashInFlow: number;
   cashOutFlow: number;
   netCashPosition: number;
-  operatingCashFlow: number;
-  investingCashFlow: number;
-  financingCashFlow: number;
-  totalAsset: number;
-  totalLiability: number;
-  equity: number;
-  debtToEquity: number;
-  workingCapital: number;
-  currentRatio: number;
-  returnOnInvestment: number;
-  returnOnEquity: number;
-  capitalExpenditure: number;
-  returnOnAsset: number;
+
+  // Cash Flow (Planned vs Actual)
   plannedRevenue: number;
   plannedExpense: number;
   actualRevenue: number;
+  actualExpense: number;
   variance: number;
-  budgetUtilization: number;
-  forecastAdjReason?: string;
-  prevForecast?: number;
-  adjForecast?: number;
-}
 
+  // Forecast Adjustments
+  forecastAdjustments?: string;
+
+  // Credit Risk Assessment — Financial Ratios
+  debtToEquity: number;
+  interestCoverage: number;
+  currentRatio: number;
+  cashFlowForecast: number;
+
+  // Qualitative Indicators
+  marketConditions?: string;
+  customerReliability?: string;
+  otherStability?: string;
+
+  // Credit Risk Rating & Mitigation
+  creditRiskRating?: string;
+  riskMitigation?: string;
+
+  // Action Items & Going Forward
+  actionItems?: string;
+  goingForward?: string;
+
+  // Mongoose timestamps
+  createdAt?: Date;
+  updatedAt?: Date;
+
+  // Optional Mongo ID
+  _id?: string;
+}

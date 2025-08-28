@@ -105,6 +105,46 @@ const getUpcomingMeetingsFromDb = async (companyName: string) => {
   return result;
 };
 
+// const getUpcomingLatestTwoMeetingsFromDb = async (companyName: string) => {
+//   if (!companyName) {
+//     throw new AppError(status.BAD_REQUEST, "Company name is required!");
+//   }
+
+//   const now = new Date();
+
+//   const query = {
+//     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+//     meetingDate: { $gt: now }
+//   };
+
+//   const result = await Meeting.find(query)
+//     .sort({ meetingDate: 1 }) // earliest first
+//     .limit(2) // শুধু ২টা
+//     .populate("agendaId"); 
+
+//   return result;
+// };
+const getUpcomingLatestTwoMeetingsFromDb = async (companyName: string) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is required!");
+  }
+
+  // আজকের date, time ignore করে
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // শুধু date, time 00:00:00
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    meetingDate: { $gte: today } // আজ এবং পরের দিনগুলো
+  };
+
+  const result = await Meeting.find(query)
+    .sort({ meetingDate: 1 }) // সবচেয়ে কাছের মিটিং আগে
+    .limit(2) // শুধু ২টা
+    .populate("agendaId"); // agendaId এর ডেটা নিয়ে আসে
+
+  return result;
+};
 const getPastMeetingsFromDb = async (companyName: string) => {
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "Company name is required!");
@@ -117,10 +157,31 @@ const getPastMeetingsFromDb = async (companyName: string) => {
     endDate: { $lt: now } 
   };
 
-  const result = await Meeting.find(query).sort({ endDate: -1 }); // latest finished first
+  const result = await Meeting.find(query).sort({ endDate: -1 }).populate("agendaId"); // latest finished first
+  return result;
+};
+const getPastTWoMeetingsFromDb= async (companyName: string) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is required!");
+  }
+
+  const now = new Date(); // এখনকার সময়
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    endDate: { $lt: now } // শেষ হয়ে গেছে
+  };
+
+  const result = await Meeting.find(query)
+    .sort({ endDate: -1 }).populate("agendaId")// সর্বশেষ শেষ হওয়া আগে
+    .limit(2); // শুধু ২টা
   return result;
 };
 
+// const actionItemAssignToMe=async(userId:IdleDeadline, payload)=>{
+
+
+// }
 
 export const meetingsServices={
     createMeetingIntoDb,
@@ -129,5 +190,7 @@ export const meetingsServices={
     getAllMeetingsFromDb,
     getSingleMeetingFromDb,
     getUpcomingMeetingsFromDb,
-    getPastMeetingsFromDb
+    getPastMeetingsFromDb,
+    getUpcomingLatestTwoMeetingsFromDb,
+    getPastTWoMeetingsFromDb
 }

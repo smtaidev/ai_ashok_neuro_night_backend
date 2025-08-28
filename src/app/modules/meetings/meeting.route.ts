@@ -19,6 +19,17 @@ router.get(
   auth("companyAdmin"), 
   meetingControllers.getPastMeetingsFromDb
 );
+router.get(
+  "/upcoming-two-meetings",
+  auth("companyAdmin"),
+  meetingControllers.getUpcomingLatestTwoMeetingsFromDb
+);
+
+router.get(
+  "/past-two-meetings",
+  auth("companyAdmin"), 
+  meetingControllers.getPastTWoMeetingsFromDb
+);
 // ✅ Get All Meetings
 router.get("/get-all-meeting",auth('companyAdmin'), meetingControllers.getAllMeetingsFromDb);
 

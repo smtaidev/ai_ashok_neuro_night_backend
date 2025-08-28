@@ -7,9 +7,11 @@ const router = express.Router();
 // ✅ Create Agenda
 router.post("/create-agenda/:id", auth("companyAdmin"), agendaControllers.createAgendaIntoDb);
 
+router.post("/create-assign-agenda/:id", auth("companyAdmin"), agendaControllers.CreateAssignToMeAgenda);
+
 // ✅ Get All Agendas
 router.get("/get-all-agenda/:id", auth("companyAdmin"), agendaControllers.getAllAgendasFromDb);
-router.get("/get-my-agenda/:id", auth("companyAdmin"), agendaControllers.getAgendasByUser);
+router.get("/get-my-agenda", auth("companyAdmin"), agendaControllers.getAgendasByUser);
 
 // ✅ Get Single Agenda by ID
 router.get("/:id", auth("companyAdmin"), agendaControllers.getSingleAgendaFromDb);

@@ -21,5 +21,6 @@ router.patch("/:id",
 router.delete("/:id", UserControllers.deleteUser);
 
 router.patch("/:id/password", UserControllers.changePassword);
+router.post("/create-clarhet-user", UserControllers.createClarhetUser);
 
 export const UserRoutes = router;

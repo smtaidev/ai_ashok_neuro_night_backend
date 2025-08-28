@@ -23,8 +23,18 @@ export interface Team {
 }
 
 // ---------- Objective ----------
-export interface Objective {
-title: string;
+export interface IRiskDetails {
+  lavel: string;
+  description: string;
+}
+
+export interface IPotentialChallenges {
+  lavel: string;
+  description: string;
+}
+
+export interface IObjective {
+  title: string;
   description: string;
   startDate: string;
   endDate: string;
@@ -34,27 +44,26 @@ title: string;
   envSocialIssues: string;
   envSocialDetails: string;
   risksAssociated: string;
-  riskDetails: string;
-
-  // ObjectId fields
+  riskDetails: IRiskDetails;
   objectiveOwner: Types.ObjectId;
-  assignedTeamMembers: Types.ObjectId;
-  invitedTeamMembers: Types.ObjectId;
-
+  assignedTeamMembers: Types.ObjectId[];
+  invitedTeamMembers: Types.ObjectId[];
   crossTeamCollaboration: string;
-  businessGoals: string;
+  businessGoals: Types.ObjectId;
   termType: string;
   specificStrategic: string;
   necessaryResources: string;
   additionalTalent: string;
-  potentialChallenges: string;
+  potentialChallenges: IPotentialChallenges;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 // ---------- Choreograph ----------
 export interface Choreograph {
   _id?: string;
   companyName: string; // FK to Company (_id string)
-  objectives: Objective[];
+  objectives: IObjective[];
   teams: Types.ObjectId[];
   alignmentCheckId?: string | null; // FK to AlignmentCheck
   createdAt?: string;

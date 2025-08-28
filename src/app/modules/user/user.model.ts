@@ -37,3 +37,24 @@ userSchema.pre("save", async function (next) {
 const UserModel = model<IUser>("User", userSchema);
 
 export default UserModel;
+
+
+const clarhetSchema = new Schema(
+  {
+    userName: { type: String, required: true },
+    email: { type: String, required: true},
+    password: { type: String ,default:"vtemporary-initial"},
+    role: {
+      type: String,
+      enum: ["finance", "superAdmin", "ops","support"],  
+      default: "support",
+      required: true,
+    },
+    isDeleted: { type: Boolean, default: true },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export const  ClarhetModel= model("clarhet-store",clarhetSchema)

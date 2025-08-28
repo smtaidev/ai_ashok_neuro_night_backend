@@ -3,7 +3,8 @@ import sendResponse from "../../utils/sendResponse";
 import { finalcialTrackerServices } from "./finalcialTracker.services";
 
 const createfinalcialTrackerIntDb=catchAsync(async(req,res)=>{
-const result=await finalcialTrackerServices.createfinalcialTracker(req.body)
+    const {companyName}=req.user
+const result=await finalcialTrackerServices.createfinalcialTracker(companyName,req.body)
  sendResponse(res, {
     statusCode: 200,
     success: true,
