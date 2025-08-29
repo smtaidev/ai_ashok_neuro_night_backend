@@ -5,18 +5,29 @@ import { UserServices } from "./user.service";
 import AppError from "../../errors/AppError";
 import status from "http-status";
 
-
 const createUser = catchAsync(async (req: Request, res: Response) => {
-console.log(req.body)
-  const loggedInUser = req?.user
+  console.log(req.body);
+  const loggedInUser = req?.user;
 
-  // company admin creation 
-  if(loggedInUser?.role !== "superAdmin" && req?.body?.role == "companyAdmin"){
-    throw new AppError(status.UNAUTHORIZED,"Only super admin can create company admin!")
+  // company admin creation
+  if (
+    loggedInUser?.role !== "superAdmin" &&
+    req?.body?.role == "companyAdmin"
+  ) {
+    throw new AppError(
+      status.UNAUTHORIZED,
+      "Only super admin can create company admin!"
+    );
   }
 
-  if(loggedInUser?.role !== "companyAdmin" && req?.body?.role == "companyEmployee"){
-    throw new AppError(status.UNAUTHORIZED,"Only company admin can create company employee!")
+  if (
+    loggedInUser?.role !== "companyAdmin" &&
+    req?.body?.role == "companyEmployee"
+  ) {
+    throw new AppError(
+      status.UNAUTHORIZED,
+      "Only company admin can create company employee!"
+    );
   }
 
   const user = await UserServices.createUser(req.body);
@@ -115,13 +126,9 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
 const getMeUser = catchAsync(async (req, res) => {
   const company = req.user;
-  const result = await UserServices.getMe(
-    company?.companyName,
-    company.userId
-  );
+  const result = await UserServices.getMe(company?.companyName, company.userId);
 
   sendResponse(res, {
     statusCode: 200,
@@ -131,28 +138,92 @@ const getMeUser = catchAsync(async (req, res) => {
   });
 });
 
-
 const createClarhetUser = catchAsync(async (req: Request, res: Response) => {
+  const loggedInUser = req?.user;
 
-  const loggedInUser = req?.user
-
-  // company admin creation 
-  if(loggedInUser?.role !== "superAdmin" && req?.body?.role == "companyAdmin"){
-    throw new AppError(status.UNAUTHORIZED,"Only super admin can create  clarhet user!")
+  // company admin creation
+  if (
+    loggedInUser?.role !== "superAdmin" &&
+    req?.body?.role == "companyAdmin"
+  ) {
+    throw new AppError(
+      status.UNAUTHORIZED,
+      "Only super admin can create  clarhet user!"
+    );
   }
 
-
-  const user = await UserServices.createUser(req.body);
+  const user = await UserServices.createClarhetUser(req.body);
   sendResponse(res, {
     statusCode: 201,
     success: true,
     message: "clarhet User created successfully",
-  data:null
+    data: null,
+  });
+});
+// ✅ Get All Clarhet Users
+const getAllClarhetUsers = catchAsync(async (req: Request, res: Response) => {
+  console.log('get all clorhet ')
+  const users = await UserServices.getAllClarhetUsers();
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "All Clarhet users retrieved successfully",
+    data: users,
   });
 });
 
+// ✅ Get Single Clarhet User
+const getSingleClarhetUser = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = await UserServices.getClarhetUserById(id);
 
-export const UserControllers ={
+  if (!user) {
+    throw new AppError(status.NOT_FOUND, "Clarhet user not found!");
+  }
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Clarhet user retrieved successfully",
+    data: user,
+  });
+});
+
+// ✅ Update Clarhet User
+const updateClarhetUser = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const updatedUser = await UserServices.updateClarhetUser(id, req.body);
+
+  if (!updatedUser) {
+    throw new AppError(status.NOT_FOUND, "Clarhet user not found!");
+  }
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Clarhet user updated successfully",
+    data: updatedUser,
+  });
+});
+
+// ✅ Delete Clarhet User
+const deleteClarhetUser = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const deletedUser = await UserServices.deleteClarhetUser(id);
+
+  if (!deletedUser) {
+    throw new AppError(status.NOT_FOUND, "Clarhet user not found!");
+  }
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Clarhet user deleted successfully",
+    data: deletedUser,
+  });
+});
+
+export const UserControllers = {
   createUser,
   getAllUsers,
   getUserById,
@@ -160,5 +231,9 @@ export const UserControllers ={
   deleteUser,
   updateUser,
   getMeUser,
-  createClarhetUser
-}
+  createClarhetUser,
+  getAllClarhetUsers,
+  getSingleClarhetUser,
+  updateClarhetUser,
+  deleteClarhetUser,
+};

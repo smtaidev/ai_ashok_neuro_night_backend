@@ -49,6 +49,27 @@ const organizationUser = catchAsync(async (req, res) => {
   });
 });
 
+const clarhetUserLogin = catchAsync(async (req, res) => {
+  const { email, password } = req?.body;
+
+  if (!email || !password) {
+    throw new AppError(status.BAD_REQUEST, "Email and password are required!");
+  }
+
+
+  const result = await AuthServices.clarhetUserLogin({email, password});
+  const {  accessToken } = result;
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Organization User is logged in successfully!",
+    data: {
+      accessToken,
+    },
+  });
+});
+
 
 // const forgetPassProcessControl = catchAsync(async (req, res) => {
 //   const result = await authServices.loginUserIntoDB(req.body);
@@ -64,5 +85,6 @@ const organizationUser = catchAsync(async (req, res) => {
 
 export const AuthController = {
   loginUser,
-organizationUser
+organizationUser,
+clarhetUserLogin
 };

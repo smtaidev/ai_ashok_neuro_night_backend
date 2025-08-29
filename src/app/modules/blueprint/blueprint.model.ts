@@ -52,7 +52,7 @@ const BusinessGoalSchema = new Schema({
   priority: { type: String, enum: ["High", "Medium", "Low"], required: true },
   resource_readiness: { type: String, enum: ["Yes", "No"], required: true },
   // assigned_functions: { type: [String], required: true },
-  assigned_functions:[{type:mongoose.Types.ObjectId,ref:"Blueprint",required:true}],
+  assigned_functions:[{type:mongoose.Types.ObjectId,ref:"Choreograph",required:true}],
   duration: { type: String, enum: ["Short-term", "Medium-term", "Long-term"], required: true },
   impact_ratings: { type: ImpactRatingsSchema, required: true },
   esg_issues: { type: String, enum: ["Yes", "No"], required: true },

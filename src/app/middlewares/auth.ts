@@ -8,7 +8,7 @@ import config from "../../config";
 
 import AppError from "../errors/AppError";
 import catchAsync from "../utils/catchAsync";
-import UserModel from "../modules/user/user.model";
+import UserModel, { ClarhetModel } from "../modules/user/user.model";
 import mongoose from "mongoose";
 import { organizationUserModels } from "../modules/organization-role/organization-role.model";
 
@@ -52,7 +52,7 @@ if (!mongoose.Types.ObjectId.isValid(userId)) {
   throw new AppError(httpStatus.BAD_REQUEST, "Invalid user ID from token");
 }
     // Check if user exists
-    const user = await UserModel.findOne({email}) || await organizationUserModels.findOne({email})
+    const user = await UserModel.findOne({email}) || await organizationUserModels.findOne({email}) || await ClarhetModel.findOne({email})
     console.log (user)
     if (!user) {
       throw new AppError(httpStatus.NOT_FOUND, "User not found");

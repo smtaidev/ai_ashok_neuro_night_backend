@@ -6,7 +6,7 @@ export interface IUser {
   password: string;
   companyName: string;
   foundationId: Types.ObjectId;
-  companyRole: string;
+companyRole: string;
   role: "companyAdmin" | "superAdmin" | "companyEmployee";
   isDeleted: boolean;
   isSubscribed: Boolean;

@@ -406,6 +406,42 @@ const getAgendasByUser = async (userId: string) => {
 
 return result
 };
+// const getMyAgendasByUserId = async (userId: string,meetingId:string) => {
+//   if (!mongoose.Types.ObjectId.isValid(userId)) {
+//     throw new AppError(status.BAD_REQUEST, "Invalid User ID!");
+//   }
+
+  
+//   const query = {
+//     meetingId: new mongoose.Types.ObjectId(meetingId),
+//     "agendaItems.presenter": new mongoose.Types.ObjectId(userId),
+//   };
+
+//   const agendas = await AgendaSchema.find(query)
+//   //   .populate("meetingId")
+//   //   .populate("userId", "-password")
+//   //   .populate("inviteAttendees.attendees", "-password")
+//   //   .populate("welcomeAndOpeningRemark.presenter", "-password")
+//   //   .populate("agendaItems.presenter", "-password")
+//   //   .lean();
+
+//   if (!agendas || agendas.length === 0) {
+//     return {
+//       success: true,
+//       message: "No agendas found for this user",
+//       data: [],
+//     };
+//   }
+
+//   // Remove __v from each agenda
+//   const result = agendas.map((agenda) => {
+//     if ("__v" in agenda) delete (agenda as any).__v;
+//     return agenda;
+//   });
+//   console.log(agendas);
+
+// return result
+// };
 
 // const changeMyAssignMeetingStatus=async(userId:string,assignId:string,payload:{status:string})=>{
 
@@ -425,6 +461,42 @@ return result
 
 //   const result=await AssignToMeMeeting.findOneAndUpdate({userId:userId,_id:assignId},{$set:})
 // }
+
+const getMyAgendasByUserId = async (userId: string, meetingId: string) => {
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new AppError(status.BAD_REQUEST, "Invalid User ID!");
+  }
+
+  const query = {
+    meetingId: new mongoose.Types.ObjectId(meetingId),
+    "agendaItems.presenter": new mongoose.Types.ObjectId(userId),
+  };
+
+  const agendas = await AgendaSchema.find(query).lean(); // lean() use kore plain objects pawa better
+
+  if (!agendas || agendas.length === 0) {
+    return {
+      success: true,
+      message: "No agendas found for this user",
+      data: [],
+    };
+  }
+
+  // Filter agendaItems per agenda, je khane userId thakbe matro
+  const result = agendas.map((agenda) => {
+    const filteredAgendaItems = (agenda.agendaItems || []).filter((item: any) =>
+      item.presenter.some((p: any) => String(p) === userId)
+    );
+
+    return {
+      ...agenda,
+      agendaItems: filteredAgendaItems,
+    };
+  });
+
+  return result;
+};
+
 export const agendaServices = {
   createAgenda,
   getAllAgendas,
@@ -433,4 +505,5 @@ export const agendaServices = {
   deleteAgenda,
   getAgendasByUser,
   CreateAssignToMeAgenda,
+  getMyAgendasByUserId
 };

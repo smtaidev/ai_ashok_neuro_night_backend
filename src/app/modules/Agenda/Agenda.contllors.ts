@@ -90,6 +90,18 @@ const CreateAssignToMeAgenda = catchAsync(async (req, res) => {
   });
 });
 
+const  getMyAgendasByUserId = catchAsync(async (req, res) => {
+ const {id}=req.params
+  const company = req.user;
+  const result = await agendaServices.getMyAgendasByUserId(company.userId,id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "My Agenda  successfully get",
+    data: result,
+  });
+});
+
 export const agendaControllers = {
   createAgendaIntoDb,
   getAllAgendasFromDb,
@@ -97,5 +109,6 @@ export const agendaControllers = {
   updateAgendaIntoDb,
   deleteAgendaFromDb,
   getAgendasByUser,
-  CreateAssignToMeAgenda
+  CreateAssignToMeAgenda,
+  getMyAgendasByUserId
 };

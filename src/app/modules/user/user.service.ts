@@ -19,10 +19,17 @@ const createUser = async (userData: IUser): Promise<IUser> => {
   const isEexistUser = await UserModel.findOne({
     $or: [
       { email: userData.email },
-      { companyName: { $regex: new RegExp(`^${userData.companyName}$`, 'i') } }
+      { companyName: { $regex: new RegExp(`^${userData?.companyName}$`, 'i') } }
     ]
-  });
+  })|| await UserModel.findOne(
+   {email: userData.email}
+  
+  )|| await organizationUserModels.findOne(
+   {email: userData.email}
+  
+  )
 
+  console.log(userData)
   if (isEexistUser) {
     throw new AppError(status.BAD_REQUEST, "User already exists");
   }
@@ -33,7 +40,7 @@ const createUser = async (userData: IUser): Promise<IUser> => {
     session.startTransaction();
 
     const user = (await UserModel.create(
-      [{ ...userData, companyRole }],
+      [{ ...userData }],
       { session }
     ))[0];
 
@@ -98,7 +105,7 @@ This link is valid for 12 hours. If you did not expect this email, please ignore
 
 
 const getAllUsers = async (): Promise<IUser[]> => {
-  const users = await UserModel.find({ isDeleted: false });
+  const users = await UserModel.find({ isDeleted: false }).populate("");
   return users;
 };
 
@@ -188,7 +195,13 @@ const createClarhetUser=async(payload:any)=>{
 if(!payload?.email)
    throw new AppError(status.BAD_REQUEST, "email is required");
 
-const isExist=await ClarhetModel.findOne({email:payload.email})
+const isExist=await ClarhetModel.findOne({email:payload.email})|| await UserModel.findOne(
+   {email: payload.email}
+  
+  )|| await organizationUserModels.findOne(
+   {email: payload.email}
+  
+  )
 
 if(isExist){
 

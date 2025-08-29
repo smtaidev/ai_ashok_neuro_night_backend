@@ -2,6 +2,9 @@ import status from "http-status";
 import AppError from "../../errors/AppError";
 import { Blueprint, BusinessGoal, StrategicTheme } from "./blueprint.interface";
 import { BlueprintModel } from "./blueprint.model";
+import { FoundationModel } from "../foundation/foundation.model";
+import choreographModel from "../choreograph/choreograph.model";
+import mongoose from "mongoose";
 
 const createVision = async (companyName: string, payload: Partial<Blueprint>) => {
   if (!companyName) {
@@ -196,28 +199,213 @@ const updateBusinessGoal = async (
   return result;
 };
 
+// const getAllBusinessGoals = async (companyName: string) => {
+//   if (!companyName) {
+//     throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+//   }
+
+//   const query = {
+//     companyName: { $regex: new RegExp(`^${companyName}$`, "i") }
+//   };
+
+// const result = await BlueprintModel.findOne(query, { businessGoals: 1 })
+//   .populate({
+//     path: 'businessGoals',
+//     populate: [
+//       // { path: 'strategicID', model: 'Blueprint' },
+//       // { path: 'assigned_functions', model: 'Blueprint' },
+//       // { path: 'capabilityInfluenced', model: 'Foundation' },
+//       { path: 'capabilityOwners', model: 'Organization-User' },
+//       { path: 'goalOwner', model: 'Organization-User' },
+//     ]
+//   });
+//   return result?.businessGoals || [];
+// };
+// const getAllBusinessGoals = async (companyName: string) => {
+//   if (!companyName) {
+//     throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+//   }
+
+//   // 1️⃣ Blueprint find
+//   const blueprint = await BlueprintModel.findOne(
+//     { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
+//     { businessGoals: 1, strategicThemes: 1 }
+//   ).lean();
+
+//   if (!blueprint?.businessGoals) return [];
+
+//   let businessGoals = blueprint.businessGoals;
+
+//   // 🔹 Filter invalid ObjectIds before populate
+//   businessGoals = businessGoals.map((goal: any) => {
+//     if (Array.isArray(goal.capabilityOwners)) {
+//       goal.capabilityOwners = goal.capabilityOwners.filter((id: any) =>
+//         mongoose.Types.ObjectId.isValid(id)
+//       );
+//     } else {
+//       goal.capabilityOwners = [];
+//     }
+
+//     if (goal.goalOwner && !mongoose.Types.ObjectId.isValid(goal.goalOwner)) {
+//       goal.goalOwner = null;
+//     }
+
+//     return goal;
+//   }) as any
+
+//   // 2️⃣ Foundation capabilities
+//   const allCapabilities = await FoundationModel.find({}, { capabilitys: 1 }).lean();
+
+//   // 3️⃣ Choreograph data
+//   const choreographData = await choreographModel.find({}).lean();
+
+//   // 4️⃣ Populate capabilityOwners & goalOwner safely
+//   await BlueprintModel.populate(businessGoals, [
+//     { path: "capabilityOwners", model: "Organization-User" },
+//     { path: "goalOwner", model: "Organization-User" },
+//   ]);
+
+//   // 5️⃣ Map and transform data safely
+//   const populatedGoals = businessGoals.map((goal: any) => {
+//     const goalObj: any = { ...goal };
+
+//     // ✅ strategicID match
+//     if (goalObj.strategicID && blueprint.strategicThemes?.length) {
+//       const matchTheme = blueprint.strategicThemes.find(
+//         (theme: any) => String(theme._id) === String(goalObj.strategicID)
+//       );
+//       goalObj.strategicID = matchTheme || null;
+//     }
+
+//     // ✅ capabilityInfluenced match (safe)
+//     if (Array.isArray(goalObj.capabilityInfluenced) && allCapabilities?.length) {
+//       goalObj.capabilityInfluenced = goalObj.capabilityInfluenced
+//         .map((capId: any) => {
+//           for (const foundation of allCapabilities) {
+//             if (Array.isArray(foundation.capabilitys)) {
+//               const matchCap = foundation.capabilitys.find(
+//                 (c: any) => String(c._id) === String(capId)
+//               );
+//               if (matchCap) return matchCap;
+//             }
+//           }
+//           return null;
+//         })
+//         .filter(Boolean);
+//     } else {
+//       goalObj.capabilityInfluenced = [];
+//     }
+
+//     return goalObj;
+//   });
+
+//   return populatedGoals;
+// };
+
 const getAllBusinessGoals = async (companyName: string) => {
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "Company name is not found!");
   }
 
-  const query = {
-    companyName: { $regex: new RegExp(`^${companyName}$`, "i") }
-  };
+  // 1️⃣ Fetch blueprint for the company
+  const blueprint = await BlueprintModel.findOne(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
+    { businessGoals: 1, strategicThemes: 1 }
+  ).lean();
 
-const result = await BlueprintModel.findOne(query, { businessGoals: 1 })
-  .populate({
-    path: 'businessGoals',
-    populate: [
-      { path: 'strategicID', model: 'Blueprint' },
-      { path: 'assigned_functions', model: 'Blueprint' },
-      { path: 'capabilityInfluenced', model: 'Foundation' },
-      { path: 'capabilityOwners', model: 'Organization-User' },
-      { path: 'goalOwner', model: 'Organization-User' },
-    ]
+  if (!blueprint?.businessGoals) return [];
+
+  let businessGoals = blueprint.businessGoals as any[];
+
+  // 🔹 Filter invalid ObjectIds in capabilityOwners and goalOwner
+  businessGoals = businessGoals.map(goal => {
+    if (Array.isArray(goal.capabilityOwners)) {
+      goal.capabilityOwners = goal.capabilityOwners.filter((id: any) =>
+        mongoose.Types.ObjectId.isValid(id)
+      );
+    } else {
+      goal.capabilityOwners = [];
+    }
+
+    // if (goal.goalOwner && !mongoose.Types.ObjectId.isValid(goal.goalOwner)) {
+    //   goal.goalOwner = null;
+    // }
+
+    return goal;
   });
-  return result?.businessGoals || [];
+
+  // 2️⃣ Fetch foundation capabilities
+  const allCapabilities = await FoundationModel.find(  { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } }, { capabilitys: 1 }).lean();
+
+  // 3️⃣ Fetch choreograph data for this company (only teams)
+const choreographData = await choreographModel.find(
+    { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } },
+    { teams: 1 }
+  ).lean();
+
+console.log(JSON.stringify(choreographData, null, 2), "✅ Filtered choreograph data");
+  // 4️⃣ Populate capabilityOwners & goalOwner
+  await BlueprintModel.populate(businessGoals, [
+    { path: "capabilityOwners", model: "Organization-User" },
+    { path: "goalOwner", model: "Organization-User"},
+  ]);
+
+  // 5️⃣ Transform business goals
+  const populatedGoals = businessGoals.map((goalObj: any) => {
+    const goal = { ...goalObj };
+
+    // ✅ Map strategicID to actual theme object
+    if (goal.strategicID && blueprint.strategicThemes?.length) {
+      const matchTheme = blueprint.strategicThemes.find(
+        (theme: any) => String(theme._id) === String(goal.strategicID)
+      );
+      goal.strategicID = matchTheme || null;
+    }
+
+    // ✅ Map capabilityInfluenced to actual capability objects
+    if (Array.isArray(goal.capabilityInfluenced) && choreographData?.length) {
+      goal.capabilityInfluenced = goal.capabilityInfluenced
+        .map((capId: any) => {
+          for (const foundation of allCapabilities) {
+            if (Array.isArray(foundation.capabilitys)) {
+              const matchCap = foundation.capabilitys.find(
+                (c: any) => String(c._id) === String(capId)
+              );
+              if (matchCap) return matchCap;
+            }
+          }
+          return null;
+        })
+        .filter(Boolean);
+    } else {
+      goal.capabilityInfluenced = [];
+    }
+    if (Array.isArray(goal.assigned_functions) && allCapabilities?.length) {
+      goal.assigned_functions = goal.assigned_functions
+        .map((capId: any) => {
+          for (const choreograph of choreographData) {
+            if (Array.isArray(choreograph.teams)) {
+              const matchCap = choreograph.teams.find(
+                (c: any) => String(c._id) === String(capId)
+              );
+              if (matchCap) return matchCap;
+            }
+          }
+          return null;
+        })
+        .filter(Boolean);
+    } else {
+      goal.assigned_functions = [];
+    }
+
+  
+    return goal;
+  });
+
+  return populatedGoals;
 };
+
+
 const getSingleBusinessGoal = async (id: string, companyName: string) => {
   if (!companyName) throw new AppError(status.BAD_REQUEST, "Company name is not found!");
   if (!id) throw new AppError(status.BAD_REQUEST, "Goal ID is required!");

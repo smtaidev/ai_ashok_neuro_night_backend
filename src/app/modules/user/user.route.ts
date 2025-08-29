@@ -21,6 +21,10 @@ router.patch("/:id",
 router.delete("/:id", UserControllers.deleteUser);
 
 router.patch("/:id/password", UserControllers.changePassword);
-router.post("/create-clarhet-user", UserControllers.createClarhetUser);
+router.post("/create-clarhet-user" ,UserControllers.createClarhetUser);
+router.get("/clarhet/get-clarhet-user",auth("superAdmin"), UserControllers.getAllClarhetUsers);
+router.get("/clarhet/get-clarhet-user/:id",auth("superAdmin"), UserControllers.getSingleClarhetUser);
+router.patch("/clarhet/get-clarhet-user/:id",auth("superAdmin"), UserControllers.updateClarhetUser);
+router.delete("/clarhet/get-clarhet-user/:id",auth("superAdmin"), UserControllers.deleteClarhetUser);
 
 export const UserRoutes = router;

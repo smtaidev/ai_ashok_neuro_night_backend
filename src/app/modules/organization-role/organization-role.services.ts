@@ -5,7 +5,7 @@ import {
   organizationUserModel,
   organizationUserModels,
 } from "./organization-role.model";
-import UserModel from "../user/user.model";
+import UserModel, { ClarhetModel } from "../user/user.model";
 import mongoose from "mongoose";
 import { createPasswordSetupToken } from "../../utils/password.create";
 import { sendEmail } from "../../utils/sendMail";
@@ -58,7 +58,10 @@ const createOrganizationUser = async (
 
   const isEexistUser = await organizationUserModels.findOne({
     email: userData.email,
-  });
+  })|| await ClarhetModel.findOne(
+   {email: userData.email}
+  
+  )
   const isEexistUsers = await UserModel.findOne({
     email: userData.email,
   });
@@ -272,6 +275,10 @@ const setupPassword = async (token: string, newPassword: string) => {
     { password: hashedPassword, isDeleted: false },
     { new: true }
   )|| await UserModel.findByIdAndUpdate(
+    payload.userId,
+    { password: hashedPassword, isDeleted: false },
+    { new: true }
+  )|| await ClarhetModel.findByIdAndUpdate(
     payload.userId,
     { password: hashedPassword, isDeleted: false },
     { new: true }
