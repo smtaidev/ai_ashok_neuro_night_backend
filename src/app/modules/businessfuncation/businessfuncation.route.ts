@@ -14,21 +14,21 @@ router.post(
 // ✅ Get All Business Functions
 router.get(
   "/get-all-business-function",
-  auth("companyAdmin"),
+  auth("companyAdmin","companyEmployee"),
   businessFunctionControllers.getAllBusinessFunctionsFromDb
 );
 
 // ✅ Get Single Business Function by ID
 router.get(
   "/:id",
-  auth("companyAdmin"),
+  auth("companyAdmin","companyEmployee"),
   businessFunctionControllers.getSingleBusinessFunctionFromDb
 );
 
 // ✅ Update Business Function by ID
 router.patch(
   "/:id",
-  auth("companyAdmin"),
+  auth("companyAdmin","companyEmployee"),
   businessFunctionControllers.updateBusinessFunctionIntoDb
 );
 

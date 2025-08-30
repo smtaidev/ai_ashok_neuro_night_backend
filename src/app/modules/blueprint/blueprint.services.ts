@@ -5,6 +5,9 @@ import { BlueprintModel } from "./blueprint.model";
 import { FoundationModel } from "../foundation/foundation.model";
 import choreographModel from "../choreograph/choreograph.model";
 import mongoose from "mongoose";
+import config from "../../../config";
+import axios from "axios";
+import { VisionAssessmentModel } from "../ai.response/ai.model";
 
 const createVision = async (companyName: string, payload: Partial<Blueprint>) => {
   if (!companyName) {
@@ -27,7 +30,27 @@ const createVision = async (companyName: string, payload: Partial<Blueprint>) =>
     { new: true, upsert: true } 
   );
 
+ const visionData=await BlueprintModel.findOne(query)
+  
+    const vision_statement=visionData?.vision
+    console.log(vision_statement)
+     const apiUrls = `${config.ai_base_url}/blueprint/vision`;
+  
+    const responses = await axios.post(apiUrls, {vision_statement}, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
+     const updated = await VisionAssessmentModel.findOneAndUpdate(
+    { companyName: companyName }, // match by companyName
+    responses.data,
+    {
+      new: true,      // return updated document
+      upsert: true,   // create if not exists
+      setDefaultsOnInsert: true,
+    }
+  );
 
 
   return result;

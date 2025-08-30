@@ -5,6 +5,7 @@ import {
   AiTrendModel,
   AnalysisModel,
   RiskModel,
+  VisionAssessmentModel,
 } from "./ai.model";
 import { BlueprintModel } from "../blueprint/blueprint.model";
 import { FoundationModel } from "../foundation/foundation.model";
@@ -246,20 +247,22 @@ const createVisionAI=async(companyName:string)=>{
   };
 
   
-    const visionData=await BlueprintModel.findOne(query)
+    // const visionData=await BlueprintModel.findOne(query)
   
-    const vision_statement=visionData?.vision
-    console.log(vision_statement)
-     const apiUrls = `${config.ai_base_url}/blueprint/vision`;
+    // const vision_statement=visionData?.vision
+    // console.log(vision_statement)
+    //  const apiUrls = `${config.ai_base_url}/blueprint/vision`;
   
-    const responses = await axios.post(apiUrls, {vision_statement}, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    // const responses = await axios.post(apiUrls, {vision_statement}, {
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    // });
 
 
-    return responses.data
+    // return responses.data
+    const result=await VisionAssessmentModel.find(query)
+    return result
 
 }
 

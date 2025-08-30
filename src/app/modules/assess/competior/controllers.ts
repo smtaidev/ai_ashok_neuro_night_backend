@@ -100,8 +100,7 @@ class CompetitorController {
       });
 
       res.status(201).json({ 
-        company,
-        enrichment: enrichResult
+        company
       });
     } catch (error: any) {
       console.error('Create company failed:', error);

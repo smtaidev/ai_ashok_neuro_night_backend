@@ -6,9 +6,9 @@ import auth from '../../middlewares/auth'
 const router=express.Router()
 //-------------trend route arey ---------------------------------------
 
-router.patch('/create-trend',auth('companyAdmin'),AssessContllors.createTrendIntDb)
-router.patch('/update-trend/:id',auth('companyAdmin'),AssessContllors.updateTrendIntDb)
-router.get('/trend', auth('companyAdmin'), AssessContllors.getAllTrendsIntDb);
+router.patch('/create-trend',auth('companyAdmin',"companyEmployee"),AssessContllors.createTrendIntDb)
+router.patch('/update-trend/:id',auth('companyAdmin',"companyEmployee"),AssessContllors.updateTrendIntDb)
+router.get('/trend', auth('companyAdmin',"companyEmployee"), AssessContllors.getAllTrendsIntDb);
 
 //----assess all route arey  handile super admin---------------------------------------
 router.post('/',auth("companyAdmin","superAdmin"),AssessContllors.createAssessIntDb)

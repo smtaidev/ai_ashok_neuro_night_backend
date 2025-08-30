@@ -15,10 +15,10 @@ router.get("/get-my-agenda", auth("companyAdmin","companyEmployee"), agendaContr
 router.get("/get-my-all-agenda/:id", auth("companyAdmin",'companyEmployee'), agendaControllers.getMyAgendasByUserId);
 
 // ✅ Get Single Agenda by ID
-router.get("/:id", auth("companyAdmin"), agendaControllers.getSingleAgendaFromDb);
+router.get("/:id", auth("companyAdmin","companyEmployee"), agendaControllers.getSingleAgendaFromDb);
 
 // ✅ Update Agenda by ID
-router.patch("/:id/update-agenda/:meetingId", auth("companyAdmin"), agendaControllers.updateAgendaIntoDb);
+router.patch("/:id/update-agenda/:meetingId", auth("companyAdmin","companyEmployee"), agendaControllers.updateAgendaIntoDb);
 
 // ✅ Delete Agenda by ID
 router.delete("/:id/delete-agenda/:meetingId", auth("companyAdmin"), agendaControllers.deleteAgendaFromDb);

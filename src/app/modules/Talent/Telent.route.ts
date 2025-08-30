@@ -9,13 +9,13 @@ const router = express.Router();
 router.post("/create-talent", auth("companyAdmin"),talentOverviewControllers.createTalentOverviewIntoDb);
 
 // ✅ Get All Tasks
-router.get("/get-all-talent", auth("companyAdmin"), talentOverviewControllers.getAllTalentOverviewFromDb);
+router.get("/get-all-talent", auth("companyAdmin","companyEmployee"), talentOverviewControllers.getAllTalentOverviewFromDb);
 
 // ✅ Get Single Task
-router.get("/:id", auth("companyAdmin"), talentOverviewControllers.getSingleTalentOverviewFromDb);
+router.get("/:id", auth("companyAdmin","companyEmployee"), talentOverviewControllers.getSingleTalentOverviewFromDb);
 
 // ✅ Update Task
-router.patch("/:id", auth("companyAdmin"), talentOverviewControllers.updateTalentOverviewIntoDb);
+router.patch("/:id", auth("companyAdmin","companyEmployee"), talentOverviewControllers.updateTalentOverviewIntoDb);
 
 // ✅ Delete Task
 router.delete("/:id", auth("companyAdmin"), talentOverviewControllers.deleteTalentOverviewFromDb);

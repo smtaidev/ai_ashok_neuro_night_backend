@@ -29,14 +29,14 @@ router.get(
 // ✅ Update Notification
 router.patch(
   "/:id",
-  auth("companyAdmin"),
+  auth("companyAdmin","companyEmployee"),
   notificationControllers.updateNotificationIntoDb
 );
 
 // ✅ Delete Notification
 router.delete(
   "/:id",
-  auth("companyAdmin"),
+  auth("companyAdmin","companyEmployee"),
   notificationControllers.deleteNotificationFromDb
 );
 
