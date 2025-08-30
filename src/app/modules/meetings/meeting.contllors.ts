@@ -98,7 +98,7 @@ const getUpcomingLatestTwoMeetingsFromDb = catchAsync(async (req, res) => {
   const company = req.user; // auth middleware থেকে company info
   console.log(company.companyName)
   const result = await meetingsServices.getUpcomingLatestTwoMeetingsFromDb(
-    company?.companyName
+    company?.companyName,company.userId
   );
 
   sendResponse(res, {
@@ -112,7 +112,7 @@ const getUpcomingLatestTwoMeetingsFromDb = catchAsync(async (req, res) => {
 const getPastTWoMeetingsFromDb = catchAsync(async (req, res) => {
   const company = req.user; // auth middleware থেকে company info
   const result = await meetingsServices.getPastTWoMeetingsFromDb(
-    company?.companyName
+    company?.companyName,company.userId
   );
 
   sendResponse(res, {
