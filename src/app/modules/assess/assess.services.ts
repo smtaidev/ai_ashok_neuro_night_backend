@@ -634,16 +634,28 @@ const createChallengeIntoDb = async (companyName: string, payload: any) => {
     { companyName: companyName },
     { companyName: 0, _id: 0, summary: 0, error: 0, __v: 0 }
   ).lean();
-  const swotData = await AnalysisModel.findOne(
+  const swotData = await AssessModel.findOne(
     { companyName: companyName },
     { companyName: 0, _id: 0, scores: 0, error: 0, __v: 0 }
   ).lean();
-  const swot = swotData?.recommendations;
+  // console.log(swotData)
+const swotRawArray = swotData?.swot;  // eta array hole
+const swotObj = Array.isArray(swotRawArray) ? swotRawArray[0] : swotRawArray;
+
+const swot = {
+  strengths: swotObj?.strengths?.map((item: any) => item.details) || [],
+  weaknesses: swotObj?.weaknesses?.map((item: any) => item.details) || [],
+  opportunities: swotObj?.opportunities?.map((item: any) => item.details) || [],
+  threats: swotObj?.threats?.map((item: any) => item.details) || [],
+};
+
+console.log(JSON.stringify(swot,null,2
+))
   const aichallenge = { challenge: payload };
   const allData = {
     trends,
     ...aichallenge,
-    swot,
+    swot
   };
 
 

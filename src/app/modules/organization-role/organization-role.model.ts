@@ -52,6 +52,16 @@ const UserSchema = new mongoose.Schema(
       enum: ["edit", "view", "hidden"],
       default: "hidden",
     },
+    blueprintAlignment: {
+      type: String,
+      enum: ["edit", "view", "hidden"],
+      default: "hidden",
+    },
+    businessGoal: {
+      type: String,
+      enum: ["edit", "view", "hidden"],
+      default: "hidden",
+    },
     choreographObjectives: {
       type: String,
       enum: ["edit", "view", "hidden"],

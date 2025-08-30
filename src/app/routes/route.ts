@@ -6,7 +6,6 @@ import { finalcialTrackerRouter } from "../modules/finalcialTracker/finalcialTra
 import { assessRouter } from "../modules/assess/assess.route";
 import { assessChallengeRouter } from "../modules/assess/challenge/inde";
 import { assessClarhetRouter } from "../modules/assess/clarhet/inde";
-// import { assessCompetiorRouter } from "../modules/assess/competior/competior.route";
 import { assessSwotRouter } from "../modules/assess/swot/inex";
 import { blueprintRouter} from "../modules/blueprint/blueprint.route";
 import { choregorapRoute } from "../modules/choreograph/choreograph.router";
@@ -22,6 +21,8 @@ import { businessFunctionRoute } from "../modules/businessfuncation/businessfunc
 import { TalentRoute } from "../modules/Talent/Telent.route";
 import { NotificationRoute } from "../modules/notification/notification.route";
 import { companyRoute } from "../modules/company/company.route";
+import { CompetitorAnalysisRoute } from "../modules/assess/competior/controllers";
+import { competitorRoute } from "../modules/assess/competior/competitors.route/competitors.route";
 
 const router = express.Router()
 
@@ -55,10 +56,10 @@ const moduleRoutes = [
     path: "/create-clarhet",
     route:assessClarhetRouter
   },
-  // {
-  //   path: "/create-competitor",
-  //   route:assessCompetiorRouter
-  // },
+  {
+    path: "/competitors",
+    route:competitorRoute
+  },
   {
     path: "/create-swot",
     route:assessSwotRouter

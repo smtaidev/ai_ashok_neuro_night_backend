@@ -10,6 +10,8 @@ export interface Permissions {
   alignment: "edit" | "view" | "hidden";
   vision: "edit" | "view" | "hidden";
   themes: "edit" | "view" | "hidden";
+  blueprintAlignment: "edit" | "view" | "hidden";
+  businessGoal: "edit" | "view" | "hidden";
   choreographObjectives: "edit" | "view" | "hidden";
   teams: "edit" | "view" | "hidden";
   generateReport: "edit" | "view" | "hidden";
