@@ -102,6 +102,25 @@ const  getMyAgendasByUserId = catchAsync(async (req, res) => {
   });
 });
 
+const  getSingleAssignToMeAgenda = catchAsync(async (req, res) => {
+  const { meetingId } = req.params; // URL থেকে meetingId নিলাম
+  const user = req.user; // লগইন করা ইউজার থেকে
+
+  const result = await agendaServices.getSingleAssignToMeAgenda(
+    user.companyName, // বা user.companyName যেটা তোমার auth middleware এ আছে
+    user.userId,
+    meetingId
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Agenda successfully retrieved",
+    data: result,
+  });
+});
+
+
 export const agendaControllers = {
   createAgendaIntoDb,
   getAllAgendasFromDb,
@@ -110,5 +129,6 @@ export const agendaControllers = {
   deleteAgendaFromDb,
   getAgendasByUser,
   CreateAssignToMeAgenda,
-  getMyAgendasByUserId
+  getMyAgendasByUserId,
+ getSingleAssignToMeAgenda
 };

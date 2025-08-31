@@ -497,6 +497,35 @@ const getMyAgendasByUserId = async (userId: string, meetingId: string) => {
   return result;
 };
 
+const getSingleAssignToMeAgenda = async (
+  companyName: string,
+  userId: string,
+  meetingId: string
+) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "companyName is required!");
+  }
+  if (!userId) {
+    throw new AppError(status.BAD_REQUEST, "userId is required!");
+  }
+  if (!meetingId) {
+    throw new AppError(status.BAD_REQUEST, "meetingId is required!");
+  }
+
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+    meetingId: new mongoose.Types.ObjectId(meetingId),
+    userId: new mongoose.Types.ObjectId(userId),
+  };
+
+  const result = await AssignToMeMeeting.findOne(query).lean() as any;
+
+  if (!result) {
+    throw new AppError(status.NOT_FOUND, "No agenda found for this meeting and user");
+  }
+
+  return result;
+};
 export const agendaServices = {
   createAgenda,
   getAllAgendas,
@@ -505,5 +534,6 @@ export const agendaServices = {
   deleteAgenda,
   getAgendasByUser,
   CreateAssignToMeAgenda,
-  getMyAgendasByUserId
+  getMyAgendasByUserId,
+  getSingleAssignToMeAgenda
 };

@@ -19,7 +19,11 @@ router.get("/:id", auth("companyAdmin","companyEmployee"), agendaControllers.get
 
 // ✅ Update Agenda by ID
 router.patch("/:id/update-agenda/:meetingId", auth("companyAdmin","companyEmployee"), agendaControllers.updateAgendaIntoDb);
-
+router.get(
+  "/:meetingId/my-single-agenda",
+  auth("companyAdmin", "companyEmployee"),
+  agendaControllers.getSingleAssignToMeAgenda
+);
 // ✅ Delete Agenda by ID
 router.delete("/:id/delete-agenda/:meetingId", auth("companyAdmin"), agendaControllers.deleteAgendaFromDb);
 
