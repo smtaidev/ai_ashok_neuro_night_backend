@@ -93,3 +93,47 @@ const BlueprintSchema = new Schema({
 }, { timestamps: true });
 
 export const BlueprintModel = model('Blueprint', BlueprintSchema);
+
+
+
+// gap_detection sub-schema
+const GapDetectionSchema = new Schema({
+  missing_themes: { type: String, required: true },
+  overlapping_themes: { type: String, required: true },
+  unused_elements: { type: String, required: true }
+}, { _id: false });
+
+// wording_suggestions sub-schema
+const WordingSuggestionSchema = new Schema({
+  original_name: { type: String, required: true },
+  improved_name: { type: String, required: true },
+  original_description: { type: String, required: true },
+  improved_description: { type: String, required: true },
+  rationale: { type: String, required: true }
+}, { _id: false });
+
+// goal_mapping sub-schema
+const GoalSchema = new Schema({
+  goal: { type: String, required: true },
+  goal_type: { type: String, required: true }
+}, { _id: false });
+
+const MappedThemeSchema = new Schema({
+  theme_name: { type: String, required: true },
+  goals: { type: [GoalSchema], default: [] }
+}, { _id: false });
+
+// main schema
+const StrategicSchema = new Schema({
+  companyName:{type:String,required:true},
+  gap_detection: { type: GapDetectionSchema, required: true },
+  wording_suggestions: {
+    suggestions: { type: [WordingSuggestionSchema], default: [] }
+  },
+  goal_mapping: {
+    mapped_themes: { type: [MappedThemeSchema], default: [] }
+  },
+  error: { type: String, default: null }
+}, { timestamps: true });
+
+export const StrategicModel = model("Strategic", StrategicSchema);

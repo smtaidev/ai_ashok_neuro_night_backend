@@ -8,11 +8,12 @@ import {
   RiskModel,
   VisionAssessmentModel,
 } from "./ai.model";
-import { BlueprintModel } from "../blueprint/blueprint.model";
+import { BlueprintModel, StrategicModel } from "../blueprint/blueprint.model";
 import { FoundationModel } from "../foundation/foundation.model";
 import config from "../../../config";
 import axios from "axios";
 import AssessModel from "../assess/assess.model";
+import choreographModel from "../choreograph/choreograph.model";
 
 const getAllTrendsAiData = async (companyName: string) => {
   if (!companyName) {
@@ -176,7 +177,116 @@ const createThemesAiData = async (companyName: string) => {
   // console.log(result)
 
 };
+const getThemesAiData = async (companyName: string) => {
+  if (!companyName) {
+    throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  }
 
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
+
+  // DB থেকে সরাসরি ফেচ করবো (StrategicModel ধরে নিচ্ছি AI data এইখানে সেভ হয়)
+  const themesAiData = await StrategicModel.findOne(query).lean();
+
+  console.log(themesAiData)
+  if (!themesAiData) {
+    throw new AppError(status.NOT_FOUND, "Themes AI data not found!");
+  }
+
+  return themesAiData;
+};
+
+// const createBusinessGoalAi = async (companyName: string) => {
+//   if (!companyName) throw new AppError(status.BAD_REQUEST, "company name is not found !");
+
+//   const query = { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } };
+
+//   const business = await BlueprintModel.findOne(query).lean();
+//   const themesData = await BlueprintModel.findOne(query);
+//   const aichallengeDataFind = await RiskModel.findOne(
+//     { companyName },
+//     { companyName: 0, _id: 0, __v: 0 }
+//   ).lean();
+//   const visionData = await BlueprintModel.findOne(query).lean();
+
+//   // Clean strategic_themes
+//   const strategic_themes = themesData?.strategicThemes.map(theme => {
+//     const obj = (theme as any).toObject ? (theme as any).toObject() : theme;
+//     const { _id, createdAt, updatedAt, ...rest } = obj;
+//     return rest;
+//   });
+
+//   // Clean goals and nested impact_ratings
+//   // const goals = business?.businessGoals.map(goal => {
+//   //   const g = goal as any;
+//   //   const { _id, createdAt, updatedAt, impact_ratings, ...rest } = g;
+
+//   //   let cleanImpactRatings = undefined;
+//   //   if (impact_ratings) {
+//   //     const ir = impact_ratings as any;
+//   //     const { _id: irId, createdAt: irCreatedAt, updatedAt: irUpdatedAt, ...otherRatings } = ir;
+//   //     cleanImpactRatings = otherRatings;
+//   //   }
+
+//   //   return { ...rest, impact_ratings: cleanImpactRatings };
+//   // });
+
+
+//   const goals = business?.businessGoals.map(goal => {
+//   const g = goal as any;
+//   const { impact_ratings } = g;
+
+//   let cleanImpactRatings = undefined;
+//   if (impact_ratings) {
+//     const ir = impact_ratings as any;
+//     const { _id: irId, createdAt: irCreatedAt, updatedAt: irUpdatedAt, ...otherRatings } = ir;
+//     cleanImpactRatings = otherRatings;
+//   }
+ 
+//   const businessGoalForAi = {
+//     title: g.title,
+//     description: g.description,
+//     related_strategic_theme: g.related_strategic_theme,
+//     priority: g.priority,
+//     resource_readiness: g.resource_readiness,
+//     assigned_functions: g.assigned_functions,
+//     duration: g.duration,
+//     esg_issues: g.esg_issues,
+//     new_capabilities_needed: g.new_capabilities_needed,
+//     existing_capabilities_to_enhance: g.existing_capabilities_to_enhance,
+//     impact_ratings: cleanImpactRatings
+//   };
+
+//   return { ...businessGoalForAi };
+// });
+
+
+//   // Clean challenges
+//   const challenges = aichallengeDataFind?.challenge.map(ch => {
+//     const c = ch as any;
+//     const { _id, createdAt, updatedAt, ...rest } = c;
+//     return rest;
+//   });
+
+
+//   const allData = {
+//     strategic_themes,
+//     goals,
+//     challenges,
+//     vision: visionData?.vision,
+//   };
+
+
+
+//   console.log(JSON.stringify(allData,null,2))
+//   const apiUrls = `${config.ai_base_url}/business-goal/analyze2`;
+//   const responses = await axios.post(apiUrls, allData, {
+//     headers: { "Content-Type": "application/json" },
+//   });
+
+//   return responses.data;
+// };
 
 const createBusinessGoalAi = async (companyName: string) => {
   if (!companyName) throw new AppError(status.BAD_REQUEST, "company name is not found !");
@@ -189,7 +299,11 @@ const createBusinessGoalAi = async (companyName: string) => {
     { companyName },
     { companyName: 0, _id: 0, __v: 0 }
   ).lean();
+
   const visionData = await BlueprintModel.findOne(query).lean();
+
+  // choreograph data আনো
+  const choreographData = await choreographModel.findOne(query).lean();
 
   // Clean strategic_themes
   const strategic_themes = themesData?.strategicThemes.map(theme => {
@@ -199,49 +313,40 @@ const createBusinessGoalAi = async (companyName: string) => {
   });
 
   // Clean goals and nested impact_ratings
-  // const goals = business?.businessGoals.map(goal => {
-  //   const g = goal as any;
-  //   const { _id, createdAt, updatedAt, impact_ratings, ...rest } = g;
-
-  //   let cleanImpactRatings = undefined;
-  //   if (impact_ratings) {
-  //     const ir = impact_ratings as any;
-  //     const { _id: irId, createdAt: irCreatedAt, updatedAt: irUpdatedAt, ...otherRatings } = ir;
-  //     cleanImpactRatings = otherRatings;
-  //   }
-
-  //   return { ...rest, impact_ratings: cleanImpactRatings };
-  // });
-
-
   const goals = business?.businessGoals.map(goal => {
-  const g = goal as any;
-  const { impact_ratings } = g;
+    const g = goal as any;
+    const { impact_ratings } = g;
 
-  let cleanImpactRatings = undefined;
-  if (impact_ratings) {
-    const ir = impact_ratings as any;
-    const { _id: irId, createdAt: irCreatedAt, updatedAt: irUpdatedAt, ...otherRatings } = ir;
-    cleanImpactRatings = otherRatings;
-  }
- 
-  const businessGoalForAi = {
-    title: g.title,
-    description: g.description,
-    related_strategic_theme: g.related_strategic_theme,
-    priority: g.priority,
-    resource_readiness: g.resource_readiness,
-    assigned_functions: g.assigned_functions,
-    duration: g.duration,
-    esg_issues: g.esg_issues,
-    new_capabilities_needed: g.new_capabilities_needed,
-    existing_capabilities_to_enhance: g.existing_capabilities_to_enhance,
-    impact_ratings: cleanImpactRatings
-  };
+    let cleanImpactRatings = undefined;
+    if (impact_ratings) {
+      const ir = impact_ratings as any;
+      const { _id: irId, createdAt: irCreatedAt, updatedAt: irUpdatedAt, ...otherRatings } = ir;
+      cleanImpactRatings = otherRatings;
+    }
 
-  return { ...businessGoalForAi };
+    // assigned_functions এ theme name যোগ করা
+const assignedFunctionsWithName = (g.assigned_functions || []).map((funcId: string) => {
+  const matchedTeam = choreographData?.teams?.find(team => String(team._id) === String(funcId));
+  return matchedTeam ? matchedTeam.teamName : null;
 });
 
+
+    const businessGoalForAi = {
+      title: g.title,
+      description: g.description,
+      related_strategic_theme: g.related_strategic_theme,
+      priority: g.priority,
+      resource_readiness: g.resource_readiness,
+      assigned_functions: assignedFunctionsWithName,
+      duration: g.duration,
+      esg_issues: g.esg_issues,
+      new_capabilities_needed: g.new_capabilities_needed,
+      existing_capabilities_to_enhance: g.existing_capabilities_to_enhance,
+      impact_ratings: cleanImpactRatings
+    };
+
+    return { ...businessGoalForAi };
+  });
 
   // Clean challenges
   const challenges = aichallengeDataFind?.challenge.map(ch => {
@@ -249,7 +354,7 @@ const createBusinessGoalAi = async (companyName: string) => {
     const { _id, createdAt, updatedAt, ...rest } = c;
     return rest;
   });
-
+  // console.log(challenges)
 
   const allData = {
     strategic_themes,
@@ -258,9 +363,8 @@ const createBusinessGoalAi = async (companyName: string) => {
     vision: visionData?.vision,
   };
 
+  console.log(JSON.stringify(allData, null, 2));
 
-
-  console.log(JSON.stringify(allData,null,2))
   const apiUrls = `${config.ai_base_url}/business-goal/analyze2`;
   const responses = await axios.post(apiUrls, allData, {
     headers: { "Content-Type": "application/json" },
@@ -268,7 +372,6 @@ const createBusinessGoalAi = async (companyName: string) => {
 
   return responses.data;
 };
-
 
 
 
@@ -347,5 +450,6 @@ export const aiRespnonseServices = {
   createBusinessGoalAi,
   createVisionAI,
   createSwotAiData,
-  getDifferentCapability
+  getDifferentCapability,
+  getThemesAiData
 };

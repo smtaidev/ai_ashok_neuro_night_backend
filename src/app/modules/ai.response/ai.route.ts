@@ -9,6 +9,7 @@ route.get("/get-swot",auth("companyAdmin","companyEmployee"),aiRespnonseContllor
 route.get("/get-challenge",auth("companyAdmin","companyEmployee"),aiRespnonseContllors.challengerecommendations)
 route.get("/challenge-rixScore",auth("companyAdmin","companyEmployee"),aiRespnonseContllors.challengeRixScore)
 route.post("/create-themes",auth("companyAdmin","companyEmployee"),aiRespnonseContllors.createThemesAi)
+route.get("/get-themes",auth("companyAdmin","companyEmployee"),aiRespnonseContllors.getThemesAiData)
 route.post("/create-business-goal",auth("companyAdmin","companyEmployee"),aiRespnonseContllors.createBusinessGoalAi)
 route.get("/create-vision",auth("companyAdmin","companyEmployee"),aiRespnonseContllors.createVision)
 route.post('/create-swot',auth('companyAdmin',"companyEmployee"),aiRespnonseContllors.createSwotAiData)

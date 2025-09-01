@@ -4,7 +4,7 @@ import auth from '../../middlewares/auth'
 
 const router=express.Router()
 router.post('/',auth("companyAdmin","superAdmin"),finalcialTrackerContllors.createfinalcialTrackerIntDb)
-router.get('/:id',auth("companyAdmin","superAdmin","companyEmployee"),finalcialTrackerContllors.getfinalcialTrackerIntDb)
+router.get('/',auth("companyAdmin","superAdmin","companyEmployee"),finalcialTrackerContllors.getfinalcialTrackerIntDb)
 router.patch('/:id',auth("companyAdmin","superAdmin","companyEmployee"),finalcialTrackerContllors.updatedfinalcialTrackerIntDb)
 router.delete('/:id',auth("companyAdmin","superAdmin"),finalcialTrackerContllors.updatedfinalcialTrackerIntDb)
 

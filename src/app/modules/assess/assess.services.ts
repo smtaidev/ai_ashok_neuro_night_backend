@@ -860,18 +860,28 @@ const updateChallengeAiDataInDb = async (
     { companyName: 0, _id: 0, summary: 0, error: 0, __v: 0 }
   ).lean();
 
-  const swotData = await AnalysisModel.findOne(
+  const swotData = await AssessModel.findOne(
     { companyName },
     { companyName: 0, _id: 0, scores: 0, error: 0, __v: 0 }
-  ).lean();
+  ).lean() as any
 
-  const swot = swotData?.recommendations;
+  const swotRawArray = swotData?.swot ;  // eta array hole
+const swotObj = Array.isArray(swotRawArray) ? swotRawArray[0] : swotRawArray;
+
+const swot = {
+  strengths: swotObj?.strengths?.map((item: any) => item.details) || [],
+  weaknesses: swotObj?.weaknesses?.map((item: any) => item.details) || [],
+  opportunities: swotObj?.opportunities?.map((item: any) => item.details) || [],
+  threats: swotObj?.threats?.map((item: any) => item.details) || [],
+};
+
   const aichallenge = { challenge: updatedPayload };
   const allData = {
     trends,
     ...aichallenge,
     swot,
   };
+  console.log(allData)
 
   const apiUrl = `${config.ai_base_url}/challenge/evaluate`;
 
@@ -908,12 +918,13 @@ const updateChallengeAiDataInDb = async (
   ).lean();
 
   const challenges = aichallengeDataFind?.challenge;
-  console.log(challenges);
+
   const aiAllData = {
     trends,
     challenges,
     swot,
   };
+console.log(aiAllData)
 
   const apiUrls = `${config.ai_base_url}/challenge/recommendations`;
 

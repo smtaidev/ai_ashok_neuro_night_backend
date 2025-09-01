@@ -14,9 +14,8 @@ const result=await finalcialTrackerServices.createfinalcialTracker(companyName,r
 })
 
 const getfinalcialTrackerIntDb=catchAsync(async(req,res)=>{
-    const {id}=req.params
- 
-const result=await finalcialTrackerServices.getAllfinalcialTracker(id)
+    const {companyName}=req.user
+const result=await finalcialTrackerServices.getAllfinalcialTracker(companyName)
  sendResponse(res, {
     statusCode: 200,
     success: true,

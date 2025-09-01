@@ -255,6 +255,7 @@ const response = {
 ...data,
 companyName
   }
+  console.log(difrentData)
   const capability = await DifferentiatingModel.findOneAndUpdate(
     query,
     difrentData,
