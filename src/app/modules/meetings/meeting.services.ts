@@ -106,62 +106,62 @@ const getUpcomingMeetingsFromDb = async (companyName: string) => {
 };
 
 
-// const getUpcomingLatestTwoMeetingsFromDb = async (companyName: string) => {
-//   if (!companyName) {
-//     throw new AppError(status.BAD_REQUEST, "Company name is required!");
-//   }
-
-//   // আজকের date, time ignore করে
-//   const today = new Date();
-//   today.setHours(0, 0, 0, 0); // শুধু date, time 00:00:00
-
-//   const query = {
-//     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
-//     meetingDate: { $gte: today } // আজ এবং পরের দিনগুলো
-//   };
-
-//   const result = await Meeting.find(query)
-//     .sort({ meetingDate: 1 }) // সবচেয়ে কাছের মিটিং আগে
-//     .limit(2) // শুধু ২টা
-//     .populate("agendaId"); // agendaId এর ডেটা নিয়ে আসে
-
-//     console.log
-//   return result;
-// };
-
-const getUpcomingLatestTwoMeetingsFromDb = async (companyName: string, presenterId: string) => {
+const getUpcomingLatestTwoMeetingsFromDb = async (companyName: string) => {
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "Company name is required!");
   }
-  if (!presenterId) {
-    throw new AppError(status.BAD_REQUEST, "Presenter ID is required!");
-  }
 
+  // আজকের date, time ignore করে
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0); // শুধু date, time 00:00:00
 
   const query = {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
-    meetingDate: { $gte: today }
+    meetingDate: { $gte: today } // আজ এবং পরের দিনগুলো
   };
 
-  let meetings = await Meeting.find(query)
-    .sort({ meetingDate: 1 })
-    .limit(2)
-    .populate("agendaId")
-    .lean() as any[]; // <-- any দিয়ে TypeScript চেক বাদ দিলাম
+  const result = await Meeting.find(query)
+    .sort({ meetingDate: 1 }) // সবচেয়ে কাছের মিটিং আগে
+    .limit(2) // শুধু ২টা
+    .populate("agendaId"); // agendaId এর ডেটা নিয়ে আসে
 
-  // Filter meetings where agendaItems.presenter contains presenterId
-  meetings = meetings.filter(meeting => {
-    if (!meeting.agendaId || !meeting.agendaId.agendaItems) return false;
-
-    return meeting.agendaId.agendaItems.some((item: any) =>
-      item.presenter.some((id: any) => String(id) === String(presenterId))
-    );
-  });
-
-  return meetings;
+    console.log
+  return result;
 };
+
+// const getUpcomingLatestTwoMeetingsFromDb = async (companyName: string, presenterId: string) => {
+//   if (!companyName) {
+//     throw new AppError(status.BAD_REQUEST, "Company name is required!");
+//   }
+//   if (!presenterId) {
+//     throw new AppError(status.BAD_REQUEST, "Presenter ID is required!");
+//   }
+
+//   const today = new Date();
+//   today.setHours(0, 0, 0, 0);
+
+//   const query = {
+//     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+//     meetingDate: { $gte: today }
+//   };
+
+//   let meetings = await Meeting.find(query)
+//     .sort({ meetingDate: 1 })
+//     .limit(2)
+//     .populate("agendaId")
+//     .lean() as any[]; // <-- any দিয়ে TypeScript চেক বাদ দিলাম
+
+//   // Filter meetings where agendaItems.presenter contains presenterId
+//   meetings = meetings.filter(meeting => {
+//     if (!meeting.agendaId || !meeting.agendaId.agendaItems) return false;
+
+//     return meeting.agendaId.agendaItems.some((item: any) =>
+//       item.presenter.some((id: any) => String(id) === String(presenterId))
+//     );
+//   });
+
+//   return meetings;
+// };
 const getPastMeetingsFromDb = async (companyName: string) => {
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "Company name is required!");
@@ -177,61 +177,61 @@ const getPastMeetingsFromDb = async (companyName: string) => {
   const result = await Meeting.find(query).sort({ endDate: -1 }).populate("agendaId"); // latest finished first
   return result;
 };
-// const getPastTWoMeetingsFromDb= async (companyName: string) => {
-//   if (!companyName) {
-//     throw new AppError(status.BAD_REQUEST, "Company name is required!");
-//   }
-
-//   const now = new Date(); // এখনকার সময়
-
-//   const query = {
-//     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
-//     endDate: { $lt: now } // শেষ হয়ে গেছে
-//   };
-
-//   const result = await Meeting.find(query)
-//     .sort({ endDate: -1 }).populate("agendaId")// সর্বশেষ শেষ হওয়া আগে
-//     .limit(2); // শুধু ২টা
-//   return result;
-// };
-
-// const actionItemAssignToMe=async(userId:IdleDeadline, payload)=>{
-
-
-// }
-const getPastTWoMeetingsFromDb = async (companyName: string, presenterId: string) => {
+const getPastTWoMeetingsFromDb= async (companyName: string) => {
   if (!companyName) {
     throw new AppError(status.BAD_REQUEST, "Company name is required!");
   }
-  if (!presenterId) {
-    throw new AppError(status.BAD_REQUEST, "Presenter ID is required!");
-  }
 
-  const now = new Date();
+  const now = new Date(); // এখনকার সময়
 
   const query = {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
     endDate: { $lt: now } // শেষ হয়ে গেছে
   };
 
-  let meetings = await Meeting.find(query)
-    .sort({ endDate: -1 }) // সর্বশেষ শেষ হওয়া আগে
-    .limit(10) // প্রাথমিকভাবে বেশি নিয়ে আসি, পরে filter করবে
-    .populate("agendaId")
-    .lean() as any[];
-
-  // Filter meetings where agendaItems.presenter contains presenterId
-  meetings = meetings.filter(meeting => {
-    if (!meeting.agendaId || !meeting.agendaId.agendaItems) return false;
-
-    return meeting.agendaId.agendaItems.some((item: any) =>
-      item.presenter.some((id: any) => String(id) === String(presenterId))
-    );
-  });
-
-  // শেষ পর্যন্ত 2টা ফিরিয়ে দাও
-  return meetings.slice(0, 2);
+  const result = await Meeting.find(query)
+    .sort({ endDate: -1 }).populate("agendaId")// সর্বশেষ শেষ হওয়া আগে
+    .limit(2); // শুধু ২টা
+  return result;
 };
+
+// const actionItemAssignToMe=async(userId:IdleDeadline, payload)=>{
+
+
+// // }
+// const getPastTWoMeetingsFromDb = async (companyName: string, presenterId: string) => {
+//   if (!companyName) {
+//     throw new AppError(status.BAD_REQUEST, "Company name is required!");
+//   }
+//   if (!presenterId) {
+//     throw new AppError(status.BAD_REQUEST, "Presenter ID is required!");
+//   }
+
+//   const now = new Date();
+
+//   const query = {
+//     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+//     endDate: { $lt: now } // শেষ হয়ে গেছে
+//   };
+
+//   let meetings = await Meeting.find(query)
+//     .sort({ endDate: -1 }) // সর্বশেষ শেষ হওয়া আগে
+//     .limit(10) // প্রাথমিকভাবে বেশি নিয়ে আসি, পরে filter করবে
+//     .populate("agendaId")
+//     .lean() as any[];
+
+//   // Filter meetings where agendaItems.presenter contains presenterId
+//   meetings = meetings.filter(meeting => {
+//     if (!meeting.agendaId || !meeting.agendaId.agendaItems) return false;
+
+//     return meeting.agendaId.agendaItems.some((item: any) =>
+//       item.presenter.some((id: any) => String(id) === String(presenterId))
+//     );
+//   });
+
+//   // শেষ পর্যন্ত 2টা ফিরিয়ে দাও
+//   return meetings.slice(0, 2);
+// };
 
 export const meetingsServices={
     createMeetingIntoDb,

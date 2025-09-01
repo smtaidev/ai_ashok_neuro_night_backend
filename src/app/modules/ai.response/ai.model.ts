@@ -30,28 +30,28 @@ const AiTrendSchema = new mongoose.Schema({
 
 export const AiTrendModel = model("AiTrends", AiTrendSchema);
 
-const scoreItemSchema = new Schema(
-  {
-    value: { type: Number, required: false },
-    rationale: { type: String, required: false },
-  },
-  { _id: false }
-);
+const scoreItemSchema = new Schema({
+  percentage: { type: Number, required: true },
+});
 
+// main analysis schema
 const analysisSchema = new Schema({
   companyName: { type: String, required: true },
+
   scores: {
     strengths: { type: scoreItemSchema, required: false },
     weaknesses: { type: scoreItemSchema, required: false },
     opportunities: { type: scoreItemSchema, required: false },
     threats: { type: scoreItemSchema, required: false },
   },
+
   recommendations: {
-    strengths: { type: [String], default: null },
-    weaknesses: { type: [String], default: null },
-    opportunities: { type: [String], default: null },
-    threats: { type: [String], default: null },
+    strengths: { type: [String], default: [] },
+    weaknesses: { type: [String], default: [] },
+    opportunities: { type: [String], default: [] },
+    threats: { type: [String], default: [] },
   },
+
   error: { type: String, default: null },
 });
 
@@ -153,3 +153,12 @@ const VisionAssessmentSchema = new mongoose.Schema(
 );
 
 export const  VisionAssessmentModel = mongoose.model("VisionAssessment", VisionAssessmentSchema);
+
+const differentiatingSchema = new Schema({
+  companyName:{ type: String, required: true },
+  capability: { type: String, required: true }, // original capability text
+  summary: { type: String, required: true },
+  differentiating_factors: { type: [String], default: [] }
+}, { timestamps: true });
+
+export const DifferentiatingModel = mongoose.model("Differentiating-capability", differentiatingSchema);

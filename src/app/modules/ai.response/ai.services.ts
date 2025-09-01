@@ -4,6 +4,7 @@ import {
   AiRecommendModel,
   AiTrendModel,
   AnalysisModel,
+  DifferentiatingModel,
   RiskModel,
   VisionAssessmentModel,
 } from "./ai.model";
@@ -70,12 +71,14 @@ const createThemesAiData = async (companyName: string) => {
     companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
   };
   const themesData = await BlueprintModel.findOne(query);
-  const themes = themesData?.strategicThemes;
+ const themes = themesData?.strategicThemes?.map(({ name, description }) => ({
+  name,
+  description
+}));
 
   const foundation = await FoundationModel.findOne(query).lean();
 
   const assessData = await AssessModel.findOne(query).lean();
-
   const competitors = assessData?.competitorAnalysis
     .map(({ name, description }) => ({ name, description })) // শুধু প্রয়োজনীয় fields
     .filter((item) => item.name && item.description) // null filter
@@ -96,6 +99,23 @@ const createThemesAiData = async (companyName: string) => {
           (t) => t.capability === item.capability && t.type === item.type
         ) // duplicate remove
     );
+
+
+    const challengeData=await RiskModel.find(query) as any
+ const formattedChallenges = challengeData?.[0]?.challenge?.map((item:any) => ({
+  title: item.title,
+  category: item.category,
+  impact_on_business: item.impact_on_business
+    ? item.impact_on_business.charAt(0).toUpperCase() + item.impact_on_business.slice(1).toLowerCase()
+    : "",
+  ability_to_address: item.ability_to_address
+    ? item.ability_to_address.charAt(0).toUpperCase() + item.ability_to_address.slice(1).toLowerCase()
+    : "",
+  description: item.description,
+  risk_score: item.risk_score
+})) || [];
+
+
   const context = {
     mission: foundation?.identity?.mission,
     value: foundation?.identity?.value,
@@ -104,14 +124,21 @@ const createThemesAiData = async (companyName: string) => {
     value_proposition: foundation?.zeroIn?.valueProposition,
     capabilities,
     competitors,
+    challenges: formattedChallenges
   };
   const allData = {
     themes: themes,
     context,
   };
 
- console.log(JSON.stringify(allData, null, 2));
+  console.log(JSON.stringify(allData,null,2))
 
+
+
+
+  try {
+    
+    
   const apiUrls = `${config.ai_base_url}/strategic-theme2/combined-analysis`;
 
   const responses = await axios.post(apiUrls, allData, {
@@ -121,29 +148,33 @@ const createThemesAiData = async (companyName: string) => {
   });
 
   const themesAiData = responses.data;
-  console.log(themesAiData);
+    console.log(themesAiData);
+      return themesAiData
+  } catch (error:any) {
+    throw new AppError(status.BAD_REQUEST,error?.message)
+  }
   // --------------------- this si differentiation analyze services -----------------------------------------------
 
-  const payload = {
-    capabilities: foundation?.differentiatingCapabilities || [],
-  };
+  // const payload = {
+  //   capabilities: foundation?.differentiatingCapabilities || [],
+  // };
 
-  const apiUrl = `${config.ai_base_url}/differentiation/analyze`;
+  // const apiUrl = `${config.ai_base_url}/differentiation/analyze`;
 
-  const response = await axios.post(apiUrl, payload, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  // const response = await axios.post(apiUrl, payload, {
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  // });
 
-  console.log(response.data);
+  // console.log(response.data);
 
-  const difrentcapabilites = response.data;
+  // const difrentcapabilites = response.data;
 
   // const result=await AiRecommendModel.findOne(query)
 
   // console.log(result)
-  return {themesAiData,difrentcapabilites,}
+
 };
 
 
@@ -291,6 +322,22 @@ const createSwotAiData=async(companyName:string)=>{
 
 return response.data
 }
+
+const getDifferentCapability=async(companyName:string
+)=>{
+
+    if (!companyName) {
+      throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+    }
+  
+  const query = { companyName: { $regex: new RegExp(`^${companyName}$`, "i") } };
+
+
+const getCapability=await DifferentiatingModel.findOne(query)
+
+return getCapability
+}
+
 export const aiRespnonseServices = {
   getAllTrendsAiData,
   getAllSowtAiData,
@@ -299,5 +346,6 @@ export const aiRespnonseServices = {
   createThemesAiData,
   createBusinessGoalAi,
   createVisionAI,
-  createSwotAiData
+  createSwotAiData,
+  getDifferentCapability
 };

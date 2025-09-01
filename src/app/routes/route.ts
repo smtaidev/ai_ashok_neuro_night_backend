@@ -24,6 +24,7 @@ import { companyRoute } from "../modules/company/company.route";
 import { CompetitorAnalysisRoute } from "../modules/assess/competior/controllers";
 import { competitorRoute } from "../modules/assess/competior/competitors.route/competitors.route";
 import { companyInfoRote } from "../modules/company-info/company-info.route";
+import { assessCompetiorRouter } from "../modules/assess/competior/competior.route";
 
 const router = express.Router()
 
@@ -59,7 +60,8 @@ const moduleRoutes = [
   },
   {
     path: "/competitors",
-    route:CompetitorAnalysisRoute
+    // route:CompetitorAnalysisRoute
+    route:assessCompetiorRouter
   },
   {
     path: "/create-swot",

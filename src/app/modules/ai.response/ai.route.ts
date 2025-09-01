@@ -12,5 +12,6 @@ route.post("/create-themes",auth("companyAdmin","companyEmployee"),aiRespnonseCo
 route.post("/create-business-goal",auth("companyAdmin","companyEmployee"),aiRespnonseContllors.createBusinessGoalAi)
 route.get("/create-vision",auth("companyAdmin","companyEmployee"),aiRespnonseContllors.createVision)
 route.post('/create-swot',auth('companyAdmin',"companyEmployee"),aiRespnonseContllors.createSwotAiData)
+route.get('/get-different-capability',auth('companyAdmin',"companyEmployee"),aiRespnonseContllors.getDifferentCapability)
 
 export const aiRespnonseRoute=route

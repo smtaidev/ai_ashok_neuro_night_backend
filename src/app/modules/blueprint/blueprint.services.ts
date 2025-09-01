@@ -8,6 +8,7 @@ import mongoose from "mongoose";
 import config from "../../../config";
 import axios from "axios";
 import { VisionAssessmentModel } from "../ai.response/ai.model";
+import AssessModel from "../assess/assess.model";
 
 const createVision = async (companyName: string, payload: Partial<Blueprint>) => {
   if (!companyName) {
@@ -89,7 +90,59 @@ const createstategicTheme = async (companyName: string, payload: Partial<Busines
     { $push: { strategicThemes:payload } },
     { new: true, upsert: true } 
   );
+  const themesData = await BlueprintModel.findOne(query);
+  const themes = themesData?.strategicThemes;
 
+  const foundation = await FoundationModel.findOne(query).lean();
+
+  const assessData = await AssessModel.findOne(query).lean();
+
+  const competitors = assessData?.competitorAnalysis
+    .map(({ name, description }) => ({ name, description })) // শুধু প্রয়োজনীয় fields
+    .filter((item) => item.name && item.description) // null filter
+    .filter(
+      (item, index, self) =>
+        index ===
+        self.findIndex(
+          (t) => t.name === item.name && t.description === item.description
+        ) // duplicate remove
+    );
+  const capabilities = foundation?.capabilitys
+    .map(({ capability, type }) => ({ capability, type })) // শুধু প্রয়োজনীয় fields
+    .filter((item) => item.capability && item.type) // null filter
+    .filter(
+      (item, index, self) =>
+        index ===
+        self.findIndex(
+          (t) => t.capability === item.capability && t.type === item.type
+        ) // duplicate remove
+    );
+  const context = {
+    mission: foundation?.identity?.mission,
+    value: foundation?.identity?.value,
+    purpose: foundation?.identity?.value,
+    customers: foundation?.zeroIn?.targetCustomer,
+    value_proposition: foundation?.zeroIn?.valueProposition,
+    capabilities,
+    competitors,
+  };
+  const allData = {
+    themes: themes,
+    context,
+  };
+
+ console.log(JSON.stringify(allData, null, 2));
+
+  const apiUrls = `${config.ai_base_url}/strategic-theme2/combined-analysis`;
+
+  const responses = await axios.post(apiUrls, allData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const themesAiData = responses.data;
+  console.log(themesAiData);
   
 
   return result;

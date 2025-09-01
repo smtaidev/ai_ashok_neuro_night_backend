@@ -67,7 +67,7 @@ const createChatBotIntoDb = async (userId: string, payload: Payload) => {
 
   // 5. Call external chatbot API
   const apiResponse = await axios.post(
-    "http://172.252.13.69:8026/api/chatbot/chatbot",
+    `${process.env.AI_URL}/api/chatbot/chatbot`,
     apiPayload
   );
 

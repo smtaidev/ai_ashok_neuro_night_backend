@@ -5,6 +5,9 @@ import status from "http-status";
 import { FoundationModel } from "./foundation.model";
 import UserModel from "../user/user.model";
 import { id } from "zod/v4/locales/index.cjs";
+import config from "../../../config";
+import axios from "axios";
+import { DifferentiatingModel } from "../ai.response/ai.model";
 
 const createFoundation = async (data: IFoundation): Promise<IFoundation> => {
   console.log(data);
@@ -229,6 +232,36 @@ const createcapabilitys = async (
     );
   }
 
+
+const capabilityData = await FoundationModel.findOne(query);
+
+const differentiatingCapabilities = capabilityData?.capabilitys
+  .filter(item => (item?.type as any)?.toLowerCase() === "differentiating")
+  .map(item => item.capability);
+
+const response = {
+  capabilities: differentiatingCapabilities
+};
+
+ const apiUrls = `${config.ai_base_url}/differentiation/analyze`;
+
+  const {data} = await axios.post(apiUrls, response, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const difrentData={
+...data,
+companyName
+  }
+  const capability = await DifferentiatingModel.findOneAndUpdate(
+    query,
+    difrentData,
+    { upsert: true, new: true }
+  );
+  
+ console.log(capability)
   return result;
 };
 
@@ -259,6 +292,9 @@ const updateCapabilityById = async (
 ) => {
   if (!companyName)
     throw new AppError(status.BAD_REQUEST, "Company name is not found!");
+  const query = {
+    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
+  };
 
   const updateData: any = {};
   if (payload.capability !== undefined)
@@ -277,6 +313,37 @@ const updateCapabilityById = async (
 
   if (!result)
     throw new AppError(status.NOT_FOUND, "Capability not found to update!");
+
+
+  const capabilityData = await FoundationModel.findOne(query);
+
+const differentiatingCapabilities = capabilityData?.capabilitys
+  .filter(item => (item?.type as any)?.toLowerCase() === "differentiating")
+  .map(item => item.capability);
+
+const response = {
+  capabilities: differentiatingCapabilities
+};
+
+ const apiUrls = `${config.ai_base_url}/differentiation/analyze`;
+
+  const {data} = await axios.post(apiUrls, response, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const difrentData={
+...data,
+companyName
+  }
+  const capability = await DifferentiatingModel.findOneAndUpdate(
+    query,
+    difrentData,
+    { upsert: true, new: true }
+  );
+  
+ console.log(capability)
 
   return result;
 };

@@ -6,12 +6,13 @@ import AssessAlignmentCheckModel from "./alignmentCheck.model";
 import UserModel from "../user/user.model";
 import { AssessAlignmentCheck } from "./alignmentCheck.interface";
 import notificationModel from "../notification/notification.model";
+import { organizationUserModels } from "../organization-role/organization-role.model";
 const createalignmentCheck = async (companyName:string,userId:string,payload:AssessAlignmentCheck) => {
 if (!payload) {
     throw new AppError(status.BAD_REQUEST, "payload  is  required");
   }
 
-  const isEexist=await UserModel.findOne({companyName:payload?.companyName})
+  const isEexist=await organizationUserModels.findOne({companyName:companyName})|| await UserModel.findOne({companyName:companyName})
   if(!isEexist){
     throw new AppError(status.BAD_REQUEST, "company Name id is not found");
   }
@@ -43,7 +44,7 @@ const myAlignmentCheck=async(userId:string)=>{
     throw new AppError(status.BAD_REQUEST, "company Name id is not found");
   }
 
-  const result = await AssessAlignmentCheckModel.find({ userId});
+  const result = await AssessAlignmentCheckModel.find({ userId})||  UserModel.find({ userId});
   return result;
 }
 const updatealignmentCheck = async (

@@ -97,7 +97,20 @@ const createSwotAiData=catchAsync(async(req,res)=>{
     sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "swot ai data  successfully created",
+    message: "swot ai data  successfully get",
+    data:result
+  });
+
+})
+const getDifferentCapability=catchAsync(async(req,res)=>{
+    const company=req.user
+
+    const result=await aiRespnonseServices.getDifferentCapability(company?.companyName)
+   
+    sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "different capability ai data  successfully get",
     data:result
   });
 
@@ -112,6 +125,7 @@ export const aiRespnonseContllors={
   challengeRixScore,
   createThemesAi,
   createBusinessGoalAi,
-  createVision,createSwotAiData
+  createVision,createSwotAiData,
+  getDifferentCapability
 
 }

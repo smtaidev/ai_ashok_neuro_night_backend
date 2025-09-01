@@ -479,7 +479,48 @@ const createSwotSingleIntoDb = async (companyName: string, payload: any) => {
     throw new AppError(status.NOT_FOUND, "Company not found");
   }
 
-  return result;
+  const rawData = await AssessModel.findOne(query, { swot: 1, _id: 0 });
+  const cleanResponse = {
+      strengths:
+        rawData?.swot?.[0]?.strengths?.map((s: any) => s.details) || [],
+      weaknesses:
+        rawData?.swot?.[0]?.weaknesses?.map((w: any) => w.details) || [],
+      opportunities:
+        rawData?.swot?.[0]?.opportunities?.map((o: any) => o.details) || [],
+      threats: rawData?.swot?.[0]?.threats?.map((t: any) => t.details) || [],
+  }
+
+  const apiUrl = `${config.ai_base_url}/swot/analysis`;
+
+  const {data} = await axios.post(apiUrl, cleanResponse, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+const formattedData = {
+  companyName: companyName,
+  scores: {
+    strengths: { percentage: data.scores.strengths_percentage },
+    weaknesses: { percentage: data.scores.weaknesses_percentage },
+    opportunities: { percentage: data.scores.opportunities_percentage },
+    threats: { percentage: data.scores.threats_percentage },
+  },
+  recommendations: {
+    strengths: data.recommendations.strengths_recommendation.split('\n'),
+    weaknesses: data.recommendations.weaknesses_recommendation.split('\n'),
+    opportunities: data.recommendations.opportunities_recommendation.split('\n'),
+    threats: data.recommendations.threats_recommendation.split('\n'),
+  },
+};
+
+const swotData = await AnalysisModel.findOneAndUpdate(
+query,
+  formattedData,
+  { upsert: true, new: true }
+);
+
+  return swotData
 };
 
 const getAllSwotByCompany = async (companyName: string) => {
@@ -532,6 +573,49 @@ const updateSwotInDb = async (
   const result = await AssessModel.findOneAndUpdate(query, updateQuery, options);
 
   if (!result) throw new AppError(status.NOT_FOUND, "Company or SWOT item not found");
+
+
+ const rawData = await AssessModel.findOne(query, { swot: 1, _id: 0 });
+  const cleanResponse = {
+      strengths:
+        rawData?.swot?.[0]?.strengths?.map((s: any) => s.details) || [],
+      weaknesses:
+        rawData?.swot?.[0]?.weaknesses?.map((w: any) => w.details) || [],
+      opportunities:
+        rawData?.swot?.[0]?.opportunities?.map((o: any) => o.details) || [],
+      threats: rawData?.swot?.[0]?.threats?.map((t: any) => t.details) || [],
+  }
+
+  const apiUrl = `${config.ai_base_url}/swot/analysis`;
+
+  const {data} = await axios.post(apiUrl, cleanResponse, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+const formattedData = {
+  companyName: companyName,
+  scores: {
+    strengths: { percentage: data.scores.strengths_percentage },
+    weaknesses: { percentage: data.scores.weaknesses_percentage },
+    opportunities: { percentage: data.scores.opportunities_percentage },
+    threats: { percentage: data.scores.threats_percentage },
+  },
+  recommendations: {
+    strengths: data.recommendations.strengths_recommendation.split('\n'),
+    weaknesses: data.recommendations.weaknesses_recommendation.split('\n'),
+    opportunities: data.recommendations.opportunities_recommendation.split('\n'),
+    threats: data.recommendations.threats_recommendation.split('\n'),
+  },
+};
+
+const swotData = await AnalysisModel.findOneAndUpdate(
+query,
+  formattedData,
+  { upsert: true, new: true }
+);
+
 
   return result;
 };
@@ -608,7 +692,8 @@ const deleteSwotFromDb = async (companyName: string, detailId: string,payload: {
   // Check if company exists
   if (!result) {
     throw new AppError(status.NOT_FOUND, "Company not found");
-  }
+  } 
+  const deleteSwot=await AnalysisModel.deleteOne(query)
 
   return result;
 };
@@ -816,6 +901,46 @@ const updateChallengeAiDataInDb = async (
   if (!updatedChallenge) {
     throw new AppError(404, "Challenge not found for update");
   }
+
+    const aichallengeDataFind = await RiskModel.findOne(
+    { companyName: companyName },
+    { companyName: 0, _id: 0, __v: 0 }
+  ).lean();
+
+  const challenges = aichallengeDataFind?.challenge;
+  console.log(challenges);
+  const aiAllData = {
+    trends,
+    challenges,
+    swot,
+  };
+
+  const apiUrls = `${config.ai_base_url}/challenge/recommendations`;
+
+  const responses = await axios.post(apiUrls, aiAllData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const isEexistRecommendsations = await AiRecommendModel.findOne({
+    companyName: companyName,
+  });
+
+  if (!isEexistRecommendsations) {
+    const createRecommend = await AiRecommendModel.create({
+      companyName: companyName,
+    });
+  }
+
+  const MainResult = responses?.data?.recommendations;
+
+
+  const createMainRecommendsation = await AiRecommendModel.findOneAndUpdate(
+    query,
+    { $set: { recommendations: MainResult } }
+  );
+
 
   return updatedChallenge;
 };

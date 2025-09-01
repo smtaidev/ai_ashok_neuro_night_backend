@@ -1,11 +1,11 @@
 
-// import express from 'express'
-// import { AssessContllors } from '../assess.contllors'
-// import auth from '../../../middlewares/auth'
-// import { competitorControllers } from './competior.contllors';
+import express from 'express'
+import { AssessContllors } from '../assess.contllors'
+import auth from '../../../middlewares/auth'
 
 
-// const router=express.Router()
+
+const router=express.Router()
 
 // // ✅ Upsert Engagement
 // router.post("/upsert-engagement", auth("companyAdmin"), competitorControllers.upsertEngagementController);
@@ -19,12 +19,12 @@
 // // ✅ Get Net Sentiment Trend Slope
 // router.get("/net-sentiment-trend-slope", auth("companyAdmin"), competitorControllers.getNetSentimentTrendSlopeController);
 // //-------------competior route arey ---------------------------------------
-// router.get('/',auth('companyAdmin'),AssessContllors.createCompetitorAnalysisIntDb)
-// router.patch('/:id',auth('companyAdmin'),AssessContllors.updatCompetitorAnalysisIntDb)
-// router.patch('/:id',auth('companyAdmin'),AssessContllors.updatCompetitorAnalysisIntDb)
+router.post('/',auth('companyAdmin'),AssessContllors.createCompetitorAnalysisIntDb)
+router.patch('/:id',auth('companyAdmin'),AssessContllors.updatCompetitorAnalysisIntDb)
+router.patch('/:id',auth('companyAdmin'),AssessContllors.updatCompetitorAnalysisIntDb)
 
 
-// export const assessCompetiorRouter=router
+export const assessCompetiorRouter=router
 
 // router.get('/', competitorController.getCompanies.bind(competitorController));
 // router.post('/', competitorController.createCompany.bind(competitorController));
